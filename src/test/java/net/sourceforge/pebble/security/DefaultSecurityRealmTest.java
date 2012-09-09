@@ -32,17 +32,21 @@
 
 package net.sourceforge.pebble.security;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.domain.SingleBlogTestCase;
+
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.security.authentication.dao.ReflectionSaltSource;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
-
-import java.util.*;
 
 /**
  * Tests for the DefaultSecurityRealm class.
@@ -55,7 +59,8 @@ public class DefaultSecurityRealmTest extends SingleBlogTestCase {
   private PasswordEncoder passwordEncoder;
   private ReflectionSaltSource saltSource;
 
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
 
     realm = new DefaultSecurityRealm();
@@ -67,10 +72,11 @@ public class DefaultSecurityRealmTest extends SingleBlogTestCase {
     saltSource.setUserPropertyToUse("getUsername");
     realm.setSaltSource(saltSource);
 
-    realm.onApplicationEvent(new ContextRefreshedEvent(testApplicationContext));
+		realm.onApplicationEvent(new ContextRefreshedEvent(new StaticApplicationContext()));
   }
 
-  protected void tearDown() throws Exception {
+  @Override
+	protected void tearDown() throws Exception {
     super.tearDown();
 
     realm.removeUser("username");

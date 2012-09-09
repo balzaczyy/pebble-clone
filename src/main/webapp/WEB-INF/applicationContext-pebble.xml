@@ -44,14 +44,6 @@
 
   <bean id="lastModifiedService" class="net.sourceforge.pebble.service.DefaultLastModifiedService"/>
 
-  <bean id="httpController" class="net.sourceforge.pebble.web.controller.DefaultHttpController">
-    <property name="actionFactory" ref="actionFactory"/>
-  </bean>
-
-  <bean id="actionFactory" class="net.sourceforge.pebble.web.action.DefaultActionFactory">
-    <property name="actionMappingFileName" value="action.properties"/>
-  </bean>
-
   <bean id="secureHttpController" class="net.sourceforge.pebble.web.controller.DefaultHttpController">
     <property name="actionExtension" value=".secureaction"/>
     <property name="actionFactory" ref="secureActionFactory"/>

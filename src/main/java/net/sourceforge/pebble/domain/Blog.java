@@ -35,16 +35,30 @@ package net.sourceforge.pebble.domain;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Properties;
+import java.util.ServiceLoader;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import net.sourceforge.pebble.*;
+import net.sourceforge.pebble.BlogCompanion;
+import net.sourceforge.pebble.Configuration;
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.PebbleContext;
+import net.sourceforge.pebble.PluginProperties;
 import net.sourceforge.pebble.aggregator.NewsFeedCache;
 import net.sourceforge.pebble.aggregator.NewsFeedEntry;
 import net.sourceforge.pebble.api.confirmation.CommentConfirmationStrategy;
@@ -92,7 +106,11 @@ import net.sourceforge.pebble.util.StringUtils;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 
 /**
  * Represents a blog.
@@ -100,7 +118,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
  * @author    Simon Brown
  */
 public class Blog extends AbstractBlog {
-
+	private static final Logger LOG = LoggerFactory.getLogger(Blog.class);
   private static final Log log = LogFactory.getLog(Blog.class);
 
   public static final String ABOUT_KEY = "about";
@@ -182,9 +200,6 @@ public class Blog extends AbstractBlog {
 
   private EmailSubscriptionList emailSubscriptionList;
 
-  /** the ApplicationContext to instantiate plugins with */
-  private final AutowireCapableBeanFactory beanFactory;
-
   /** the Cache that can be used by services to cache arbitrary config */
   private final ConcurrentMap<String, Supplier<?>> serviceCache = new ConcurrentHashMap<String, Supplier<?>>();
 
@@ -195,8 +210,6 @@ public class Blog extends AbstractBlog {
    */
   public Blog(String root) {
     super(root);
-
-    beanFactory = PebbleContext.getInstance().getApplicationContext().getAutowireCapableBeanFactory();
 
     // probably Blog should be made a final class if init is called from here - 
     // see javadoc comment on AbstractBlog.init() for reasons
@@ -211,7 +224,8 @@ public class Blog extends AbstractBlog {
    * end of this method...
    */
 
-  protected void init() {
+  @Override
+	protected void init() {
     super.init();
 
     try {
@@ -467,7 +481,8 @@ public class Blog extends AbstractBlog {
    *
    * @return    a Properties instance
    */
-  protected Properties getDefaultProperties() {
+  @Override
+	protected Properties getDefaultProperties() {
     Properties defaultProperties = new Properties();
     defaultProperties.setProperty(NAME_KEY, "My blog");
     defaultProperties.setProperty(DESCRIPTION_KEY, "");
@@ -524,7 +539,8 @@ public class Blog extends AbstractBlog {
    *
    * @return  the ID as a String
    */
-  public String getId() {
+  @Override
+	public String getId() {
     return this.id;
   }
 
@@ -542,7 +558,8 @@ public class Blog extends AbstractBlog {
    *
    * @return  a URL as a String
    */
-  public String getUrl() {
+  @Override
+	public String getUrl() {
     Configuration config = PebbleContext.getInstance().getConfiguration();
     String url = config.getUrl();
 
@@ -564,7 +581,8 @@ public class Blog extends AbstractBlog {
    *
    * @return  a URL as a String
    */
-  public String getRelativeUrl() {
+  @Override
+	public String getRelativeUrl() {
     if (BlogManager.getInstance().isMultiBlog()) {
       return "/" + getId() + "/";
     } else {
@@ -1044,7 +1062,8 @@ public class Blog extends AbstractBlog {
    * @param numberOfEntries the number of entries to get
    * @return a List containing the most recent blog entries
    */
-  public List<BlogEntry> getRecentBlogEntries(int numberOfEntries) {
+  @Override
+	public List<BlogEntry> getRecentBlogEntries(int numberOfEntries) {
     BlogService service = new BlogService();
     List<String> blogEntryIds = blogEntryIndex.getBlogEntries();
     List<BlogEntry> blogEntries = new ArrayList<BlogEntry>();
@@ -1309,7 +1328,8 @@ public class Blog extends AbstractBlog {
    *
    * @return  a Date instance representing the time of the most recent entry
    */
-  public Date getLastModified() {
+  @Override
+	public Date getLastModified() {
     Date date = new Date(0);
     List blogEntries = getRecentPublishedBlogEntries(1);
     if (blogEntries.size() == 1) {
@@ -1536,7 +1556,8 @@ public class Blog extends AbstractBlog {
    *
    * @param request   the HttpServletRequest instance for this request
    */
-  public synchronized void log(HttpServletRequest request, int status) {
+  @Override
+	public synchronized void log(HttpServletRequest request, int status) {
     String externalUri = (String)request.getAttribute(Constants.EXTERNAL_URI);
     if (externalUri.matches("/images/.+")) {
       // do nothing, we don't want to log the following types of requests
@@ -1887,7 +1908,8 @@ public class Blog extends AbstractBlog {
    * @see #hashCode()
    * @see java.util.Hashtable
    */
-  public boolean equals(Object o) {
+  @Override
+	public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -2000,7 +2022,17 @@ public class Blog extends AbstractBlog {
     return strings;
   }
 
-  private <T> T instantiate(Class<T> clazz) {
-    return (T) beanFactory.autowire(clazz, AutowireCapableBeanFactory.AUTOWIRE_NO, false);
-  }
+	private <T> T instantiate(Class<T> clazz) {
+		try {
+			if (!clazz.isInterface())
+				return clazz.newInstance();
+			return ServiceLoader.load(clazz).iterator().next();
+		} catch (NoSuchElementException e) {
+			LOG.error("Unable to load service: {}", clazz);
+			throw e;
+		} catch (Exception e) {
+			LOG.error("Unable to load service: {}", clazz);
+			throw new IllegalStateException();
+		}
+	}
 }

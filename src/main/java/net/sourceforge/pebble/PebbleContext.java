@@ -31,17 +31,15 @@
  */
 package net.sourceforge.pebble;
 
-import net.sourceforge.pebble.security.SecurityRealm;
-import net.sourceforge.pebble.util.RelativeDate;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationContext;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
-import java.util.Map;
 import java.util.Properties;
+
+import net.sourceforge.pebble.util.RelativeDate;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * A bean representing the Pebble context.
@@ -54,7 +52,6 @@ public class PebbleContext {
   private static Log log = LogFactory.getLog(PebbleContext.class);
 
   private Configuration configuration;
-  private ApplicationContext applicationContext;
 
   private String buildVersion;
   private String buildDate;
@@ -63,7 +60,7 @@ public class PebbleContext {
   private static final String BUILD_DATE_KEY = "build.date";
 
   /** the time that Pebble was started */
-  private Date startTime;
+  private final Date startTime;
 
   /** the directory where Pebble is deployed */
   private String webApplicationRoot;
@@ -152,28 +149,5 @@ public class PebbleContext {
 
   public String getWebApplicationRoot() {
     return webApplicationRoot;
-  }
-
-  public void setApplicationContext(ApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
-  }
-
-  public ApplicationContext getApplicationContext() {
-    return applicationContext;
-  }
-
-  public <T> T getComponent(String name, Class<T> type) {
-    return applicationContext.getBean(name, type);
-  }
-
-  public <T> T getComponent(Class<T> type) {
-    Map<String, T> map = applicationContext.getBeansOfType(type);
-    if (map.isEmpty()) {
-      return null;
-    } else if (map.size() > 1) {
-      throw new IllegalArgumentException("Multiple beans of type " + type + " found.");
-    } else {
-      return map.values().iterator().next();
-    }
   }
 }

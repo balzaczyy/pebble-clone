@@ -45,7 +45,6 @@ public class ActionFactoryTest extends PebbleTestCase {
   protected void setUp() throws Exception {
     super.setUp();
     DefaultActionFactory factory = new DefaultActionFactory();
-    factory.setApplicationContext(testApplicationContext);
     factory.setActionMappingFileName("action.properties");
     factory.init();
     this.factory = factory;

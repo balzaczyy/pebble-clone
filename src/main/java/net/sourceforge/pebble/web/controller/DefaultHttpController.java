@@ -31,6 +31,14 @@
  */
 package net.sourceforge.pebble.web.controller;
 
+import java.io.IOException;
+
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.domain.AbstractBlog;
 import net.sourceforge.pebble.domain.Blog;
@@ -39,19 +47,15 @@ import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.web.action.Action;
 import net.sourceforge.pebble.web.action.ActionFactory;
 import net.sourceforge.pebble.web.action.ActionNotFoundException;
+import net.sourceforge.pebble.web.action.DefaultActionFactory;
 import net.sourceforge.pebble.web.action.SecureAction;
 import net.sourceforge.pebble.web.model.Model;
 import net.sourceforge.pebble.web.security.SecurityTokenValidator;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.MultiBlogNotSupportedView;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.inject.Inject;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.*;
-import java.io.IOException;
 
 /**
  * An implementation of the front controller pattern, using the command
@@ -66,7 +70,7 @@ public class DefaultHttpController implements HttpController {
   /**
    * a reference to the factory used to create Action instances
    */
-  private ActionFactory actionFactory;
+	private ActionFactory actionFactory = new DefaultActionFactory();
 
   /**
    * the extension used to refer to actions

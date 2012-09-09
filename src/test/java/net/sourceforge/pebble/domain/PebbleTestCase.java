@@ -31,17 +31,14 @@
  */
 package net.sourceforge.pebble.domain;
 
-import junit.framework.TestCase;
-import net.sourceforge.pebble.util.FileUtils;
-import net.sourceforge.pebble.PebbleContext;
-import net.sourceforge.pebble.Configuration;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.StaticApplicationContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import java.io.File;
+
+import junit.framework.TestCase;
+import net.sourceforge.pebble.Configuration;
+import net.sourceforge.pebble.PebbleContext;
+import net.sourceforge.pebble.util.FileUtils;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Superclass for all Pebble unit test cases.
@@ -58,9 +55,8 @@ public abstract class PebbleTestCase extends TestCase {
     TEST_RESOURCE_LOCATION = new File("src/test/resources");
   }
 
-  protected StaticApplicationContext testApplicationContext;
-
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
 
     // Make sure we aren't logged in
@@ -69,33 +65,16 @@ public abstract class PebbleTestCase extends TestCase {
     TEST_BLOG_LOCATION.mkdir();
     new File(TEST_BLOG_LOCATION, "blogs").mkdir();
 
-    testApplicationContext = new StaticApplicationContext();
-
     Configuration config = new Configuration();
     config.setUrl("http://www.yourdomain.com/blog/");
     config.setDataDirectory(TEST_BLOG_LOCATION.getAbsolutePath());
     PebbleContext.getInstance().setConfiguration(config);
-    PebbleContext.getInstance().setApplicationContext(testApplicationContext);
   }
 
-  protected void tearDown() throws Exception {
+  @Override
+	protected void tearDown() throws Exception {
     FileUtils.deleteFile(TEST_BLOG_LOCATION);
 
     super.tearDown();
   }
-
-  protected void addComponents(Object... components) {
-    for (Object component : components) {
-      testApplicationContext.getBeanFactory().registerSingleton(component.toString(), component);
-    }
-  }
-
-  protected <T> T createBean(Class<T> clazz) {
-    return (T) testApplicationContext.getAutowireCapableBeanFactory().createBean(clazz, AutowireCapableBeanFactory.AUTOWIRE_NO, false);
-  }
-
-  protected <T> T autowire(Class<T> clazz) {
-    return (T) testApplicationContext.getAutowireCapableBeanFactory().autowire(clazz, AutowireCapableBeanFactory.AUTOWIRE_NO, false);
-  }
-
 }

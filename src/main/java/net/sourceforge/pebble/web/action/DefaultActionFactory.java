@@ -31,15 +31,6 @@
  */
 package net.sourceforge.pebble.web.action;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -48,13 +39,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * A factory class from which to look up and retrieve an instance
  * of an Action class to process a specific request.
  *
  * @author    Simon Brown
  */
-public class DefaultActionFactory implements ActionFactory, ApplicationContextAware {
+public class DefaultActionFactory implements ActionFactory {
 
   /** the log used by this class */
   private static Log log = LogFactory.getLog(DefaultActionFactory.class);
@@ -63,10 +60,7 @@ public class DefaultActionFactory implements ActionFactory, ApplicationContextAw
   private final Map<String, String> actions = new HashMap<String, String>();
 
   /** the name of the action mapping file */
-  private String actionMappingFileName;
-
-  /** the ApplicationContext to instantiate actions with */
-  private AutowireCapableBeanFactory beanFactory;
+	private String actionMappingFileName = "action.properties";
 
   /**
    * Initialises this component, reading in and creating the map
@@ -105,16 +99,16 @@ public class DefaultActionFactory implements ActionFactory, ApplicationContextAw
     try {
       // instantiate the appropriate class to handle the request
       if (actions.containsKey(name)) {
-        Class<?> c = getClass().getClassLoader().loadClass((String)actions.get(name));
+        Class<?> c = getClass().getClassLoader().loadClass(actions.get(name));
         Class<? extends Action> actionClass = c.asSubclass(Action.class);
-        return (Action) beanFactory.createBean(actionClass, AutowireCapableBeanFactory.AUTOWIRE_NO, false);
+				return actionClass.newInstance();
       } else {
         throw new ActionNotFoundException("An action called " + name + " could not be found");
       }
     } catch (ClassNotFoundException cnfe) {
       log.error(cnfe.getMessage(), cnfe);
       throw new ActionNotFoundException("An action called " + name + " could not be loaded", cnfe);
-    } catch (BeansException be) {
+		} catch (Exception be) {
       log.error(be.getMessage(), be);
       throw new ActionNotFoundException("An action called " + name + " could not be instantiated", be);
     }
@@ -122,9 +116,5 @@ public class DefaultActionFactory implements ActionFactory, ApplicationContextAw
 
   public void setActionMappingFileName(String actionMappingFileName) {
     this.actionMappingFileName = actionMappingFileName;
-  }
-
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    this.beanFactory = applicationContext.getAutowireCapableBeanFactory();
   }
 }

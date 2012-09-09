@@ -31,13 +31,12 @@
  */
 package net.sourceforge.pebble.web.controller;
 
-import net.sourceforge.pebble.PebbleContext;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * Servlet for handling HTTP requests
@@ -51,8 +50,7 @@ public class HttpControllerServlet extends HttpServlet {
   @Override
   public void init() throws ServletException {
     super.init();
-    String beanName = getServletConfig().getInitParameter("httpControllerBeanName");
-    httpController = (HttpController) PebbleContext.getInstance().getApplicationContext().getBean(beanName);
+		httpController = new DefaultHttpController();
   }
 
   @Override

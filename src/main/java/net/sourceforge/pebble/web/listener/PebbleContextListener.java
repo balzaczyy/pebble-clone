@@ -31,18 +31,22 @@
  */
 package net.sourceforge.pebble.web.listener;
 
-import net.sourceforge.pebble.Configuration;
-import net.sourceforge.pebble.PebbleContext;
-import net.sourceforge.pebble.dao.DAOFactory;
-import net.sourceforge.pebble.domain.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import java.util.Collection;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.Collection;
+
+import net.sourceforge.pebble.Configuration;
+import net.sourceforge.pebble.PebbleContext;
+import net.sourceforge.pebble.dao.DAOFactory;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogManager;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.BlogServiceException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Allows the blog to be loaded when this web application is started up.
@@ -63,20 +67,18 @@ public class PebbleContextListener implements ServletContextListener {
     long startTime = System.currentTimeMillis();
     log.info("Starting Pebble");
 
-    ApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(event.getServletContext());
-    Configuration config = (Configuration)applicationContext.getBean("pebbleConfiguration");
+		Configuration config = new Configuration();
 
     DAOFactory.setConfiguredFactory(config.getDaoFactory());
     PebbleContext ctx = PebbleContext.getInstance();
     ctx.setConfiguration(config);
     ctx.setWebApplicationRoot(event.getServletContext().getRealPath("/"));
-    ctx.setApplicationContext(applicationContext);
 
     BlogManager.getInstance().setMultiBlog(config.isMultiBlog());
     BlogManager.getInstance().startBlogs();
 
     // find those blogs with no entries and add a welcome note
-    Collection<Blog> blogs = (Collection<Blog>)BlogManager.getInstance().getBlogs();
+    Collection<Blog> blogs = BlogManager.getInstance().getBlogs();
     for (Blog blog : blogs) {
       try {
         // and add a default entry, if one doesn't exist
