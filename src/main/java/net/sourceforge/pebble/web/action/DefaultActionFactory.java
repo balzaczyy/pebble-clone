@@ -108,10 +108,13 @@ public class DefaultActionFactory implements ActionFactory {
     } catch (ClassNotFoundException cnfe) {
       log.error(cnfe.getMessage(), cnfe);
       throw new ActionNotFoundException("An action called " + name + " could not be loaded", cnfe);
-		} catch (Exception be) {
+		} catch (InstantiationException be) {
       log.error(be.getMessage(), be);
       throw new ActionNotFoundException("An action called " + name + " could not be instantiated", be);
-    }
+		} catch (IllegalAccessException e) {
+			log.error(e.getMessage(), e);
+			throw new ActionNotFoundException("An action called " + name + " could not be accessed", e);
+		}
   }
 
   public void setActionMappingFileName(String actionMappingFileName) {
