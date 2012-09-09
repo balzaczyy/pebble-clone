@@ -31,10 +31,22 @@
  */
 package net.sourceforge.pebble.index;
 
-import net.sourceforge.pebble.domain.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.Category;
+import net.sourceforge.pebble.domain.Comment;
+import net.sourceforge.pebble.domain.StaticPage;
+import net.sourceforge.pebble.domain.Tag;
+import net.sourceforge.pebble.domain.TrackBack;
 import net.sourceforge.pebble.search.SearchException;
 import net.sourceforge.pebble.search.SearchHit;
 import net.sourceforge.pebble.search.SearchResults;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
@@ -50,12 +62,8 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Searcher;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wraps up the functionality to index blog entries. This is really just
@@ -64,6 +72,7 @@ import java.util.Collection;
  * @author    Simon Brown
  */
 public class SearchIndex {
+	private static final Logger LOG = LoggerFactory.getLogger(SearchIndex.class);
 
   /** the log used by this class */
   private static final Log log = LogFactory.getLog(SearchIndex.class);
@@ -79,8 +88,8 @@ public class SearchIndex {
    */
   public void clear() {
     File searchDirectory = new File(blog.getSearchIndexDirectory());
-    if (!searchDirectory.exists()) {
-      searchDirectory.mkdirs();
+		if (!searchDirectory.exists() && !searchDirectory.mkdirs()) {
+			LOG.warn("Invalid search index directory: {}", searchDirectory);
     }
 
     synchronized (blog) {
@@ -98,6 +107,7 @@ public class SearchIndex {
    * Allows a collection of blog entries to be indexed.
    */
   public void indexBlogEntries(Collection<BlogEntry> blogEntries) {
+		if (!IndexReader.indexExists(blog.getSearchIndexDirectory())) return;
     synchronized (blog) {
       try {
         Analyzer analyzer = getAnalyzer();
@@ -118,6 +128,7 @@ public class SearchIndex {
    * Allows a collection of static pages to be indexed.
    */
   public void indexStaticPages(Collection<StaticPage> staticPages) {
+		if (!IndexReader.indexExists(blog.getSearchIndexDirectory())) return;
     synchronized (blog) {
       try {
         Analyzer analyzer = getAnalyzer();
@@ -142,6 +153,7 @@ public class SearchIndex {
    * @param blogEntry   the BlogEntry instance to index
    */
   public void index(BlogEntry blogEntry) {
+		if (!IndexReader.indexExists(blog.getSearchIndexDirectory())) return;
     try {
       synchronized (blog) {
         // first delete the blog entry from the index (if it was there)
@@ -165,6 +177,7 @@ public class SearchIndex {
    * @param staticPage    the StaticPage instance to index
    */
   public void index(StaticPage staticPage) {
+		if (!IndexReader.indexExists(blog.getSearchIndexDirectory())) return;
     try {
       synchronized (blog) {
         // first delete the static page from the index (if it was there)
@@ -197,6 +210,7 @@ public class SearchIndex {
    * @param blogEntry   the BlogEntry instance to be removed
    */
   public void unindex(BlogEntry blogEntry) {
+		if (!IndexReader.indexExists(blog.getSearchIndexDirectory())) return;
     try {
       synchronized (blog) {
         log.debug("Attempting to delete index for " + blogEntry.getTitle());
@@ -216,6 +230,7 @@ public class SearchIndex {
    * @param staticPage    the StaticPage instance to be removed
    */
   public void unindex(StaticPage staticPage) {
+		if (!IndexReader.indexExists(blog.getSearchIndexDirectory())) return;
     try {
       synchronized (blog) {
         log.debug("Attempting to delete index for " + staticPage.getTitle());
