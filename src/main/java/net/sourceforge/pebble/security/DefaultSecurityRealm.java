@@ -32,6 +32,19 @@
 
 package net.sourceforge.pebble.security;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Properties;
+
 import net.sourceforge.pebble.Configuration;
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.comparator.PebbleUserDetailsComparator;
@@ -41,11 +54,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.security.authentication.dao.ReflectionSaltSource;
 import org.springframework.security.authentication.dao.SaltSource;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
-
-import java.io.*;
-import java.util.*;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 
 /**
  * Implementation of the SecurityRealm that gets authentication
@@ -70,12 +82,17 @@ public class DefaultSecurityRealm implements SecurityRealm, ApplicationListener 
 
   private Configuration configuration;
 
-  private PasswordEncoder passwordEncoder;
+	private PasswordEncoder passwordEncoder = new ShaPasswordEncoder();
 
-  private SaltSource saltSource;
+	private SaltSource saltSource = new ReflectionSaltSource();
 
   /** Map of open ids to users, cached in a copy on write map */
   private volatile Map<String, String> openIdMap;
+
+	public DefaultSecurityRealm(Configuration configuration) {
+		this.configuration = configuration;
+		((ReflectionSaltSource) this.saltSource).setUserPropertyToUse("getUsername");
+	}
 
   /**
    * Creates the underlying security realm upon creation, if necessary, and initialises the openIdMap.

@@ -32,15 +32,16 @@
 
 package net.sourceforge.pebble.security;
 
+import java.util.Collection;
+import java.util.HashMap;
+
 import junit.framework.TestCase;
 import net.sourceforge.pebble.Constants;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
-import java.util.Collection;
-import java.util.HashMap;
 
 /**
  * Tests for the DefaultUserDetails class.
@@ -52,10 +53,10 @@ public class DefaultUserDetailsServiceTest extends TestCase {
   private DefaultUserDetailsService service;
   private SecurityRealm securityRealm;
 
-  protected void setUp() {
-    service = new DefaultUserDetailsService();
+  @Override
+	protected void setUp() {
     securityRealm = new MockSecurityRealm();
-    service.setSecurityRealm(securityRealm);
+		service = new DefaultUserDetailsService(securityRealm);
   }
 
   public void testSecurityRealm() {
@@ -81,7 +82,7 @@ public class DefaultUserDetailsServiceTest extends TestCase {
     try {
       PebbleUserDetails pud = new PebbleUserDetails("username", "password", "name", "emailAddress", "website", "profile", new String[]{Constants.BLOG_OWNER_ROLE}, new HashMap<String,String>(), true);
       securityRealm.createUser(pud);
-      UserDetails user = service.loadUserByUsername("someotherusername");
+			service.loadUserByUsername("someotherusername");
       fail();
     } catch (UsernameNotFoundException e) {
     }

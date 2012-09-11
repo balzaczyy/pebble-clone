@@ -51,28 +51,6 @@
     <property name="saltSource" ref="saltSource"/>
   </bean>
 
-  <!-- this is a default implementation of Acegi's UserDetailsService that plugs into the
-       daoAuthenticationProvider - you don't need this if you are using an alternative
-       UserDetailsService or another AuthenticationProvider -->
-  <bean id="pebbleUserDetailsService" class="net.sourceforge.pebble.security.DefaultUserDetailsService">
-    <property name="securityRealm" ref="pebbleSecurityRealm"/>
-  </bean>
-
-  <!-- an implementation of net.sourceforge.pebble.security.SecurityRealm is required
-       to provide detailed user information and manage users
-       it is plugged into other components outside the context of this file -->
-  <bean id="pebbleSecurityRealm" class="net.sourceforge.pebble.security.DefaultSecurityRealm">
-    <property name="configuration" ref="pebbleConfiguration"/>
-    <property name="passwordEncoder" ref="passwordEncoder"/>
-    <property name="saltSource" ref="saltSource"/>
-  </bean>
-
-  <bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder"/>
-
-  <bean id="saltSource" class="org.springframework.security.authentication.dao.ReflectionSaltSource">
-    <property name="userPropertyToUse" value="getUsername"/>
-  </bean>
-
   <!-- Automatically receives AuthenticationEvent messages -->
   <bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener"/>
 
@@ -172,10 +150,6 @@
 
   <bean id="openIdAuthenticationProvider" class="org.springframework.security.openid.OpenIDAuthenticationProvider">
     <property name="userDetailsService" ref="openIdUserDetailsService"/>
-  </bean>
-
-  <bean id="openIdUserDetailsService" class="net.sourceforge.pebble.security.OpenIdUserDetailsService">
-    <property name="securityRealm" ref="pebbleSecurityRealm"/>
   </bean>
 
   <bean id="openIdAuthenticationFailureHandler" class="net.sourceforge.pebble.security.OpenIdAuthenticationFailureHandler"/>

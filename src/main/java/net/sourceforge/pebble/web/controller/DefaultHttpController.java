@@ -51,6 +51,7 @@ import net.sourceforge.pebble.web.action.DefaultActionFactory;
 import net.sourceforge.pebble.web.action.SecureAction;
 import net.sourceforge.pebble.web.model.Model;
 import net.sourceforge.pebble.web.security.SecurityTokenValidator;
+import net.sourceforge.pebble.web.security.SecurityTokenValidatorImpl;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.MultiBlogNotSupportedView;
 
@@ -81,7 +82,7 @@ public class DefaultHttpController implements HttpController {
    * The security token validator
    */
   @Inject
-  private SecurityTokenValidator securityTokenValidator;
+	private final SecurityTokenValidator securityTokenValidator = new SecurityTokenValidatorImpl();
 
   /**
    * Processes the request - this is delegated to from doGet and doPost.

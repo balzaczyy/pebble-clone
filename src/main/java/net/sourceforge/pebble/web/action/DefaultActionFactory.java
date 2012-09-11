@@ -34,16 +34,15 @@ package net.sourceforge.pebble.web.action;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A factory class from which to look up and retrieve an instance
@@ -52,7 +51,7 @@ import org.apache.commons.logging.LogFactory;
  * @author    Simon Brown
  */
 public class DefaultActionFactory implements ActionFactory {
-
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultActionFactory.class);
   /** the log used by this class */
   private static Log log = LogFactory.getLog(DefaultActionFactory.class);
 
@@ -60,19 +59,20 @@ public class DefaultActionFactory implements ActionFactory {
   private final Map<String, String> actions = new HashMap<String, String>();
 
   /** the name of the action mapping file */
-	private String actionMappingFileName = "action.properties";
+	private final String actionMappingFileName = "action.properties";
 
   /**
-   * Initialises this component, reading in and creating the map
-   * of action names to action classes.
-   *
-   * @throws IOException If an error occurs looking up all the actions
-   */
-  @PostConstruct
-  public void init() throws IOException {
+	 * Initializes this component, reading in and creating the map of action names
+	 * to action classes.
+	 * 
+	 * @throws IOException
+	 *           If an error occurs looking up all the actions
+	 */
+	public DefaultActionFactory() {
     // Load all resources by the given name, allows for plugins to provide their own actions
-    for (Enumeration<URL> e = getClass().getClassLoader().getResources(actionMappingFileName); e.hasMoreElements();) {
-      URL url = e.nextElement();
+		ClassLoader loader = getClass().getClassLoader();
+		URL url = loader.getResource(actionMappingFileName);
+
       // load the properties file containing the name -> class name mapping
       InputStream in = null;
       try {
@@ -85,7 +85,6 @@ public class DefaultActionFactory implements ActionFactory {
       } finally {
         IOUtils.closeQuietly(in);
       }
-    }
   }
 
   /**
@@ -115,9 +114,5 @@ public class DefaultActionFactory implements ActionFactory {
 			log.error(e.getMessage(), e);
 			throw new ActionNotFoundException("An action called " + name + " could not be accessed", e);
 		}
-  }
-
-  public void setActionMappingFileName(String actionMappingFileName) {
-    this.actionMappingFileName = actionMappingFileName;
   }
 }

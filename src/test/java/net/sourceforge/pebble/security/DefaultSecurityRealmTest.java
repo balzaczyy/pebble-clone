@@ -63,8 +63,7 @@ public class DefaultSecurityRealmTest extends SingleBlogTestCase {
 	protected void setUp() throws Exception {
     super.setUp();
 
-    realm = new DefaultSecurityRealm();
-    realm.setConfiguration(PebbleContext.getInstance().getConfiguration());
+		realm = new DefaultSecurityRealm(PebbleContext.getInstance().getConfiguration());
 
     passwordEncoder = new PlaintextPasswordEncoder();
     realm.setPasswordEncoder(passwordEncoder);

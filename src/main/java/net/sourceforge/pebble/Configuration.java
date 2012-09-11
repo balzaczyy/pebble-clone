@@ -34,7 +34,9 @@ package net.sourceforge.pebble;
 
 import net.sourceforge.pebble.dao.DAOFactory;
 import net.sourceforge.pebble.dao.file.FileDAOFactory;
+import net.sourceforge.pebble.security.DefaultSecurityRealm;
 import net.sourceforge.pebble.security.SecurityRealm;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -48,6 +50,7 @@ public class Configuration {
   /** the log used by this class */
   private static Log log = LogFactory.getLog(Configuration.class);
 
+	// TODO load from Properties "pebble.properties"
   private String dataDirectory = evaluateDirectory("${user.home}/pebble");
   private String url;
   private String secureUrl;
@@ -55,10 +58,10 @@ public class Configuration {
   private boolean virtualHostingEnabled = false;
   private boolean userThemesEnabled = true;
   private String smtpHost = "java:comp/env/mail/Session";
-  private long fileUploadSize = 2048;
+	private long fileUploadSize = 2048; // 10240
   private long fileUploadQuota = -1;
   private DAOFactory daoFactory = new FileDAOFactory();
-  private SecurityRealm securityRealm;
+	private SecurityRealm securityRealm = new DefaultSecurityRealm(this);
 
   public Configuration() {
   }

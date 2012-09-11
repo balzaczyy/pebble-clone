@@ -44,10 +44,7 @@ public class ActionFactoryTest extends PebbleTestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    DefaultActionFactory factory = new DefaultActionFactory();
-    factory.setActionMappingFileName("action.properties");
-    factory.init();
-    this.factory = factory;
+		this.factory = new DefaultActionFactory();
   }
 
   public void testGetAction() throws Exception {

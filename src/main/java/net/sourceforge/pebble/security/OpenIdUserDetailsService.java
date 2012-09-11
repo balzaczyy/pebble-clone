@@ -32,8 +32,8 @@
 
 package net.sourceforge.pebble.security;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import net.sourceforge.pebble.Configuration;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -45,10 +45,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * @author    Simon Brown
  */
 public class OpenIdUserDetailsService implements UserDetailsService {
+	private SecurityRealm securityRealm;
 
-  private static final Log log = LogFactory.getLog(OpenIdUserDetailsService.class);
-
-  private SecurityRealm securityRealm;
+	public OpenIdUserDetailsService(Configuration configuration) {
+		this.securityRealm = new DefaultSecurityRealm(configuration);
+	}
 
   /**
    * Looks up and returns user details for the given OpenID identifier.
