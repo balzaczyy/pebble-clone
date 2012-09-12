@@ -31,6 +31,8 @@
  */
 package net.sourceforge.pebble.api.confirmation;
 
+import javax.servlet.http.HttpServletRequest;
+
 import net.sourceforge.pebble.domain.Comment;
 
 /**
@@ -42,11 +44,13 @@ import net.sourceforge.pebble.domain.Comment;
 public interface CommentConfirmationStrategy extends ConfirmationStrategy {
 
   /**
-   * Called to determine whether confirmation is required.
-   *
-   * @param comment   the Comment being confirmed
-   * @return  true if the comment should be confirmed, false otherwise
-   */
-  public boolean confirmationRequired(Comment comment);
+	 * Called to determine whether confirmation is required.
+	 * 
+	 * @param comment
+	 *          the Comment being confirmed
+	 * @param request
+	 * @return true if the comment should be confirmed, false otherwise
+	 */
+	public boolean confirmationRequired(Comment comment, HttpServletRequest request);
 
 }

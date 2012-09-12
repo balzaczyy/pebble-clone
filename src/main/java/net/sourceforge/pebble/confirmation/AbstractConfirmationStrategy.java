@@ -32,11 +32,13 @@
 
 package net.sourceforge.pebble.confirmation;
 
+import javax.servlet.http.HttpServletRequest;
+
 import net.sourceforge.pebble.PluginProperties;
-import net.sourceforge.pebble.api.event.comment.CommentEvent;
-import net.sourceforge.pebble.api.event.comment.CommentListener;
 import net.sourceforge.pebble.api.confirmation.CommentConfirmationStrategy;
 import net.sourceforge.pebble.api.confirmation.TrackBackConfirmationStrategy;
+import net.sourceforge.pebble.api.event.comment.CommentEvent;
+import net.sourceforge.pebble.api.event.comment.CommentListener;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.Comment;
 import net.sourceforge.pebble.event.response.ContentSpamListener;
@@ -64,12 +66,12 @@ public abstract class AbstractConfirmationStrategy implements CommentConfirmatio
    * @param comment the Comment being confirmed
    * @return true if the comment should be confirmed, false otherwise
    */
-  public boolean confirmationRequired(Comment comment) {
+	public boolean confirmationRequired(Comment comment, HttpServletRequest request) {
     PluginProperties props = comment.getBlogEntry().getBlog().getPluginProperties();
     String required = props.getProperty(REQUIRED_KEY);
 
     Blog blog = comment.getBlogEntry().getBlog();
-    if (SecurityUtils.isUserAuthorisedForBlog(blog)) {
+		if (SecurityUtils.isUserAuthorisedForBlog(blog, request)) {
       return false;
     } else {
       // run a subset of the default comment listeners to figure out whether
@@ -95,8 +97,8 @@ public abstract class AbstractConfirmationStrategy implements CommentConfirmatio
    * @param blog    the owning Blog
    * @return true if the confirmation is required, false otherwise
    */
-  public boolean confirmationRequired(Blog blog) {
-    return !SecurityUtils.isUserAuthorisedForBlog(blog);
+	public boolean confirmationRequired(Blog blog, HttpServletRequest request) {
+		return !SecurityUtils.isUserAuthorisedForBlog(blog, request);
   }
 
 }

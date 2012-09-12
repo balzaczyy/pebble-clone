@@ -31,22 +31,27 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
-import net.sourceforge.pebble.domain.*;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.BlogServiceException;
+import net.sourceforge.pebble.domain.Comment;
 import net.sourceforge.pebble.util.CookieUtils;
 import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.web.view.NotFoundView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Allows the user to reply to a specific blog entry.
@@ -65,7 +70,8 @@ public class ReplyToBlogEntryAction extends AbstractCommentAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
     String entryId = request.getParameter("entry");
 
@@ -84,7 +90,7 @@ public class ReplyToBlogEntryAction extends AbstractCommentAction {
       // requesting URL was wrong
 
       return new NotFoundView();
-    } else if (!blogEntry.isPublished() && !(SecurityUtils.isUserAuthorisedForBlog(blog))) {
+		} else if (!blogEntry.isPublished() && !(SecurityUtils.isUserAuthorisedForBlog(blog, request))) {
       // the entry exists, but isn't yet published
       return new NotFoundView();
     } else if (!blogEntry.isCommentsEnabled()) {

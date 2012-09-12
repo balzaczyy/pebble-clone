@@ -45,7 +45,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * @author    Simon Brown
  */
 public class DefaultUserDetailsService implements UserDetailsService {
-  private SecurityRealm securityRealm;
+  private final SecurityRealm securityRealm;
 
 	public DefaultUserDetailsService(Configuration configuration) {
 		this.securityRealm = new DefaultSecurityRealm(configuration);
@@ -78,9 +78,4 @@ public class DefaultUserDetailsService implements UserDetailsService {
   public SecurityRealm getSecurityRealm() {
     return securityRealm;
   }
-
-  public void setSecurityRealm(SecurityRealm securityRealm) {
-    this.securityRealm = securityRealm;
-  }
-
 }

@@ -31,18 +31,23 @@
  */
 package net.sourceforge.pebble.web.action;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.util.SecurityUtils;
-import net.sourceforge.pebble.domain.*;
-import net.sourceforge.pebble.web.view.View;
-import net.sourceforge.pebble.web.view.NotFoundView;
-import net.sourceforge.pebble.web.view.impl.BlogEntriesByMonthView;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.ArrayList;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.BlogServiceException;
+import net.sourceforge.pebble.domain.Month;
+import net.sourceforge.pebble.util.SecurityUtils;
+import net.sourceforge.pebble.web.view.NotFoundView;
+import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.impl.BlogEntriesByMonthView;
 
 /**
  * Finds all blog entries for a particular month, ready for them
@@ -59,7 +64,8 @@ public class ViewMonthAction extends Action {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     String year = request.getParameter("year");
     String month = request.getParameter("month");
 
@@ -80,7 +86,7 @@ public class ViewMonthAction extends Action {
     } catch (BlogServiceException e) {
       throw new ServletException(e);
     }
-    getModel().put(Constants.BLOG_ENTRIES, filter(blog, blogEntries));
+		getModel().put(Constants.BLOG_ENTRIES, filter(blog, blogEntries, request));
     getModel().put("displayMode", "month");
     getModel().put(Constants.MONTHLY_BLOG, monthly);
 
@@ -100,14 +106,14 @@ public class ViewMonthAction extends Action {
     return new BlogEntriesByMonthView();
   }
 
-  private List<BlogEntry> filter(Blog blog, List<BlogEntry> blogEntries) {
+	private List<BlogEntry> filter(Blog blog, List<BlogEntry> blogEntries, HttpServletRequest request) {
     List<BlogEntry> filtered = new ArrayList<BlogEntry>();
 
     for (BlogEntry blogEntry : blogEntries) {
       if (
           blogEntry.isPublished() ||
           (
-            (SecurityUtils.isUserAuthorisedForBlog(blog) && blogEntry.isUnpublished())
+(SecurityUtils.isUserAuthorisedForBlog(blog, request) && blogEntry.isUnpublished())
           )
          ) {
         filtered.add(blogEntry);

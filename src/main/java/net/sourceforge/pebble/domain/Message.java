@@ -31,9 +31,9 @@
  */
 package net.sourceforge.pebble.domain;
 
-import net.sourceforge.pebble.util.SecurityUtils;
-
 import java.util.Date;
+
+import net.sourceforge.pebble.util.SecurityUtils;
 
 /**
  * Represents a message, created by Pebble for the user.
@@ -42,8 +42,8 @@ import java.util.Date;
  */
 public class Message {
 
-  private MessageType type;
-  private Date date;
+  private final MessageType type;
+  private final Date date;
   private String text;
 
   public Message(MessageType type, String text) {
@@ -61,7 +61,8 @@ public class Message {
   }
 
   private void setText(String text) {
-    String username = SecurityUtils.getUsername();
+		// TODO determine the username
+		String username = SecurityUtils.getUsername(null);
     if (username != null) {
       this.text = "[" + username + "] " + text;
     } else {
@@ -73,7 +74,8 @@ public class Message {
     return type;
   }
 
-  public boolean equals(Object o) {
+  @Override
+	public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
@@ -85,7 +87,8 @@ public class Message {
     return true;
   }
 
-  public int hashCode() {
+  @Override
+	public int hashCode() {
     int result;
     result = date.hashCode();
     result = 29 * result + (text != null ? text.hashCode() : 0);

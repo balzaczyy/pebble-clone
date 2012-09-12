@@ -32,23 +32,33 @@
 
 package net.sourceforge.pebble.dao.file;
 
-import net.sourceforge.pebble.dao.PersistenceException;
-import net.sourceforge.pebble.dao.StaticPageDAO;
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.domain.StaticPage;
-import net.sourceforge.pebble.util.SecurityUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.*;
+
+import net.sourceforge.pebble.dao.PersistenceException;
+import net.sourceforge.pebble.dao.StaticPageDAO;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.StaticPage;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class FileStaticPageDAO implements StaticPageDAO {
 
@@ -136,7 +146,7 @@ public class FileStaticPageDAO implements StaticPageDAO {
 
       try {
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        JAXBElement<StaticPageType> controller = (JAXBElement)unmarshaller.unmarshal(source);
+				JAXBElement<StaticPageType> controller = (JAXBElement<StaticPageType>) unmarshaller.unmarshal(source);
         StaticPageType spt = controller.getValue();
 
         staticPage.setTitle(spt.getTitle());
@@ -215,7 +225,7 @@ public class FileStaticPageDAO implements StaticPageDAO {
 
       log.debug("Saving to " + destination.getAbsolutePath());
       ObjectFactory objectFactory = new ObjectFactory();
-      JAXBElement jaxbElement = objectFactory.createStaticPage(type);
+			JAXBElement<StaticPageType> jaxbElement = objectFactory.createStaticPage(type);
 
       marshaller.setProperty("jaxb.formatted.output", true);
       marshaller.setProperty("jaxb.encoding", staticPage.getBlog().getCharacterEncoding());
@@ -291,19 +301,19 @@ public class FileStaticPageDAO implements StaticPageDAO {
    * @param staticPage the static page to lock
    * @return  true if the page could be locked, false otherwise
    */
-  public boolean lock(StaticPage staticPage) {
+	public boolean lock(StaticPage staticPage, String byUser) {
     File lockFile = getLockFile(staticPage);
     try {
       boolean success = lockFile.createNewFile();
       if (success) {
         FileWriter writer = new FileWriter(lockFile);
-        writer.write(SecurityUtils.getUsername());
+				writer.write(byUser);
         writer.flush();
         writer.close();
         return true;
       } else {
         String lockedBy = getUsernameHoldingLock(staticPage);
-        return (lockedBy != null && lockedBy.equals(SecurityUtils.getUsername()));
+				return (lockedBy != null && lockedBy.equals(byUser));
       }
     } catch (IOException e) {
       log.warn("Exceptoin while attempting to lock static page " + staticPage.getGuid(), e);
@@ -364,7 +374,7 @@ public class FileStaticPageDAO implements StaticPageDAO {
 
   class StaticPageDateConverter {
 
-    private SimpleDateFormat dateTimeFormats[];
+    private final SimpleDateFormat dateTimeFormats[];
 
     StaticPageDateConverter(StaticPage staticPage) {
       // create all date/time formats, for backwards compatibility

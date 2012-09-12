@@ -31,12 +31,18 @@
  */
 package net.sourceforge.pebble.util;
 
+import java.util.Collection;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.security.PebbleUserDetails;
 import net.sourceforge.pebble.security.SecurityRealm;
 import net.sourceforge.pebble.security.SecurityRealmException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -50,35 +56,23 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Collection;
-
 /**
  * A collection of utility methods for security.
  *
  * @author    Simon Brown
  */
 public final class SecurityUtils {
-
   private static final Log log = LogFactory.getLog(SecurityUtils.class);
 
-  public static String getUsername() {
-    SecurityContext ctx = SecurityContextHolder.getContext();
-    Authentication auth = ctx.getAuthentication();
-    return getUsername(auth);
+	public static String getUsername(HttpServletRequest request) {
+		HttpSession session = request != null ? request.getSession(false) : null;
+		return session != null ? (String) session.getAttribute("username") : null;
   }
 
-  public static String getUsername(Authentication auth) {
-    if (auth != null) {
-      return auth.getName();
-    } else {
-      return null;
-    }
-  }
-
-  public static PebbleUserDetails getUserDetails() {
+	public static PebbleUserDetails getUserDetails(HttpServletRequest request) {
     try {
       SecurityRealm realm = PebbleContext.getInstance().getConfiguration().getSecurityRealm();
-      return realm.getUser(getUsername());
+			return realm.getUser(getUsername(request));
     } catch (SecurityRealmException e) {
       log.error("Exception encountered", e);
       return null;
@@ -91,7 +85,7 @@ public final class SecurityUtils {
     return isUserInRole(auth, role);
   }
 
-  public static boolean isUserInRole(Authentication auth, String role) {
+	private static boolean isUserInRole(Authentication auth, String role) {
     if (auth != null) {
       Collection<GrantedAuthority> authorities = auth.getAuthorities();
       if (authorities != null) {
@@ -137,7 +131,7 @@ public final class SecurityUtils {
    *
    * @return  true if the user is a blog contributor, false otherwise
    */
-  public static boolean isBlogContributor() {
+	private static boolean isBlogContributor() {
     return isUserInRole(Constants.BLOG_CONTRIBUTOR_ROLE);
   }
 
@@ -148,33 +142,6 @@ public final class SecurityUtils {
    */
   public static boolean isBlogAdmin(Authentication auth) {
     return isUserInRole(auth, Constants.BLOG_ADMIN_ROLE);
-  }
-
-  /**
-   * Determines whether this user is a blog owner.
-   *
-   * @return  true if the user is a blog owner, false otherwise
-   */
-  public static boolean isBlogOwner(Authentication auth) {
-    return isUserInRole(auth, Constants.BLOG_OWNER_ROLE);
-  }
-
-  /**
-   * Determines whether this user is a blog publisher.
-   *
-   * @return  true if the user is a blog publisher, false otherwise
-   */
-  public static boolean isBlogPublisher(Authentication auth) {
-    return isUserInRole(auth, Constants.BLOG_PUBLISHER_ROLE);
-  }
-
-  /**
-   * Determines whether this user is a blog contributor.
-   *
-   * @return  true if the user is a blog contributor, false otherwise
-   */
-  public static boolean isBlogContributor(Authentication auth) {
-    return isUserInRole(auth, Constants.BLOG_CONTRIBUTOR_ROLE);
   }
 
   public static void runAsBlogOwner() {
@@ -201,51 +168,23 @@ public final class SecurityUtils {
     SecurityContextHolder.getContext().setAuthentication(null);
   }
 
-  public static boolean isUserAuthorisedForBlogAsBlogOwner(Blog blog) {
-    String currentUser = SecurityUtils.getUsername();
-    return isBlogOwner() && blog.isUserInRole(Constants.BLOG_OWNER_ROLE, currentUser);
+	public static boolean isUserAuthorisedForBlogAsBlogOwner(Blog blog, String username) {
+		return isBlogOwner() && blog.isUserInRole(Constants.BLOG_OWNER_ROLE, username);
   }
 
-  public static boolean isUserAuthorisedForBlogAsBlogPublisher(Blog blog) {
-    String currentUser = SecurityUtils.getUsername();
-    return isBlogPublisher() && blog.isUserInRole(Constants.BLOG_PUBLISHER_ROLE, currentUser);
+	public static boolean isUserAuthorisedForBlogAsBlogPublisher(Blog blog, String username) {
+		return isBlogPublisher() && blog.isUserInRole(Constants.BLOG_PUBLISHER_ROLE, username);
   }
 
-  public static boolean isUserAuthorisedForBlogAsBlogContributor(Blog blog) {
-    String currentUser = SecurityUtils.getUsername();
-    return isBlogContributor() && blog.isUserInRole(Constants.BLOG_CONTRIBUTOR_ROLE, currentUser);
+	public static boolean isUserAuthorisedForBlogAsBlogContributor(Blog blog, String username) {
+		return isBlogContributor() && blog.isUserInRole(Constants.BLOG_CONTRIBUTOR_ROLE, username);
   }
 
-  public static boolean isUserAuthorisedForBlogAsBlogOwner(Authentication auth, Blog blog) {
-    String currentUser = SecurityUtils.getUsername(auth);
-    return isBlogOwner(auth) && blog.isUserInRole(Constants.BLOG_OWNER_ROLE, currentUser);
-  }
-
-  public static boolean isUserAuthorisedForBlogAsBlogPublisher(Authentication auth, Blog blog) {
-    String currentUser = SecurityUtils.getUsername(auth);
-    return isBlogPublisher(auth) && blog.isUserInRole(Constants.BLOG_PUBLISHER_ROLE, currentUser);
-  }
-
-  public static boolean isUserAuthorisedForBlogAsBlogContributor(Authentication auth, Blog blog) {
-    String currentUser = SecurityUtils.getUsername(auth);
-    return isBlogContributor(auth) && blog.isUserInRole(Constants.BLOG_CONTRIBUTOR_ROLE, currentUser);
-  }
-
-  public static boolean isUserAuthorisedForBlogAsBlogReader(Authentication auth, Blog blog) {
-    String currentUser = SecurityUtils.getUsername(auth);
-    return blog.isUserInRole(Constants.BLOG_READER_ROLE, currentUser);
-  }
-
-  public static boolean isUserAuthorisedForBlog(Blog blog) {
-    return isUserAuthorisedForBlogAsBlogOwner(blog) ||
-        isUserAuthorisedForBlogAsBlogPublisher(blog) ||
-        isUserAuthorisedForBlogAsBlogContributor(blog);
-  }
-
-  public static boolean isUserAuthorisedForBlog(Authentication auth, Blog blog) {
-    return isUserAuthorisedForBlogAsBlogOwner(auth, blog) ||
-        isUserAuthorisedForBlogAsBlogPublisher(auth, blog) ||
-        isUserAuthorisedForBlogAsBlogContributor(auth, blog);
+	public static boolean isUserAuthorisedForBlog(Blog blog, HttpServletRequest request) {
+		String currentUser = getUsername(request);
+		return isUserAuthorisedForBlogAsBlogOwner(blog, currentUser) //
+				|| isUserAuthorisedForBlogAsBlogPublisher(blog, currentUser) //
+				|| isUserAuthorisedForBlogAsBlogContributor(blog, currentUser);
   }
 
   public static boolean isUserAuthenticated() {

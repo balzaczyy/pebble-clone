@@ -77,7 +77,7 @@ public abstract class AbstractCommentAction extends Action {
 
     // if the user is authenticated, overwrite the author information
     if (SecurityUtils.isUserAuthenticated()) {
-      PebbleUserDetails user = SecurityUtils.getUserDetails();
+			PebbleUserDetails user = SecurityUtils.getUserDetails(request);
       if (user != null) {
         comment.setAuthor(user.getName());
         comment.setEmail(user.getEmailAddress());
@@ -110,7 +110,7 @@ public abstract class AbstractCommentAction extends Action {
     // - the logged in user details
     // - the "remember me" cookie
     if (SecurityUtils.isUserAuthenticated()) {
-      PebbleUserDetails user = SecurityUtils.getUserDetails();
+			PebbleUserDetails user = SecurityUtils.getUserDetails(request);
       if (user != null) {
         comment.setAuthor(user.getName());
         comment.setEmail(user.getEmailAddress());

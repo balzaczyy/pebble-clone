@@ -31,6 +31,10 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.domain.AbstractBlog;
@@ -44,12 +48,6 @@ import net.sourceforge.pebble.web.view.ForwardView;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.FourZeroThreeView;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Saves user details.
@@ -59,9 +57,6 @@ import javax.servlet.http.HttpServletResponse;
 @RequireSecurityToken
 public class SaveUserDetailsAction extends SecureAction {
 
-  /** the log used by this class */
-  private static final Log log = LogFactory.getLog(SaveUserDetailsAction.class);
-
   /**
    * Peforms the processing associated with this action.
    *
@@ -69,7 +64,8 @@ public class SaveUserDetailsAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     try {
       AbstractBlog blog = (AbstractBlog)getModel().get(Constants.BLOG_KEY);
 
@@ -78,7 +74,7 @@ public class SaveUserDetailsAction extends SecureAction {
       String website = request.getParameter("website");
       String profile = request.getParameter("profile");
 
-      PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
+			PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails(request);
 
       // can the user change their user details?
       if (!currentUserDetails.isDetailsUpdateable()) {
@@ -119,7 +115,8 @@ public class SaveUserDetailsAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     return new String[]{Constants.ANY_ROLE};
   }
 

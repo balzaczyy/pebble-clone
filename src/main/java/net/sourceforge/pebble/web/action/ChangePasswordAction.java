@@ -31,6 +31,10 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.security.PebbleUserDetails;
@@ -44,12 +48,9 @@ import net.sourceforge.pebble.web.view.ForbiddenView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.ChangePasswordView;
 import net.sourceforge.pebble.web.view.impl.PasswordChangedView;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Changes the user's password.
@@ -69,10 +70,11 @@ public class ChangePasswordAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     try {
       SecurityRealm realm = PebbleContext.getInstance().getConfiguration().getSecurityRealm();
-      PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
+			PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails(request);
       String password1 = request.getParameter("password1");
       String password2 = request.getParameter("password2");
       String submit = request.getParameter("submit");
@@ -113,7 +115,8 @@ public class ChangePasswordAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     return new String[]{Constants.ANY_ROLE};
   }
 

@@ -32,6 +32,7 @@
 package net.sourceforge.pebble.audit;
 
 import net.sourceforge.pebble.util.SecurityUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -47,7 +48,8 @@ public class AuditTrail {
   private static Log log = LogFactory.getLog(AuditTrail.class);
 
   public static void log(String event) {
-    String username = SecurityUtils.getUsername();
+		// TODO how to determine the username?
+		String username = SecurityUtils.getUsername(null);
     if (username == null) {
       username = "anonymous";
     }

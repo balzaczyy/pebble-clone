@@ -32,6 +32,8 @@
 
 package net.sourceforge.pebble.api.confirmation;
 
+import javax.servlet.http.HttpServletRequest;
+
 import net.sourceforge.pebble.domain.Blog;
 
 /**
@@ -43,11 +45,13 @@ import net.sourceforge.pebble.domain.Blog;
 public interface TrackBackConfirmationStrategy extends ConfirmationStrategy {
 
   /**
-   * Called to determine whether confirmation is required.
-   *
-   * @param blog    the owning Blog
-   * @return true if the confirmation is required, false otherwise
-   */
-  public boolean confirmationRequired(Blog blog);
+	 * Called to determine whether confirmation is required.
+	 * 
+	 * @param blog
+	 *          the owning Blog
+	 * @param request
+	 * @return true if the confirmation is required, false otherwise
+	 */
+	public boolean confirmationRequired(Blog blog, HttpServletRequest request);
 
 }

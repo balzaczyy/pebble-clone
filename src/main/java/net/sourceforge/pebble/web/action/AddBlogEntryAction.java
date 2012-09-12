@@ -31,16 +31,21 @@
  */
 package net.sourceforge.pebble.web.action;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.*;
-import net.sourceforge.pebble.util.SecurityUtils;
-import net.sourceforge.pebble.web.view.View;
-import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
+import java.util.Iterator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Iterator;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.BlogServiceException;
+import net.sourceforge.pebble.domain.Category;
+import net.sourceforge.pebble.util.SecurityUtils;
+import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
 
 /**
  * Adds a new blog entry. This is called to create a blank blog entry
@@ -57,7 +62,8 @@ public class AddBlogEntryAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
     BlogEntry blogEntryToClone = null;
 
@@ -82,9 +88,9 @@ public class AddBlogEntryAction extends SecureAction {
       entry.setTrackBacksEnabled(blogEntryToClone.isTrackBacksEnabled());
 
       // copy the categories
-      Iterator it = blogEntryToClone.getCategories().iterator();
+			Iterator<Category> it = blogEntryToClone.getCategories().iterator();
       while (it.hasNext()) {
-        entry.addCategory((Category)it.next());
+        entry.addCategory(it.next());
       }
 
       entry.setTags(blogEntryToClone.getTags());
@@ -93,7 +99,7 @@ public class AddBlogEntryAction extends SecureAction {
       entry.setBody("<p>\n\n</p>");
     }
 
-    entry.setAuthor(SecurityUtils.getUsername());
+		entry.setAuthor(SecurityUtils.getUsername(request));
 
     getModel().put(Constants.BLOG_ENTRY_KEY, entry);
 
@@ -106,7 +112,8 @@ public class AddBlogEntryAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     return new String[]{Constants.BLOG_CONTRIBUTOR_ROLE};
   }
 

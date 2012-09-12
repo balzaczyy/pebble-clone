@@ -186,7 +186,7 @@ public class DefaultHttpController implements HttpController {
    */
   private boolean isUserInRole(HttpServletRequest request, SecureAction action) {
     AbstractBlog ab = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
-    String currentUser = SecurityUtils.getUsername();
+		String currentUser = SecurityUtils.getUsername(request);
     String roles[] = action.getRoles(request);
     for (String role : roles) {
       if (role.equals(Constants.ANY_ROLE)) {

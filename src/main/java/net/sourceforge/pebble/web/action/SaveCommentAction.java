@@ -73,7 +73,8 @@ public class SaveCommentAction extends AbstractCommentAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
     BlogEntry blogEntry;
     Comment comment;
@@ -124,7 +125,7 @@ public class SaveCommentAction extends AbstractCommentAction {
       Comment clonedComment = (Comment)comment.clone();
       request.getSession().setAttribute(Constants.COMMENT_KEY, comment);
 
-      if (strategy.confirmationRequired(clonedComment)) {
+			if (strategy.confirmationRequired(clonedComment, request)) {
         strategy.setupConfirmation(request);
         return new ConfirmCommentView();
       } else {

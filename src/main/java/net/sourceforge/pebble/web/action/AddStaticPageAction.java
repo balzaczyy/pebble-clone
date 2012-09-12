@@ -31,16 +31,16 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.StaticPageFormView;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Adds a new static page. This is called to create a blank static page
@@ -57,7 +57,8 @@ public class AddStaticPageAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
     String name = request.getParameter("name");
 
@@ -65,7 +66,7 @@ public class AddStaticPageAction extends SecureAction {
     staticPage.setName(name);
     staticPage.setTitle("Title");
     staticPage.setBody("<p>\n\n</p>");
-    staticPage.setAuthor(SecurityUtils.getUsername());
+		staticPage.setAuthor(SecurityUtils.getUsername(request));
 
     getModel().put(Constants.STATIC_PAGE_KEY, staticPage);
 
@@ -78,7 +79,8 @@ public class AddStaticPageAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     return new String[]{Constants.BLOG_CONTRIBUTOR_ROLE};
   }
 

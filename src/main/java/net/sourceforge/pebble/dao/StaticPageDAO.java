@@ -31,12 +31,10 @@
  */
 package net.sourceforge.pebble.dao;
 
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.domain.StaticPage;
-
-import java.util.List;
 import java.util.Collection;
+
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.StaticPage;
 
 /**
  * Interface for the static page data access object.
@@ -86,7 +84,7 @@ public interface StaticPageDAO {
    * @param staticPage the static page to lock
    * @return  true if the page could be locked, false otherwise
    */
-  public boolean lock(StaticPage staticPage);
+	public boolean lock(StaticPage staticPage, String byUser);
 
   /**
    * Unlocks the specified static page.

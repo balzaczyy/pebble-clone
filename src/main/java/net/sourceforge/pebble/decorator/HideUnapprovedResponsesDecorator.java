@@ -32,13 +32,13 @@
 
 package net.sourceforge.pebble.decorator;
 
+import java.util.List;
+
+import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.Comment;
 import net.sourceforge.pebble.domain.TrackBack;
 import net.sourceforge.pebble.util.SecurityUtils;
-import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
-
-import java.util.List;
 
 /**
  * Hides unapproved responses (comments and TrackBacks) if the current user is
@@ -54,19 +54,21 @@ public class HideUnapprovedResponsesDecorator extends ContentDecoratorSupport {
    * @param context   the context in which the decoration is running
    * @param blogEntry the blog entry to be decorated
    */
-  public void decorate(ContentDecoratorContext context, BlogEntry blogEntry) {
-    if (!SecurityUtils.isUserAuthorisedForBlogAsBlogContributor(blogEntry.getBlog())) {
-      List comments = blogEntry.getComments();
+  @Override
+	public void decorate(ContentDecoratorContext context, BlogEntry blogEntry) {
+		// TODO determine username
+		if (!SecurityUtils.isUserAuthorisedForBlogAsBlogContributor(blogEntry.getBlog(), null)) {
+			List<Comment> comments = blogEntry.getComments();
       for (int i = comments.size()-1; i >= 0; i--) {
-        Comment comment = (Comment)comments.get(i);
+        Comment comment = comments.get(i);
         if (!comment.isApproved()) {
           blogEntry.removeComment(comment.getId());
         }
       }
 
-      List trackBacks = blogEntry.getTrackBacks();
+			List<TrackBack> trackBacks = blogEntry.getTrackBacks();
       for (int i = trackBacks.size()-1; i >= 0; i--) {
-        TrackBack trackBack = (TrackBack)trackBacks.get(i);
+        TrackBack trackBack = trackBacks.get(i);
         if (!trackBack.isApproved()) {
           blogEntry.removeTrackBack(trackBack.getId());
         }

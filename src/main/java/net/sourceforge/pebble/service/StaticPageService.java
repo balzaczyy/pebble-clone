@@ -31,6 +31,11 @@
  */
 package net.sourceforge.pebble.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
 import net.sourceforge.pebble.ContentCache;
 import net.sourceforge.pebble.comparator.StaticPageByNameComparator;
 import net.sourceforge.pebble.dao.DAOFactory;
@@ -38,13 +43,9 @@ import net.sourceforge.pebble.dao.PersistenceException;
 import net.sourceforge.pebble.dao.StaticPageDAO;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.StaticPage;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Service that encompasses all functionality related to getting, putting
@@ -174,7 +175,7 @@ public class StaticPageService {
     ContentCache cache = ContentCache.getInstance();
     DAOFactory factory = DAOFactory.getConfiguredFactory();
     StaticPageDAO dao = factory.getStaticPageDAO();
-    Blog blog = staticPage.getBlog();
+		// Blog blog = staticPage.getBlog();
 
     try {
       dao.removeStaticPage(staticPage);
@@ -196,9 +197,9 @@ public class StaticPageService {
    * @param staticPage    the static page to lock
    * @return  true if the page could be locked, false otherwise
    */
-  public boolean lock(StaticPage staticPage) {
+	public boolean lock(StaticPage staticPage, String byUser) {
     if (staticPage.isPersistent()) {
-      boolean success = DAOFactory.getConfiguredFactory().getStaticPageDAO().lock(staticPage);
+			boolean success = DAOFactory.getConfiguredFactory().getStaticPageDAO().lock(staticPage, byUser);
       ContentCache.getInstance().removeStaticPage(staticPage);
 
       return success;

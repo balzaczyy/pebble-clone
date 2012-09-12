@@ -31,8 +31,23 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.*;
+import net.sourceforge.pebble.domain.Attachment;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.BlogServiceException;
 import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.util.StringUtils;
 import net.sourceforge.pebble.web.security.RequireSecurityToken;
@@ -40,21 +55,12 @@ import net.sourceforge.pebble.web.validation.ValidationContext;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
+
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.HeadMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Saves a blog entry.
@@ -77,7 +83,8 @@ public class SaveBlogEntryAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     String submitType = request.getParameter("submit");
 
     if (submitType != null && submitType.equalsIgnoreCase(PREVIEW)) {
@@ -144,7 +151,7 @@ public class SaveBlogEntryAction extends SecureAction {
       }
     } else {
       BlogEntry blogEntry = new BlogEntry(blog);
-      blogEntry.setAuthor(SecurityUtils.getUsername());
+			blogEntry.setAuthor(SecurityUtils.getUsername(request));
       return blogEntry;
     }
   }
@@ -265,7 +272,8 @@ public class SaveBlogEntryAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     return new String[]{Constants.BLOG_CONTRIBUTOR_ROLE};
   }
 

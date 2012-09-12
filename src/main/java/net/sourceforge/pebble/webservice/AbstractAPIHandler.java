@@ -31,9 +31,10 @@
  */
 package net.sourceforge.pebble.webservice;
 
-import net.sourceforge.pebble.domain.BlogManager;
 import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogManager;
 import net.sourceforge.pebble.util.SecurityUtils;
+
 import org.apache.xmlrpc.XmlRpcException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -74,7 +75,7 @@ public abstract class AbstractAPIHandler {
       Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
       SecurityContextHolder.getContext().setAuthentication(auth);
 
-      if (blog != null && !SecurityUtils.isUserAuthorisedForBlogAsBlogContributor(blog)) {
+			if (blog != null && !SecurityUtils.isUserAuthorisedForBlogAsBlogContributor(blog, username)) {
         throw new XmlRpcAuthenticationException("Not authorised for this blog.");
       }
     } catch (AuthenticationException ae) {

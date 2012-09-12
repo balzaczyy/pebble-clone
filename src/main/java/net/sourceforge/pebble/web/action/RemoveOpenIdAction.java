@@ -32,6 +32,10 @@
 
 package net.sourceforge.pebble.web.action;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.domain.AbstractBlog;
@@ -41,10 +45,6 @@ import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.web.security.RequireSecurityToken;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author James Roper
@@ -58,7 +58,7 @@ public class RemoveOpenIdAction extends SecureAction {
 
   @Override
   public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-    PebbleUserDetails userDetails = SecurityUtils.getUserDetails();
+		PebbleUserDetails userDetails = SecurityUtils.getUserDetails(request);
     AbstractBlog blog = (AbstractBlog)getModel().get(Constants.BLOG_KEY);
 
     String openId = request.getParameter("openid");

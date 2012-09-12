@@ -31,16 +31,16 @@
  */
 package net.sourceforge.pebble.web.action;
 
-import net.sourceforge.pebble.util.SecurityUtils;
-import net.sourceforge.pebble.web.view.View;
-import net.sourceforge.pebble.web.view.impl.UserDetailsView;
-import net.sourceforge.pebble.web.view.impl.FourZeroThreeView;
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.security.PebbleUserDetails;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.security.PebbleUserDetails;
+import net.sourceforge.pebble.util.SecurityUtils;
+import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.impl.FourZeroThreeView;
+import net.sourceforge.pebble.web.view.impl.UserDetailsView;
 
 /**
  * Displays information about a single user, ready for it to be edited.
@@ -56,8 +56,9 @@ public class EditUserDetailsAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-    PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+		PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails(request);
     getModel().put("user", currentUserDetails);
 
     // can the user change their user details?
@@ -74,7 +75,8 @@ public class EditUserDetailsAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     return new String[]{ Constants.ANY_ROLE };
   }
 

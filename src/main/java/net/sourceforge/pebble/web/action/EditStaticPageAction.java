@@ -31,19 +31,20 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.service.StaticPageService;
 import net.sourceforge.pebble.service.StaticPageServiceException;
+import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.web.view.NotFoundView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.StaticPageFormView;
 import net.sourceforge.pebble.web.view.impl.StaticPageLockedView;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Edits an existing static page. This is called to populate a HTML
@@ -60,7 +61,8 @@ public class EditStaticPageAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
     StaticPageService service = new StaticPageService();
     StaticPage staticPage = null;
@@ -74,7 +76,7 @@ public class EditStaticPageAction extends SecureAction {
       return new NotFoundView();
     } else {
       getModel().put(Constants.STATIC_PAGE_KEY, staticPage);
-      if (service.lock(staticPage)) {
+			if (service.lock(staticPage, SecurityUtils.getUsername(request))) {
         return new StaticPageFormView();
       } else {
         return new StaticPageLockedView();
@@ -88,7 +90,8 @@ public class EditStaticPageAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     return new String[]{Constants.BLOG_CONTRIBUTOR_ROLE};
   }
 

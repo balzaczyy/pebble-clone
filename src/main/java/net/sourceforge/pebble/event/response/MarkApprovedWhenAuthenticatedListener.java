@@ -31,8 +31,8 @@
  */
 package net.sourceforge.pebble.event.response;
 
-import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.util.SecurityUtils;
 
 /**
@@ -48,9 +48,11 @@ public class MarkApprovedWhenAuthenticatedListener extends BlogEntryResponseList
    *
    * @param response a Response
    */
-  protected void blogEntryResponseAdded(Response response) {
+  @Override
+	protected void blogEntryResponseAdded(Response response) {
     Blog blog = response.getBlogEntry().getBlog();
-    if (SecurityUtils.isUserAuthorisedForBlog(blog)) {
+		// TODO determine username
+		if (SecurityUtils.isUserAuthorisedForBlog(blog, null)) {
       response.setApproved();
     }
   }

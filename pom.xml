@@ -298,6 +298,23 @@
         	<version>1.7.0</version>
         	<scope>runtime</scope>
         </dependency>
+        <dependency>
+					<groupId>javax.ws.rs</groupId>
+					<artifactId>jsr311-api</artifactId>
+					<version>1.1.1</version>
+				</dependency>
+				<dependency>
+                <groupId>org.apache.wink</groupId>
+                <artifactId>wink-common</artifactId>
+                <version>1.1.2-incubating</version>
+                <scope>test</scope>
+        </dependency>
+        <dependency>
+                <groupId>org.apache.wink</groupId>
+                <artifactId>wink-server</artifactId>
+                <version>1.1.2-incubating</version>
+                <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

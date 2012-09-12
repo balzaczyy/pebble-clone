@@ -32,19 +32,20 @@
 
 package net.sourceforge.pebble.web.action;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.api.confirmation.TrackBackConfirmationStrategy;
-import net.sourceforge.pebble.domain.*;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.BlogServiceException;
 import net.sourceforge.pebble.web.view.NotFoundView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.ConfirmTrackBackView;
 import net.sourceforge.pebble.web.view.impl.TrackBackLinkView;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Generates a TrackBack link for a blog entry.
@@ -52,10 +53,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author    Simon Brown
  */
 public class GenerateTrackBackLinkAction extends AbstractTrackBackAction {
-
-  /** the log used by this class */
-  private static Log log = LogFactory.getLog(GenerateTrackBackLinkAction.class);
-
   /**
    * Peforms the processing associated with this action.
    *
@@ -63,7 +60,8 @@ public class GenerateTrackBackLinkAction extends AbstractTrackBackAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
     BlogEntry blogEntry;
 
@@ -85,7 +83,7 @@ public class GenerateTrackBackLinkAction extends AbstractTrackBackAction {
 
     TrackBackConfirmationStrategy strategy = blog.getTrackBackConfirmationStrategy();
 
-    if (strategy.confirmationRequired(blog)) {
+		if (strategy.confirmationRequired(blog, request)) {
       request.getSession().setAttribute(BLOG_ENTRY_ID, blogEntry.getId());
       strategy.setupConfirmation(request);
       return new ConfirmTrackBackView();

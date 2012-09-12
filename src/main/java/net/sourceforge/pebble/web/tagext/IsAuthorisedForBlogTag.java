@@ -31,14 +31,14 @@
  */
 package net.sourceforge.pebble.web.tagext;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.domain.AbstractBlog;
-import net.sourceforge.pebble.util.SecurityUtils;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.domain.AbstractBlog;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.util.SecurityUtils;
 
 /**
  * A custom tag that includes its body content if the current is authorised for
@@ -47,21 +47,23 @@ import javax.servlet.jsp.tagext.TagSupport;
  * @author    Simon Brown
  */
 public class IsAuthorisedForBlogTag extends TagSupport {
+	private static final long serialVersionUID = -8242837196256159454L;
 
-  /**
-   * Implementation from the Tag interface - this is called when the opening tag
-   * is encountered.
-   *
-   * @return  an integer specifying what to do afterwards
-   * @throws  javax.servlet.jsp.JspException    if something goes wrong
-   */
-  public int doStartTag() throws JspException {
+	/**
+	 * Implementation from the Tag interface - this is called when the opening tag is encountered.
+	 * 
+	 * @return an integer specifying what to do afterwards
+	 * @throws javax.servlet.jsp.JspException
+	 *           if something goes wrong
+	 */
+  @Override
+	public int doStartTag() throws JspException {
     HttpServletRequest request = (HttpServletRequest)pageContext.getRequest();
     AbstractBlog abstractBlog = (AbstractBlog)request.getAttribute(Constants.BLOG_KEY);
 
     if (abstractBlog instanceof Blog) {
       Blog blog = (Blog)abstractBlog;
-      if (SecurityUtils.isUserAuthorisedForBlog(blog)) {
+			if (SecurityUtils.isUserAuthorisedForBlog(blog, request)) {
         return EVAL_BODY_INCLUDE;
       }
     }

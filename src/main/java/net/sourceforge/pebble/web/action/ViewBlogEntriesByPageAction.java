@@ -31,18 +31,23 @@
  */
 package net.sourceforge.pebble.web.action;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.*;
-import net.sourceforge.pebble.util.SecurityUtils;
-import net.sourceforge.pebble.util.Pageable;
-import net.sourceforge.pebble.web.view.RedirectView;
-import net.sourceforge.pebble.web.view.View;
-import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.domain.AbstractBlog;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogManager;
+import net.sourceforge.pebble.domain.MultiBlog;
+import net.sourceforge.pebble.util.Pageable;
+import net.sourceforge.pebble.util.SecurityUtils;
+import net.sourceforge.pebble.web.view.RedirectView;
+import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
 
 /**
  * Views blog entries page by page. The page size is the same as the "number of
@@ -59,16 +64,17 @@ public class ViewBlogEntriesByPageAction extends Action {
    * @param response    the HttpServletResponse instance.
    * @return            the next View
    */
-  public View process(HttpServletRequest request,
+  @Override
+	public View process(HttpServletRequest request,
                       HttpServletResponse response)
       throws ServletException {
 
     AbstractBlog abstractBlog = (AbstractBlog)getModel().get(Constants.BLOG_KEY);
 
     if (abstractBlog instanceof MultiBlog) {
-      List publicBlogs = BlogManager.getInstance().getPublicBlogs();
+			List<Blog> publicBlogs = BlogManager.getInstance().getPublicBlogs();
       if (publicBlogs.size() == 1) {
-        Blog blog = (Blog)publicBlogs.get(0);
+        Blog blog = publicBlogs.get(0);
         return new RedirectView(blog.getUrl());
       } else {
         getModel().put(Constants.BLOG_ENTRIES, abstractBlog.getRecentBlogEntries());
@@ -84,7 +90,7 @@ public class ViewBlogEntriesByPageAction extends Action {
         page = 1;
       }
       boolean publishedOnly = true;
-      if (SecurityUtils.isUserAuthorisedForBlog(blog)) {
+			if (SecurityUtils.isUserAuthorisedForBlog(blog, request)) {
         publishedOnly = false;
       }
 
