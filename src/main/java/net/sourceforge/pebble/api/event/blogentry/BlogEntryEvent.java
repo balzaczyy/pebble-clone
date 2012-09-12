@@ -31,11 +31,11 @@
  */
 package net.sourceforge.pebble.api.event.blogentry;
 
-import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.api.event.PebbleEvent;
-
 import java.beans.PropertyChangeEvent;
 import java.util.List;
+
+import net.sourceforge.pebble.api.event.PebbleEvent;
+import net.sourceforge.pebble.domain.BlogEntry;
 
 /**
  * Event to signify that a blog entry has been added, removed or changed.
@@ -43,8 +43,9 @@ import java.util.List;
  * @author Simon Brown
  */
 public class BlogEntryEvent extends PebbleEvent {
+	private static final long serialVersionUID = 4025287180247522110L;
 
-  /** constant representing blog entry added type */
+	/** constant representing blog entry added type */
   public static final int BLOG_ENTRY_ADDED = 0;
 
   /** constant representing blog entry removed type */

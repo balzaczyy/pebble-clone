@@ -31,16 +31,26 @@
  */
 package net.sourceforge.pebble.domain;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
+
 import net.sourceforge.pebble.api.event.blogentry.BlogEntryEvent;
 import net.sourceforge.pebble.api.event.comment.CommentEvent;
 import net.sourceforge.pebble.api.event.trackback.TrackBackEvent;
 import net.sourceforge.pebble.comparator.ResponseByDateComparator;
-import net.sourceforge.pebble.web.validation.ValidationContext;
 import net.sourceforge.pebble.trackback.TrackBackTokenManager;
+import net.sourceforge.pebble.web.validation.ValidationContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.*;
 
 /**
  * Represents a blog entry.
@@ -48,10 +58,11 @@ import java.util.*;
  * @author Simon Brown
  */
 public class BlogEntry extends PageBasedContent {
+	private static final long serialVersionUID = 1570141053807242888L;
 
-  /**
-   * the log used by this class
-   */
+	/**
+	 * the log used by this class
+	 */
   private static Log log = LogFactory.getLog(BlogEntry.class);
 
   public static final String EXCERPT_PROPERTY = "excerpt";
@@ -66,7 +77,7 @@ public class BlogEntry extends PageBasedContent {
   /**
    * the category that the blog entry falls into
    */
-  private Set categories = new HashSet();
+	private final Set<Category> categories = new HashSet<Category>();
 
   /**
    * the excerpt of the blog entry
@@ -86,12 +97,12 @@ public class BlogEntry extends PageBasedContent {
   /**
    * the collection of comments for the blog entry
    */
-  private List comments = new ArrayList();
+	private final List<Comment> comments = new ArrayList<Comment>();
 
   /**
    * the collection of trackbacks for the blog entry
    */
-  private List trackBacks = new ArrayList();
+	private final List<TrackBack> trackBacks = new ArrayList<TrackBack>();
 
   /** the attachment for this blog entry, if applicable */
   private Attachment attachment;
@@ -114,7 +125,8 @@ public class BlogEntry extends PageBasedContent {
    *
    * @param newTitle  the title as a String
    */
-  public void setTitle(String newTitle) {
+  @Override
+	public void setTitle(String newTitle) {
     super.setTitle(newTitle);
 
     // and cause the permalink to be re-generated
@@ -135,43 +147,44 @@ public class BlogEntry extends PageBasedContent {
    *
    * @return  a List of tags
    */
-  public List<Tag> getAllTags() {
+  @Override
+	public List<Tag> getAllTags() {
     List<Tag> list = new ArrayList<Tag>();
 
     if (getCategories().size() > 0) {
-      Iterator it = getCategories().iterator();
+			Iterator<Category> it = getCategories().iterator();
       while (it.hasNext()) {
-        Category category = (Category)it.next();
-        List tagsForCategory = category.getAllTags();
+        Category category = it.next();
+				List<Tag> tagsForCategory = category.getAllTags();
         Collections.reverse(tagsForCategory);
-        Iterator jt = tagsForCategory.iterator();
+				Iterator<Tag> jt = tagsForCategory.iterator();
         while (jt.hasNext()) {
-          Tag tag = (Tag)jt.next();
+          Tag tag = jt.next();
           if (!list.contains(tag)) {
             list.add(tag);
           }
         }
       }
     } else {
-      List tagsForCategory = getBlog().getRootCategory().getAllTags();
-      Iterator it = tagsForCategory.iterator();
+			List<Tag> tagsForCategory = getBlog().getRootCategory().getAllTags();
+			Iterator<Tag> it = tagsForCategory.iterator();
       while (it.hasNext()) {
-        Tag tag = (Tag)it.next();
+        Tag tag = it.next();
         if (!list.contains(tag)) {
           list.add(tag);
         }
       }
     }
 
-    Iterator it = getTagsAsList().iterator();
+		Iterator<Tag> it = getTagsAsList().iterator();
     while (it.hasNext()) {
-      Tag tag = (Tag)it.next();
+      Tag tag = it.next();
       if (!list.contains(tag)) {
         list.add(tag);
       }
     }
 
-    Collections.sort(list);
+		Collections.<Tag> sort(list);
     return list;
   }
 
@@ -182,9 +195,9 @@ public class BlogEntry extends PageBasedContent {
    */
   public synchronized void addCategory(Category category) {
     if (category != null && !categories.contains(category)) {
-      Set oldCategories = new HashSet(categories);
+			Set<Category> oldCategories = new HashSet<Category>(categories);
       categories.add(category);
-      Set newCategories = new HashSet(categories);
+			Set<Category> newCategories = new HashSet<Category>(categories);
       propertyChangeSupport.firePropertyChange(CATEGORIES_PROPERTY, oldCategories, newCategories);
     }
   }
@@ -193,7 +206,8 @@ public class BlogEntry extends PageBasedContent {
    * Removes all categories from this blog entry.
    */
   public synchronized void removeAllCategories() {
-    propertyChangeSupport.firePropertyChange(CATEGORIES_PROPERTY, new HashSet(categories), new HashSet());
+		propertyChangeSupport.firePropertyChange(CATEGORIES_PROPERTY, new HashSet<Category>(categories),
+				new HashSet<Category>());
     categories.clear();
   }
 
@@ -202,15 +216,16 @@ public class BlogEntry extends PageBasedContent {
    *
    * @param newCategories   a Collection of Category instances
    */
-  public synchronized void setCategories(Collection newCategories) {
+	public synchronized void setCategories(Collection<Category> newCategories) {
     if (newCategories != null) {
-      Set oldCategories = new HashSet(categories);
+			Set<Category> oldCategories = new HashSet<Category>(categories);
       categories.clear();
-      Iterator it = newCategories.iterator();
+			Iterator<Category> it = newCategories.iterator();
       while (it.hasNext()) {
         categories.add(it.next());
       }
-      propertyChangeSupport.firePropertyChange(CATEGORIES_PROPERTY, oldCategories, new HashSet(newCategories));
+			propertyChangeSupport
+					.firePropertyChange(CATEGORIES_PROPERTY, oldCategories, new HashSet<Category>(newCategories));
     }
   }
 
@@ -223,9 +238,9 @@ public class BlogEntry extends PageBasedContent {
    */
   public boolean inCategory(Category category) {
     if (category != null) {
-      Iterator it = categories.iterator();
+			Iterator<Category> it = categories.iterator();
       while (it.hasNext()) {
-        Category c = (Category)it.next();
+        Category c = it.next();
         if (c.equals(category) || c.hasParent(category)) {
           return true;
         }
@@ -257,7 +272,8 @@ public class BlogEntry extends PageBasedContent {
    *
    * @return a String
    */
-  public String getContent() {
+  @Override
+	public String getContent() {
     if (excerpt != null && excerpt.length() > 0) {
       return excerpt;
     } else {
@@ -292,20 +308,21 @@ public class BlogEntry extends PageBasedContent {
    *
    * @return  a Date instance representing the time of the last comment/TrackBack
    */
-  public Date getLastModified() {
+  @Override
+	public Date getLastModified() {
     Date date = getDate();
 
-    Iterator it = comments.iterator();
+		Iterator<Comment> it = comments.iterator();
     while (it.hasNext()) {
-      Comment comment = (Comment)it.next();
+      Comment comment = it.next();
       if (comment.getDate().after(date)) {
         date = comment.getDate();
       }
     }
 
-    it = trackBacks.iterator();
-    while (it.hasNext()) {
-      TrackBack trackBack = (TrackBack)it.next();
+		Iterator<TrackBack> it2 = trackBacks.iterator();
+		while (it2.hasNext()) {
+			TrackBack trackBack = it2.next();
       if (trackBack.getDate().after(date)) {
         date = trackBack.getDate();
       }
@@ -319,7 +336,8 @@ public class BlogEntry extends PageBasedContent {
    *
    * @param newDate a java.util.Date instance
    */
-  public void setDate(Date newDate) {
+  @Override
+	public void setDate(Date newDate) {
     super.setDate(newDate);
 
     // and cause the permalink to be re-generated
@@ -333,7 +351,8 @@ public class BlogEntry extends PageBasedContent {
    *
    * @return an absolute URL as a String
    */
-  public String getLocalPermalink() {
+  @Override
+	public String getLocalPermalink() {
     if (this.permalink == null) {
       String s = getBlog().getPermalinkProvider().getPermalink(this);
       if (s != null && s.length() > 0) {
@@ -441,7 +460,7 @@ public class BlogEntry extends PageBasedContent {
    * @return  a List of all Response instances
    */
   public List<Response> getResponses() {
-    List<Response> responses = new ArrayList();
+		List<Response> responses = new ArrayList<Response>();
     responses.addAll(getComments());
     responses.addAll(getTrackBacks());
     Collections.sort(responses, new ResponseByDateComparator());
@@ -454,21 +473,21 @@ public class BlogEntry extends PageBasedContent {
    * @return a List of Comment instances
    */
   public List<Comment> getComments() {
-    List<Comment> allComments = new ArrayList();
-    Iterator it = comments.iterator();
+		List<Comment> allComments = new ArrayList<Comment>();
+		Iterator<Comment> it = comments.iterator();
     while (it.hasNext()) {
-      allComments.addAll(getComments((Comment)it.next()));
+      allComments.addAll(getComments(it.next()));
     }
 
     return allComments;
   }
 
   private List<Comment> getComments(Comment comment) {
-    List<Comment> allComments = new ArrayList();
+		List<Comment> allComments = new ArrayList<Comment>();
     allComments.add(comment);
-    Iterator it = comment.getComments().iterator();
+		Iterator<Comment> it = comment.getComments().iterator();
     while (it.hasNext()) {
-      allComments.addAll(getComments((Comment)it.next()));
+      allComments.addAll(getComments(it.next()));
     }
 
     return allComments;
@@ -668,9 +687,9 @@ public class BlogEntry extends PageBasedContent {
    * @param id    the id of the comment
    */
   public Comment getComment(long id) {
-    Iterator it = getComments().iterator();
+		Iterator<Comment> it = getComments().iterator();
     while (it.hasNext()) {
-      Comment comment = (Comment) it.next();
+      Comment comment = it.next();
       if (comment.getId() == id) {
         return comment;
       }
@@ -685,9 +704,9 @@ public class BlogEntry extends PageBasedContent {
    * @param id    the id of the TrackBack
    */
   public TrackBack getTrackBack(long id) {
-    Iterator it = getTrackBacks().iterator();
+		Iterator<TrackBack> it = getTrackBacks().iterator();
     while (it.hasNext()) {
-      TrackBack trackBack = (TrackBack)it.next();
+      TrackBack trackBack = it.next();
       if (trackBack.getId() == id) {
         return trackBack;
       }
@@ -773,7 +792,8 @@ public class BlogEntry extends PageBasedContent {
    * @see #hashCode()
    * @see java.util.Hashtable
    */
-  public boolean equals(Object o) {
+  @Override
+	public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -790,7 +810,8 @@ public class BlogEntry extends PageBasedContent {
     return "blogEntry/" + getBlog().getId() + "/" + getId();
   }
 
-  public int hashCode() {
+  @Override
+	public int hashCode() {
     return getGuid().hashCode();
   }
 
@@ -800,7 +821,8 @@ public class BlogEntry extends PageBasedContent {
    * @return a clone of this instance.
    * @see Cloneable
    */
-  public Object clone() {
+  @Override
+	public Object clone() {
     BlogEntry entry = new BlogEntry(getBlog());
     entry.setEventsEnabled(false);
     entry.setPersistent(isPersistent());
@@ -822,25 +844,25 @@ public class BlogEntry extends PageBasedContent {
     }
 
     // copy the categories
-    Iterator it = categories.iterator();
+		Iterator<Category> it = categories.iterator();
     while (it.hasNext()) {
-      entry.addCategory((Category)it.next());
+      entry.addCategory(it.next());
     }
 
     entry.setTags(getTags());
 
     // also copy the comments
-    it = getComments().iterator();
-    while (it.hasNext()) {
-      Comment comment = (Comment)it.next();
+		Iterator<Comment> it2 = getComments().iterator();
+		while (it2.hasNext()) {
+			Comment comment = it2.next();
       Comment clonedComment = (Comment)comment.clone();
       entry.addComment(clonedComment);
     }
 
     // and TrackBacks
-    it = getTrackBacks().iterator();
-    while (it.hasNext()) {
-      TrackBack trackBack = (TrackBack)it.next();
+		Iterator<TrackBack> it3 = getTrackBacks().iterator();
+		while (it3.hasNext()) {
+			TrackBack trackBack = it3.next();
       TrackBack clonedTrackBack = (TrackBack)trackBack.clone();
       clonedTrackBack.setBlogEntry(entry);
       entry.addTrackBack(clonedTrackBack);
@@ -854,7 +876,8 @@ public class BlogEntry extends PageBasedContent {
    *
    * @param b   true to enable events, false otherwise
    */
-  void setEventsEnabled(boolean b) {
+  @Override
+	void setEventsEnabled(boolean b) {
     super.setEventsEnabled(b);
 
     // and cascade
@@ -863,7 +886,8 @@ public class BlogEntry extends PageBasedContent {
     }
   }
 
-  public void clearEvents() {
+  @Override
+	public void clearEvents() {
     super.clearEvents();
 
     for (Response response : getResponses()) {
@@ -874,7 +898,8 @@ public class BlogEntry extends PageBasedContent {
   /**
    * Sets the state of this blog entry.
    */
-  void setState(State state) {
+  @Override
+	void setState(State state) {
     State previousState = getState();
     super.setState(state);
 
@@ -887,7 +912,8 @@ public class BlogEntry extends PageBasedContent {
     }
   }
 
-  public String toString() {
+  @Override
+	public String toString() {
     return getGuid() + ":" + super.hashCode();
   }
 

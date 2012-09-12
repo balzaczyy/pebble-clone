@@ -31,9 +31,6 @@
  */
 package net.sourceforge.pebble.domain;
 
-import net.sourceforge.pebble.api.event.PebbleEvent;
-import net.sourceforge.pebble.util.StringUtils;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -41,14 +38,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sourceforge.pebble.api.event.PebbleEvent;
+import net.sourceforge.pebble.util.StringUtils;
+
 /**
  * Superclass for blog entries, comments and TrackBacks.
  *
  * @author    Simon Brown
  */
 public abstract class Content implements Permalinkable, Cloneable, Serializable {
+	private static final long serialVersionUID = -3350618986562277998L;
 
-  /** the state of the object */
+	/** the state of the object */
   private State state;
 
   /** flag to indicate whether events are enabled */
@@ -58,7 +59,7 @@ public abstract class Content implements Permalinkable, Cloneable, Serializable 
   protected transient PropertyChangeSupport propertyChangeSupport;
 
   /** the collection of properties that have changed since the last store */
-  private transient ArrayList propertyChangeEvents;
+	private transient ArrayList<PropertyChangeEvent> propertyChangeEvents;
 
   /** the collection of PebbleEvent instances that have been initiated */
   private transient List<PebbleEvent> events = new ArrayList<PebbleEvent>();
@@ -68,7 +69,7 @@ public abstract class Content implements Permalinkable, Cloneable, Serializable 
    */
   public Content() {
     this.propertyChangeSupport = new PropertyChangeSupport(this);
-    this.propertyChangeEvents = new ArrayList();
+		this.propertyChangeEvents = new ArrayList<PropertyChangeEvent>();
     this.propertyChangeSupport.addPropertyChangeListener(new PropertyChangeListener() {
       public void propertyChange(PropertyChangeEvent event) {
         if (areEventsEnabled()) {
@@ -139,7 +140,7 @@ public abstract class Content implements Permalinkable, Cloneable, Serializable 
    * Clears existing property change events.
    */
   public void clearPropertyChangeEvents() {
-    this.propertyChangeEvents = new ArrayList();
+		this.propertyChangeEvents = new ArrayList<PropertyChangeEvent>();
   }
 
   /**
@@ -157,8 +158,8 @@ public abstract class Content implements Permalinkable, Cloneable, Serializable 
    *
    * @return  a List of PropertyChangeEvent instances
    */
-  public List getPropertyChangeEvents() {
-    return (List)propertyChangeEvents.clone();
+	public List<PropertyChangeEvent> getPropertyChangeEvents() {
+		return (List<PropertyChangeEvent>) propertyChangeEvents.clone();
   }
 
   /**

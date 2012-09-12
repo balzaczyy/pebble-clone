@@ -31,16 +31,22 @@
  */
 package net.sourceforge.pebble.logging;
 
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.Constants;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.domain.Blog;
 
 /**
  * Supports the <a href="http://httpd.apache.org/docs/logs.html#combined">Combined Log Format</a>.
@@ -54,9 +60,9 @@ public class CombinedLogFormatLogger extends AbstractLogger {
   private static final int FLUSH_SIZE = 0;
 
   /** the format of the log filenames */
-  private SimpleDateFormat filenameFormat = new SimpleDateFormat("'blog-'yyyyMMdd'.log'");
+  private final SimpleDateFormat filenameFormat = new SimpleDateFormat("'blog-'yyyyMMdd'.log'");
 
-  private List entries = new ArrayList();
+	private final List<LogEntry> entries = new ArrayList<LogEntry>();
 
   public CombinedLogFormatLogger(Blog blog) {
     super(blog);
@@ -68,7 +74,8 @@ public class CombinedLogFormatLogger extends AbstractLogger {
    *
    * @param request   a HttpServletRequest
    */
-  public synchronized void log(HttpServletRequest request, int status) {
+  @Override
+	public synchronized void log(HttpServletRequest request, int status) {
     String externalUri = (String)request.getAttribute(Constants.EXTERNAL_URI);
     LogEntry entry = new LogEntry();
     entry.setHost(request.getRemoteAddr());
@@ -100,13 +107,15 @@ public class CombinedLogFormatLogger extends AbstractLogger {
   /**
    * Called to start this logger.
    */
-  public void start() {
+  @Override
+	public void start() {
   }
 
   /**
    * Called to stop this logger.
    */
-  public synchronized void stop() {
+  @Override
+	public synchronized void stop() {
     flush();
   }
 
@@ -118,7 +127,8 @@ public class CombinedLogFormatLogger extends AbstractLogger {
    * @param day     the day to get entries for
    * @return    a String containing the contents of the requested log file
    */
-  public String getLogFile(int year, int month, int day) {
+  @Override
+	public String getLogFile(int year, int month, int day) {
     StringBuffer buf = new StringBuffer();
     try {
       // read the file a line at a time, creating a String as we go
@@ -148,7 +158,8 @@ public class CombinedLogFormatLogger extends AbstractLogger {
    * @param day     the day to get entries for
    * @return    a Log object
    */
-  public Log getLog(int year, int month, int day) {
+  @Override
+	public Log getLog(int year, int month, int day) {
     List logEntries = new ArrayList();
     CombinedFormatLogEntryFormat format = new CombinedFormatLogEntryFormat(blog);
 
@@ -179,7 +190,8 @@ public class CombinedLogFormatLogger extends AbstractLogger {
    * @param day   the day to get entries for
    * @return a LogSummary object
    */
-  public LogSummary getLogSummary(int year, int month, int day) {
+  @Override
+	public LogSummary getLogSummary(int year, int month, int day) {
     Calendar cal = blog.getCalendar();
     cal.set(Calendar.YEAR, year);
     cal.set(Calendar.MONTH, month-1);

@@ -31,25 +31,20 @@
  */
 package net.sourceforge.pebble.domain;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import net.sourceforge.pebble.util.StringUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.*;
 
 /**
  * Represents a tag.
  *
  * @author    Simon Brown
  */
-public class Tag implements Permalinkable, Comparable {
-
-  /** the log used by this class */
-  private static final Log log = LogFactory.getLog(Tag.class);
-
+public class Tag implements Permalinkable, Comparable<Tag> {
   /** the owning blog */
-  private Blog blog;
+  private final Blog blog;
 
   /** the name of the tag */
   private String name = "";
@@ -100,7 +95,8 @@ public class Tag implements Permalinkable, Comparable {
    *
    * @return  the hashcode as an int
    */
-  public int hashCode() {
+  @Override
+	public int hashCode() {
     return name.hashCode();
   }
 
@@ -110,7 +106,8 @@ public class Tag implements Permalinkable, Comparable {
    * @param o   the object to compare against
    * @return    true if Object o represents the same tag, false otherwise
    */
-  public boolean equals(Object o) {
+  @Override
+	public boolean equals(Object o) {
     if (!(o instanceof Tag)) {
       return false;
     }
@@ -131,8 +128,7 @@ public class Tag implements Permalinkable, Comparable {
    * @throws ClassCastException if the specified object's type prevents it
    *         from being compared to this Object.
    */
-  public int compareTo(Object o) {
-    Tag tag = (Tag)o;
+	public int compareTo(Tag tag) {
     return getName().compareTo(tag.getName());
   }
 
@@ -141,7 +137,8 @@ public class Tag implements Permalinkable, Comparable {
    *
    * @return  a String
    */
-  public String toString() {
+  @Override
+	public String toString() {
     return this.name;
   }
 
@@ -187,9 +184,9 @@ public class Tag implements Permalinkable, Comparable {
     StringBuilder builder = new StringBuilder();
 
     if (tags != null) {
-      Iterator it = tags.iterator();
+			Iterator<Tag> it = tags.iterator();
       while (it.hasNext()) {
-        Tag tag = (Tag)it.next();
+        Tag tag = it.next();
         builder.append(tag.getName());
         if (it.hasNext()) {
           builder.append(", ");

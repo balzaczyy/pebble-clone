@@ -31,20 +31,21 @@
  */
 package net.sourceforge.pebble.domain;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
+import net.sourceforge.pebble.ContentCache;
 import net.sourceforge.pebble.api.event.blogentry.BlogEntryEvent;
 import net.sourceforge.pebble.api.event.comment.CommentEvent;
 import net.sourceforge.pebble.api.event.trackback.TrackBackEvent;
 import net.sourceforge.pebble.dao.BlogEntryDAO;
 import net.sourceforge.pebble.dao.DAOFactory;
 import net.sourceforge.pebble.dao.PersistenceException;
-import net.sourceforge.pebble.ContentCache;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Collection;
 
 /**
  * Service that encompasses all functionality related to getting, putting
@@ -196,7 +197,7 @@ public class BlogService {
    * Removes this blog entry.
    */
   public void removeBlogEntry(BlogEntry blogEntry) throws BlogServiceException {
-    Blog blog = blogEntry.getBlog();
+		// Blog blog = blogEntry.getBlog();
     ContentCache cache = ContentCache.getInstance();
 
     try {

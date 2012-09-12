@@ -31,15 +31,13 @@
  */
 package net.sourceforge.pebble.event.blogentry;
 
-import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.util.SecurityUtils;
-import net.sourceforge.pebble.api.event.blogentry.BlogEntryEvent;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.beans.PropertyChangeEvent;
 import java.util.Iterator;
 import java.util.List;
+
+import net.sourceforge.pebble.api.event.blogentry.BlogEntryEvent;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.util.SecurityUtils;
 
 /**
  * Marks new and changed blog entries as unpublished.
@@ -47,16 +45,13 @@ import java.util.List;
  * @author Simon Brown
  */
 public class MarkUnpublishedListener extends BlogEntryListenerSupport {
-
-  /** the log used by this class */
-  private static final Log log = LogFactory.getLog(MarkUnpublishedListener.class);
-
   /**
    * Called when a blog entry has been added.
    *
    * @param event   a BlogEntryEvent instance
    */
-  public void blogEntryAdded(BlogEntryEvent event) {
+  @Override
+	public void blogEntryAdded(BlogEntryEvent event) {
     if (!SecurityUtils.isBlogOwner()) {
       event.getBlogEntry().setPublished(false);
     }
@@ -67,7 +62,8 @@ public class MarkUnpublishedListener extends BlogEntryListenerSupport {
    *
    * @param event a BlogEntryEvent instance
    */
-  public void blogEntryChanged(BlogEntryEvent event) {
+  @Override
+	public void blogEntryChanged(BlogEntryEvent event) {
     if (!SecurityUtils.isBlogPublisher()) {
 
       // mark the entry as unpublished if one of the following properties
@@ -77,10 +73,10 @@ public class MarkUnpublishedListener extends BlogEntryListenerSupport {
       //  - excerpt
       //  - body
       //  - original permalink
-      List propertyChangeEvents = event.getPropertyChangeEvents();
-      Iterator it = propertyChangeEvents.iterator();
+			List<PropertyChangeEvent> propertyChangeEvents = event.getPropertyChangeEvents();
+			Iterator<PropertyChangeEvent> it = propertyChangeEvents.iterator();
       while (it.hasNext()) {
-        PropertyChangeEvent pce = (PropertyChangeEvent)it.next();
+        PropertyChangeEvent pce = it.next();
         String property = pce.getPropertyName();
         if (property.equals(BlogEntry.TITLE_PROPERTY) ||
             property.equals(BlogEntry.SUBTITLE_PROPERTY) ||

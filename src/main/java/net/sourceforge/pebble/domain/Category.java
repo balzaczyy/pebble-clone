@@ -31,11 +31,10 @@
  */
 package net.sourceforge.pebble.domain;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import net.sourceforge.pebble.comparator.ReverseBlogEntryIdComparator;
 
@@ -44,12 +43,10 @@ import net.sourceforge.pebble.comparator.ReverseBlogEntryIdComparator;
  *
  * @author    Simon Brown
  */
-public class Category implements Permalinkable, Comparable, Serializable {
+public class Category implements Permalinkable, Comparable<Category>, Serializable {
+	private static final long serialVersionUID = -1321870315659674183L;
 
-  /** the log used by this class */
-  private static final Log log = LogFactory.getLog(Category.class);
-
-  /** the root category identifier */
+	/** the root category identifier */
   private static final String ROOT_CATEGORY_IDENTIFIER = "/";
 
   /** the owning blog */
@@ -68,10 +65,10 @@ public class Category implements Permalinkable, Comparable, Serializable {
   private String tags = "";
 
   /** the list of tags for this category */
-  private List tagsAsList = new ArrayList();
+	private List<Tag> tagsAsList = new ArrayList<Tag>();
 
   /** the sub-categories */
-  private List subCategories = new ArrayList();
+	private final List<Category> subCategories = new ArrayList<Category>();
 
   /** the blog entries associated with this category */
   private List<String> blogEntries = new ArrayList<String>();
@@ -226,7 +223,7 @@ public class Category implements Permalinkable, Comparable, Serializable {
    *
    * @return  a List of Category instances
    */
-  public List getSubCategories() {
+	public List<Category> getSubCategories() {
     return Collections.unmodifiableList(subCategories);
   }
 
@@ -244,7 +241,7 @@ public class Category implements Permalinkable, Comparable, Serializable {
    *
    * @return  a List of tags
    */
-  public List getTagsAsList() {
+	public List<Tag> getTagsAsList() {
     return this.tagsAsList;
   }
 
@@ -253,8 +250,8 @@ public class Category implements Permalinkable, Comparable, Serializable {
    *
    * @return  a list of tags
    */
-  public List getAllTags() {
-    List l = new ArrayList();
+	public List<Tag> getAllTags() {
+		List<Tag> l = new ArrayList<Tag>();
 
     l.addAll(getTagsAsList());
     Category parent = getParent();
@@ -310,7 +307,8 @@ public class Category implements Permalinkable, Comparable, Serializable {
    *
    * @return  the hashcode as an int
    */
-  public int hashCode() {
+  @Override
+	public int hashCode() {
     return id.hashCode();
   }
 
@@ -320,7 +318,8 @@ public class Category implements Permalinkable, Comparable, Serializable {
    * @param o   the object to compare against
    * @return    true if Object o represents the same category, false otherwise
    */
-  public boolean equals(Object o) {
+  @Override
+	public boolean equals(Object o) {
     if (!(o instanceof Category)) {
       return false;
     }
@@ -341,9 +340,8 @@ public class Category implements Permalinkable, Comparable, Serializable {
    * @throws ClassCastException if the specified object's type prevents it
    *         from being compared to this Object.
    */
-  public int compareTo(Object o) {
-    Category category = (Category)o;
-    return getId().compareTo(category.getId());
+	public int compareTo(Category o) {
+		return getId().compareTo(o.getId());
   }
 
   /**
@@ -351,7 +349,8 @@ public class Category implements Permalinkable, Comparable, Serializable {
    *
    * @return  a String
    */
-  public String toString() {
+  @Override
+	public String toString() {
     return this.name;
   }
 

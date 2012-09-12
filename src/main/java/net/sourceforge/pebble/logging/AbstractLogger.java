@@ -31,10 +31,15 @@
  */
 package net.sourceforge.pebble.logging;
 
-import net.sourceforge.pebble.domain.Blog;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+
+import net.sourceforge.pebble.domain.Blog;
 
 /**
  * Interface that all loggers implement.
@@ -139,7 +144,7 @@ public abstract class AbstractLogger {
    * @return    a Log object
    */
   public Log getLog(int year, int month) {
-    Collection logEntries = new HashSet();
+		Collection<LogEntry> logEntries = new HashSet<LogEntry>();
     Calendar cal = blog.getCalendar();
     cal.set(Calendar.YEAR, year);
     cal.set(Calendar.MONTH, month-1);
@@ -183,7 +188,7 @@ public abstract class AbstractLogger {
     cal.set(Calendar.DAY_OF_MONTH, 1);
     cal.set(Calendar.MONTH, month-1);
 
-    List logSummaries = new ArrayList();
+		List<LogSummary> logSummaries = new ArrayList<LogSummary>();
     for (int day = 1; day <= cal.getActualMaximum(Calendar.DAY_OF_MONTH); day++) {
       logSummaries.add(getLogSummary(year, month, day));
     }
@@ -201,7 +206,7 @@ public abstract class AbstractLogger {
     Calendar cal = blog.getCalendar();
     cal.set(Calendar.YEAR, year);
 
-    List logSummaries = new ArrayList();
+		List<LogSummary> logSummaries = new ArrayList<LogSummary>();
     for (int month = 1; month <= 12; month++) {
       logSummaries.add(getLogSummary(year, month));
     }
