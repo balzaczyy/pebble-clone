@@ -52,7 +52,6 @@ import net.sourceforge.pebble.comparator.PebbleUserDetailsComparator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.authentication.dao.ReflectionSaltSource;
 import org.springframework.security.authentication.dao.SaltSource;
@@ -65,7 +64,7 @@ import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
  *
  * @author    Simon Brown
  */
-public class DefaultSecurityRealm implements SecurityRealm, ApplicationListener {
+public class DefaultSecurityRealm implements SecurityRealm {
 
   private static final Log log = LogFactory.getLog(DefaultSecurityRealm.class);
 
@@ -160,7 +159,7 @@ public class DefaultSecurityRealm implements SecurityRealm, ApplicationListener 
       }
     }
 
-    Collections.sort(users, new PebbleUserDetailsComparator());
+		Collections.<PebbleUserDetails> sort(users, new PebbleUserDetailsComparator());
 
     return users;
   }

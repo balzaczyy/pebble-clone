@@ -31,9 +31,9 @@
  */
 package net.sourceforge.pebble.comparator;
 
-import net.sourceforge.pebble.security.PebbleUserDetails;
-
 import java.util.Comparator;
+
+import net.sourceforge.pebble.security.PebbleUserDetails;
 
 /**
  * A comparator used to order PebbleUserDetails instances, in alphabetic
@@ -41,7 +41,7 @@ import java.util.Comparator;
  *
  * @author    Simon Brown
  */
-public class PebbleUserDetailsComparator implements Comparator {
+public class PebbleUserDetailsComparator implements Comparator<PebbleUserDetails> {
 
   /**
    * Compares two objects.
@@ -53,10 +53,7 @@ public class PebbleUserDetailsComparator implements Comparator {
    *          the counts are the same, then -n, 0 or +n is returned if the name
    *          of the first is less than, the same as or greater than the second
    */
-  public int compare(Object o1, Object o2) {
-    PebbleUserDetails pud1 = (PebbleUserDetails)o1;
-    PebbleUserDetails pud2 = (PebbleUserDetails)o2;
-
+	public int compare(PebbleUserDetails pud1, PebbleUserDetails pud2) {
     return pud1.getName().compareTo(pud2.getName());
   }
 
