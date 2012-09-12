@@ -32,8 +32,6 @@
 package net.sourceforge.pebble.web.action;
 
 import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.domain.BlogService;
 
 /**
  * Tests for the RemoveStaticPagesAction class.

@@ -32,14 +32,16 @@
 
 package net.sourceforge.pebble.domain;
 
-import net.sourceforge.pebble.api.event.comment.CommentListener;
-import net.sourceforge.pebble.api.event.comment.CommentEvent;
-import net.sourceforge.pebble.api.event.trackback.TrackBackListener;
-import net.sourceforge.pebble.api.event.trackback.TrackBackEvent;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import net.sourceforge.pebble.api.event.blogentry.BlogEntryEvent;
 import net.sourceforge.pebble.api.event.blogentry.BlogEntryListener;
-
-import java.util.*;
+import net.sourceforge.pebble.api.event.comment.CommentEvent;
+import net.sourceforge.pebble.api.event.comment.CommentListener;
+import net.sourceforge.pebble.api.event.trackback.TrackBackEvent;
+import net.sourceforge.pebble.api.event.trackback.TrackBackListener;
 
 /**
  * Tests for the BlogService class.
@@ -51,7 +53,8 @@ public class BlogServiceTest extends SingleBlogTestCase {
   private BlogService service;
   private BlogEntry blogEntry;
 
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
 
     service = new BlogService();
@@ -461,7 +464,7 @@ public class BlogServiceTest extends SingleBlogTestCase {
     blogEntry.addComment(comment3);
     service.putBlogEntry(blogEntry);
 
-    final List comments = new ArrayList();
+		final List<Object> comments = new ArrayList<Object>();
 
     CommentListener listener = new CommentListener() {
       public void commentAdded(CommentEvent event) {
@@ -502,7 +505,7 @@ public class BlogServiceTest extends SingleBlogTestCase {
     blogEntry.addTrackBack(trackBack3);
     service.putBlogEntry(blogEntry);
 
-    final List trackBacks = new ArrayList();
+		final List<Object> trackBacks = new ArrayList<Object>();
 
     TrackBackListener listener = new TrackBackListener() {
       public void trackBackAdded(TrackBackEvent event) {

@@ -32,18 +32,18 @@
 package net.sourceforge.pebble.domain;
 
 import java.util.Calendar;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Represents a blog at a yearly level. This manages a collection of Month instances.
  *
  * @author    Simon Brown
  */
-public class Year extends TimePeriod implements Comparable {
+public class Year extends TimePeriod implements Comparable<Year> {
 
   /** the year that this blog is for */
-  private int year;
+  private final int year;
 
   /** a collection of the monthly blogs that this instance is managing */
   private Month[] months;
@@ -196,8 +196,8 @@ public class Year extends TimePeriod implements Comparable {
    * @throws ClassCastException if the specified object's type prevents it
    *                            from being compared to this Object.
    */
-  public int compareTo(Object o) {
-    return this.getYear() - ((Year)o).getYear();
+	public int compareTo(Year o) {
+    return this.getYear() - o.getYear();
   }
 
   /**
@@ -205,7 +205,8 @@ public class Year extends TimePeriod implements Comparable {
    *
    * @return  a String
    */
-  public String toString() {
+  @Override
+	public String toString() {
     return "" + this.year;
   }
 

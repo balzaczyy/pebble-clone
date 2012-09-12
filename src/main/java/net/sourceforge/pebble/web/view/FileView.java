@@ -33,8 +33,6 @@ package net.sourceforge.pebble.web.view;
 
 import net.sourceforge.pebble.util.FileUtils;
 import net.sourceforge.pebble.domain.AbstractBlog;
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.domain.FileMetaData;
 import net.sourceforge.pebble.Constants;
 
 import javax.servlet.ServletContext;

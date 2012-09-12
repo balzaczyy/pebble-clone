@@ -36,9 +36,6 @@ import net.sourceforge.pebble.dao.mock.MockDAOFactory;
 import net.sourceforge.pebble.Configuration;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.security.MockSecurityRealm;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.StaticApplicationContext;
-
 import java.io.File;
 
 /**

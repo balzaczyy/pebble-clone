@@ -32,7 +32,6 @@
 package net.sourceforge.pebble.event.blogentry;
 
 import net.sourceforge.pebble.api.event.blogentry.BlogEntryEvent;
-import net.sourceforge.pebble.audit.AuditTrail;
 import net.sourceforge.pebble.decorator.PubSubHubBubFeedDecorator;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;

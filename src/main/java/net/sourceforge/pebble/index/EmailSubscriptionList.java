@@ -34,9 +34,6 @@ package net.sourceforge.pebble.index;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.domain.Tag;
-import net.sourceforge.pebble.domain.BlogEntry;
-
 import java.util.*;
 import java.io.*;
 

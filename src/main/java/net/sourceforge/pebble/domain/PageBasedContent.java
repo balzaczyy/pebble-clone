@@ -32,6 +32,10 @@
 
 package net.sourceforge.pebble.domain;
 
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.security.PebbleUserDetails;
 import net.sourceforge.pebble.security.SecurityRealm;
@@ -41,16 +45,15 @@ import net.sourceforge.pebble.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.*;
-
 /**
  * The superclass for blog entries and pages.
  *
  * @author Simon Brown
  */
 public abstract class PageBasedContent extends Content {
+	private static final long serialVersionUID = 613181366917907182L;
 
-  private static final Log log = LogFactory.getLog(PageBasedContent.class);
+	private static final Log log = LogFactory.getLog(PageBasedContent.class);
 
   public static final String TITLE_PROPERTY = "title";
   public static final String SUBTITLE_PROPERTY = "subtitle";
@@ -108,7 +111,7 @@ public abstract class PageBasedContent extends Content {
   private String tagsAsCommaSeparated = "";
 
   /** the owning blog */
-  private Blog blog;
+  private final Blog blog;
 
   private boolean persistent = false;
   private String lockedBy = null;
@@ -147,7 +150,6 @@ public abstract class PageBasedContent extends Content {
    * @param newTitle  the title as a String
    */
   public void setTitle(String newTitle) {
-	newTitle = newTitle;
     propertyChangeSupport.firePropertyChange(TITLE_PROPERTY, title, newTitle);
     this.title = newTitle;
   }
@@ -186,7 +188,8 @@ public abstract class PageBasedContent extends Content {
    *
    * @return a String
    */
-  public String getContent() {
+  @Override
+	public String getContent() {
     return body;
   }
 
@@ -389,7 +392,8 @@ public abstract class PageBasedContent extends Content {
    *
    * @return  a String
    */
-  public String toString() {
+  @Override
+	public String toString() {
     return getBlog().getId() + "/" + getTitle();
   }
 

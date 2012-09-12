@@ -36,8 +36,6 @@ import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogManager;
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 
-import java.util.ResourceBundle;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

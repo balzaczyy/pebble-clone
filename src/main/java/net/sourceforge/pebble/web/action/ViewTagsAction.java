@@ -31,15 +31,12 @@
  */
 package net.sourceforge.pebble.web.action;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.TagsView;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 /**
  * Allows the user to see all tags for the current blog.

@@ -33,7 +33,6 @@ package net.sourceforge.pebble.util;
 
 import junit.framework.TestCase;
 import net.sourceforge.pebble.web.validation.ValidationContext;
-import net.sourceforge.pebble.web.validation.ValidationContext;
 
 /**
  * Tests for the utilities in the MailUtils class.

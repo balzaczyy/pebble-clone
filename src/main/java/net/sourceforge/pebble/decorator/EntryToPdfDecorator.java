@@ -32,12 +32,8 @@
 
 package net.sourceforge.pebble.decorator;
 
-import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
-
-import java.util.ResourceBundle;
 
 /**
  * Allow to export current blog entry as PDF document

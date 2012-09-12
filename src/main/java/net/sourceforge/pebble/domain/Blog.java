@@ -302,8 +302,8 @@ public class Blog extends AbstractBlog {
     log.debug("Initializing logger");
 
     try {
-      Class c = Class.forName(getLoggerName());
-      Constructor cons = c.getConstructor(Blog.class);
+			Class<?> c = Class.forName(getLoggerName());
+			Constructor<?> cons = c.getConstructor(Blog.class);
       this.logger = (AbstractLogger)cons.newInstance(this);
     } catch (Exception e) {
       error("Could not start logger \"" + getLoggerName() + "\"");
@@ -459,13 +459,12 @@ public class Blog extends AbstractBlog {
    * @param pluginList      The list of plugins to put the instantiated plugins into
    * @param description   A description of the plugin point for logging
    */
-  @SuppressWarnings("unchecked")
   private <P> void initPluginList(Collection<String> pluginNameList, Class<P> pluginClass, List<P> pluginList, String description) {
     log.debug("Registering " + description + "s");
 
     for (String className : pluginNameList) {
       try {
-        Class c = Class.forName(className.trim());
+				Class<?> c = Class.forName(className.trim());
         Class<? extends P> concreteClass = c.asSubclass(pluginClass);
         P plugin = instantiate(concreteClass);
         pluginList.add(plugin);
@@ -622,7 +621,7 @@ public class Blog extends AbstractBlog {
    *
    * @return  a Collection of String instances
    */
-  public Collection getEmailAddresses() {
+	public Collection<String> getEmailAddresses() {
     return Arrays.asList(getEmail().split(","));
   }
 
@@ -632,9 +631,9 @@ public class Blog extends AbstractBlog {
    * @return  the firt e-mail address as a String
    */
   public String getFirstEmailAddress() {
-    Collection emailAddresses = getEmailAddresses();
+		Collection<String> emailAddresses = getEmailAddresses();
     if (emailAddresses != null && !emailAddresses.isEmpty()) {
-      return (String)emailAddresses.iterator().next();
+      return emailAddresses.iterator().next();
     } else {
       return "";
     }
@@ -802,7 +801,7 @@ public class Blog extends AbstractBlog {
    *          is empty, false otherwise
    */
   public boolean isUserInRole(String roleName, String user) {
-    Collection users = getUsersInRole(roleName);
+		Collection<String> users = getUsersInRole(roleName);
     return users.isEmpty() || users.contains(user);
   }
 
@@ -813,10 +812,10 @@ public class Blog extends AbstractBlog {
    * @return    a Year instance
    */
   public Year getBlogForYear(int year) {
-    Iterator it = years.iterator();
+		Iterator<Year> it = years.iterator();
     Year y;
     while (it.hasNext()) {
-      y = (Year)it.next();
+      y = it.next();
       if (y.getYear() == year) {
         return y;
       }
@@ -1331,9 +1330,9 @@ public class Blog extends AbstractBlog {
   @Override
 	public Date getLastModified() {
     Date date = new Date(0);
-    List blogEntries = getRecentPublishedBlogEntries(1);
+		List<BlogEntry> blogEntries = getRecentPublishedBlogEntries(1);
     if (blogEntries.size() == 1) {
-      date = ((BlogEntry)blogEntries.get(0)).getDate();
+      date = blogEntries.get(0).getDate();
     }
 
     return date;

@@ -33,9 +33,6 @@ package net.sourceforge.pebble.domain;
 
 import junit.framework.TestCase;
 
-import java.util.Collection;
-import java.util.Date;
-
 /**
  * Tests for the BlogManager class.
  *

@@ -35,7 +35,6 @@ import net.sourceforge.pebble.domain.Blog;
 
 import java.util.List;
 import java.util.LinkedList;
-import java.util.Collections;
 
 /**
  * Represents a visited or referer URL along with a count of how many times

@@ -31,43 +31,37 @@
  */
 package net.sourceforge.pebble.web.view;
 
-import java.io.ByteArrayInputStream;
 import java.io.BufferedOutputStream;
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
-
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import org.w3c.dom.Document;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import net.sourceforge.pebble.PebbleContext;
-import net.sourceforge.pebble.domain.Tag;
-import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.util.StringUtils;
-import net.sourceforge.pebble.web.listener.PebblePDFCreationListener;
+import java.io.IOException;
+import java.util.Iterator;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import java.util.Iterator;
+import net.sourceforge.pebble.PebbleContext;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.Tag;
+import net.sourceforge.pebble.util.StringUtils;
+import net.sourceforge.pebble.web.listener.PebblePDFCreationListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.lowagie.text.pdf.PdfWriter;
-import com.lowagie.text.pdf.BaseFont;
-import com.lowagie.text.DocumentException;
-
+import org.w3c.dom.Document;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import org.xhtmlrenderer.pdf.TrueTypeUtil;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.pdf.BaseFont;
 
 
 /**
@@ -88,8 +82,8 @@ public class PdfView extends BinaryView {
   private static final String SYSTEM_THEME_PATH = HtmlView.SYSTEM_THEME;
 
   private String filename = "default.pdf";
-  private BlogEntry entry;
-  private long length = 0;
+  private final BlogEntry entry;
+  private final long length = 0;
 
   public PdfView(BlogEntry entry, String filename) {
 	this.entry = entry;
@@ -101,11 +95,13 @@ public class PdfView extends BinaryView {
    *
    * @return the title as a String
    */
-  public String getContentType() {
+  @Override
+	public String getContentType() {
     return "application/pdf";
   }
 
-  public long getContentLength() {
+  @Override
+	public long getContentLength() {
     return length;
   }
 
@@ -116,7 +112,8 @@ public class PdfView extends BinaryView {
    * @param response the HttpServletResponse instance
    * @param context
    */
-  public void dispatch(HttpServletRequest request, HttpServletResponse response, ServletContext context) throws ServletException {
+  @Override
+	public void dispatch(HttpServletRequest request, HttpServletResponse response, ServletContext context) throws ServletException {
 
 			try {
 				ITextRenderer renderer = new ITextRenderer();

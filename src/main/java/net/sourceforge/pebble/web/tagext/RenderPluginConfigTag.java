@@ -31,18 +31,11 @@
  */
 package net.sourceforge.pebble.web.tagext;
 
-import net.sourceforge.pebble.plugins.Plugin;
 import net.sourceforge.pebble.plugins.PluginConfig;
 
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Properties;
 
 /**

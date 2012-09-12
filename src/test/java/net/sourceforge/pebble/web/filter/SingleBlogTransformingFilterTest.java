@@ -33,7 +33,6 @@ package net.sourceforge.pebble.web.filter;
 
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.domain.SingleBlogTestCase;
-import net.sourceforge.pebble.domain.BlogManager;
 import net.sourceforge.pebble.mock.MockFilterChain;
 import net.sourceforge.pebble.mock.MockFilterConfig;
 import net.sourceforge.pebble.mock.MockHttpServletRequest;

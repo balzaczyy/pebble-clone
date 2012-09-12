@@ -31,11 +31,7 @@
  */
 package net.sourceforge.pebble.decorator;
 
-import java.util.Date;
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.domain.BlogService;
 import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.domain.Category;
 import net.sourceforge.pebble.domain.SingleBlogTestCase;
 import net.sourceforge.pebble.api.decorator.ContentDecorator;
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;

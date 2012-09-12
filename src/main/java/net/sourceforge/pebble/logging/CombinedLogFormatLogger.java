@@ -145,9 +145,8 @@ public class CombinedLogFormatLogger extends AbstractLogger {
       }
     } catch (Exception e) {
       e.printStackTrace();
-    } finally {
-      return buf.toString();
     }
+		return buf.toString();
   }
 
   /**
@@ -160,7 +159,7 @@ public class CombinedLogFormatLogger extends AbstractLogger {
    */
   @Override
 	public Log getLog(int year, int month, int day) {
-    List logEntries = new ArrayList();
+		List<LogEntry> logEntries = new ArrayList<LogEntry>();
     CombinedFormatLogEntryFormat format = new CombinedFormatLogEntryFormat(blog);
 
     try {
@@ -177,9 +176,8 @@ public class CombinedLogFormatLogger extends AbstractLogger {
       }
     } catch (Exception e) {
       e.printStackTrace();
-    } finally {
-      return new Log(blog, logEntries);
     }
+		return new Log(blog, logEntries);
   }
 
   /**
@@ -240,15 +238,15 @@ public class CombinedLogFormatLogger extends AbstractLogger {
    *
    * @param entries   the list of entries to write
    */
-  private void write(List entries) throws IOException {
+	private void write(List<LogEntry> entries) throws IOException {
     CombinedFormatLogEntryFormat format = new CombinedFormatLogEntryFormat(blog);
     File file;
     BufferedWriter writer = null;
     String currentFilename = "";
     String filename;
-    Iterator it = entries.iterator();
+		Iterator<LogEntry> it = entries.iterator();
     while (it.hasNext()) {
-      LogEntry entry = (LogEntry)it.next();
+      LogEntry entry = it.next();
         filename = filenameFormat.format(entry.getDate());
         if (!filename.equals(currentFilename)) {
           // close the old file (if there is one)

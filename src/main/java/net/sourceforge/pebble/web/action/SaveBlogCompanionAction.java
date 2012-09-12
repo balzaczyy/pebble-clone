@@ -34,19 +34,14 @@ package net.sourceforge.pebble.web.action;
 
 import net.sourceforge.pebble.BlogCompanion;
 import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.BlogServiceException;
 import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.plugins.PluginConfigType;
 import net.sourceforge.pebble.web.security.RequireSecurityToken;
-import net.sourceforge.pebble.web.view.ForwardView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.SaveBlogCompanionView;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Enumeration;
-import java.util.Properties;
 
 /**
  * Saves the plugins associated with the current blog.

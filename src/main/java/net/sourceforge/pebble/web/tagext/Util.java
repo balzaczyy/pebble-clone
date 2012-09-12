@@ -32,7 +32,6 @@
 
 package net.sourceforge.pebble.web.tagext;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
 import java.io.UnsupportedEncodingException;

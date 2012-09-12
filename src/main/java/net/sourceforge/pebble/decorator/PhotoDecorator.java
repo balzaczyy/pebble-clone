@@ -34,8 +34,6 @@ package net.sourceforge.pebble.decorator;
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.StaticPage;
-import net.sourceforge.pebble.util.StringUtils;
-
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.io.BufferedReader;

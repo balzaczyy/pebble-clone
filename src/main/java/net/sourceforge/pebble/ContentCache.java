@@ -34,13 +34,8 @@ package net.sourceforge.pebble;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Date;
-import java.util.Properties;
-import java.io.InputStream;
-import java.io.IOException;
 import java.net.URL;
 
-import net.sourceforge.pebble.util.RelativeDate;
 import net.sourceforge.pebble.domain.*;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Cache;

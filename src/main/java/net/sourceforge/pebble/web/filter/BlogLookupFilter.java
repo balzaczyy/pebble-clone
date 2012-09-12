@@ -35,19 +35,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.*;
-import javax.servlet.jsp.jstl.core.Config;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.List;
-import java.util.Collections;
-import java.util.Locale;
-
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.comparator.BlogEntryComparator;
-import net.sourceforge.pebble.decorator.ContentDecoratorChain;
-import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.domain.*;
 
 /**
