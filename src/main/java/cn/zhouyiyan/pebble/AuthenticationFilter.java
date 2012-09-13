@@ -23,9 +23,11 @@ public class AuthenticationFilter implements Filter {
 		String password = req.getParameter("j_password");
 		String redirectUrl = req.getParameter("redirectUrl");
 		if (User.authenticate(username, password)) {
+			// persist the identity in session
 			HttpServletRequest httpRequest = (HttpServletRequest) req;
 			HttpSession session = httpRequest.getSession(true);
 			session.setAttribute("username", username);
+			// redirect to given URL
 			String prefix = PebbleContext.getInstance().getConfiguration().getUrl();
 			if (prefix.charAt(prefix.length() - 1) == '/') prefix = prefix.substring(0, prefix.length() - 1);
 			HttpServletResponse response = (HttpServletResponse) resp;
@@ -33,12 +35,12 @@ public class AuthenticationFilter implements Filter {
 		} else {
 			HttpSession session = ((HttpServletRequest) req).getSession(false);
 			if (session != null && (username = (String) session.getAttribute("username")) != null) {
-				User.setCurrent(username);
+				User.login(username);
 			}
 			try {
 				chain.doFilter(req, resp);
 			} finally {
-				User.setCurrent(null);
+				User.logout();
 			}
 		}
 	}

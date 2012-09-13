@@ -37,8 +37,7 @@ import junit.framework.TestCase;
 import net.sourceforge.pebble.Configuration;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.util.FileUtils;
-
-import org.springframework.security.core.context.SecurityContextHolder;
+import cn.zhouyiyan.pebble.User;
 
 /**
  * Superclass for all Pebble unit test cases.
@@ -60,7 +59,7 @@ public abstract class PebbleTestCase extends TestCase {
     super.setUp();
 
     // Make sure we aren't logged in
-    SecurityContextHolder.getContext().setAuthentication(null);
+		User.logout();
 
     TEST_BLOG_LOCATION.mkdir();
     new File(TEST_BLOG_LOCATION, "blogs").mkdir();

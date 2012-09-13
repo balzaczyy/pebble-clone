@@ -32,10 +32,10 @@
 package net.sourceforge.pebble.webservice;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import net.sourceforge.pebble.PebbleContext;
@@ -155,7 +155,8 @@ public class MetaWeblogAPIHandler extends AbstractAPIHandler {
    * @return  a Hashtable of Hashtables (a struct of structs) representing categories
    * @throws org.apache.xmlrpc.XmlRpcException    if something goes wrong, including an authentication error
    */
-  public Hashtable getCategories(String blogid, String username, String password) throws XmlRpcException {
+	public Hashtable<String, Hashtable<String, String>> getCategories(String blogid, String username, String password)
+			throws XmlRpcException {
     log.debug("metaWeblog.getCategories(" +
         blogid + ", " +
         username + ", " +
@@ -164,13 +165,13 @@ public class MetaWeblogAPIHandler extends AbstractAPIHandler {
     Blog blog = getBlogWithBlogId(blogid);
     authenticate(blog, username, password);
 
-    Hashtable categories = new Hashtable();
-    Iterator it = blog.getCategories().iterator();
+		Hashtable<String, Hashtable<String, String>> categories = new Hashtable<String, Hashtable<String, String>>();
+		Iterator<Category> it = blog.getCategories().iterator();
     Category category;
     while (it.hasNext()) {
-      category = (Category)it.next();
+      category = it.next();
       if (!category.isRootCategory()) {
-        Hashtable struct = new Hashtable();
+				Hashtable<String, String> struct = new Hashtable<String, String>();
         struct.put(DESCRIPTION, category.getId());
         struct.put(HTML_URL, category.getPermalink());
         struct.put(RSS_URL, blog.getUrl() + "rss.xml?category=" + category.getId());
@@ -191,7 +192,8 @@ public class MetaWeblogAPIHandler extends AbstractAPIHandler {
    * @return  a Vector of Hashtables (an array of structs) representing blog entries
    * @throws org.apache.xmlrpc.XmlRpcException    if something goes wrong, including an authentication error
    */
-  public Vector getRecentPosts(String blogid, String username, String password, int numberOfPosts) throws XmlRpcException {
+	public Vector<Hashtable<String, Object>> getRecentPosts(String blogid, String username, String password,
+			int numberOfPosts) throws XmlRpcException {
     log.debug("metaWeblog.getRecentPosts(" +
         blogid + ", " +
         username + ", " +
@@ -200,13 +202,13 @@ public class MetaWeblogAPIHandler extends AbstractAPIHandler {
     Blog blog = getBlogWithBlogId(blogid);
     authenticate(blog, username, password);
 
-    Vector posts = new Vector();
-    Collection coll = blog.getRecentBlogEntries(numberOfPosts);
+		Vector<Hashtable<String, Object>> posts = new Vector<Hashtable<String, Object>>();
+		List<BlogEntry> coll = blog.getRecentBlogEntries(numberOfPosts);
 
-    Iterator it = coll.iterator();
+		Iterator<BlogEntry> it = coll.iterator();
     BlogEntry entry;
     while (it.hasNext()) {
-      entry = (BlogEntry)it.next();
+      entry = it.next();
       posts.add(adaptBlogEntry(entry));
     }
 
@@ -222,7 +224,7 @@ public class MetaWeblogAPIHandler extends AbstractAPIHandler {
    * @return  a Hashtable representing a blog entry
    * @throws org.apache.xmlrpc.XmlRpcException    if something goes wrong, including an authentication error
    */
-  public Hashtable getPost(String postid, String username, String password) throws XmlRpcException {
+	public Hashtable<String, Object> getPost(String postid, String username, String password) throws XmlRpcException {
     log.debug("metaWeblog.getPost(" +
         postid + ", " +
         username + ", " +
@@ -335,8 +337,8 @@ public class MetaWeblogAPIHandler extends AbstractAPIHandler {
    * @param entry   the BlogEntry to adapt
    * @return  a Hashtable representing the major properties of the entry
    */
-  private Hashtable adaptBlogEntry(BlogEntry entry) {
-    Hashtable post = new Hashtable();
+	private Hashtable<String, Object> adaptBlogEntry(BlogEntry entry) {
+		Hashtable<String, Object> post = new Hashtable<String, Object>();
     post.put(TITLE, entry.getTitle());
     post.put(PERMALINK, entry.getPermalink());
     post.put(TITLE, entry.getTitle());
@@ -346,23 +348,23 @@ public class MetaWeblogAPIHandler extends AbstractAPIHandler {
     post.put(USER_ID, entry.getAuthor());
     post.put(POST_ID, formatPostId(entry.getBlog().getId(), entry.getId()));
 
-    Vector categories = new Vector();
-    Iterator it = entry.getCategories().iterator();
+		Vector<String> categories = new Vector<String>();
+		Iterator<Category> it = entry.getCategories().iterator();
     while (it.hasNext()) {
-      Category cat = (Category)it.next();
+      Category cat = it.next();
       categories.add(cat.getId());
     }
     post.put(CATEGORIES, categories);
 
     //Get Tags
-    Vector tags = new Vector();
+		Vector<String> tags = new Vector<String>();
     for (Tag tag : entry.getAllTags()) {
         tags.add(tag.getName());
     }
     post.put(TAGS, tags);
 
     //Get comments
-    Vector comments = new Vector();
+		Vector<Hashtable<String, Object>> comments = new Vector<Hashtable<String, Object>>();
     for (Comment comment : entry.getComments()) {
         comments.add(adaptBlogEntryComment(comment));
     }
@@ -377,8 +379,8 @@ public class MetaWeblogAPIHandler extends AbstractAPIHandler {
    * @param entry   the BlogEntry to adapt
    * @return  a Hashtable representing the major properties of the entry
    */
-  private Hashtable adaptBlogEntryComment(Comment comment) {
-      Hashtable cmnt = new Hashtable();
+	private Hashtable<String, Object> adaptBlogEntryComment(Comment comment) {
+		Hashtable<String, Object> cmnt = new Hashtable<String, Object>();
         
       cmnt.put(BODY, comment.getBody());
       cmnt.put(AUTHOR, comment.getAuthor());

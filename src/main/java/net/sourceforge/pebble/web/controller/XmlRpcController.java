@@ -31,20 +31,22 @@
  */
 package net.sourceforge.pebble.web.controller;
 
-import net.sourceforge.pebble.webservice.BloggerAPIHandler;
-import net.sourceforge.pebble.webservice.MetaWeblogAPIHandler;
-import net.sourceforge.pebble.webservice.PebbleAPIHandler;
-import net.sourceforge.pebble.webservice.SearchAPIHandler;
-import org.apache.xmlrpc.XmlRpcServer;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
+
+import net.sourceforge.pebble.webservice.BloggerAPIHandler;
+import net.sourceforge.pebble.webservice.MetaWeblogAPIHandler;
+import net.sourceforge.pebble.webservice.PebbleAPIHandler;
+import net.sourceforge.pebble.webservice.SearchAPIHandler;
+
+import org.apache.xmlrpc.XmlRpcServer;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * Single entry point for all XML-RPC requests (e.g. Blogger API).
@@ -52,11 +54,13 @@ import java.io.OutputStream;
  * @author    Simon Brown
  */
 public class XmlRpcController extends HttpServlet {
+	private static final long serialVersionUID = 5123559826864742506L;
 
-  /**
-   * Initialises this instance.
-   */
-  public void init() {
+	/**
+	 * Initialises this instance.
+	 */
+  @Override
+	public void init() {
   }
 
   /**
@@ -103,7 +107,8 @@ public class XmlRpcController extends HttpServlet {
    * @param req   the HttpServletRequest instance
    * @param res   the HttpServletResponse instance
    */
-  protected void doGet(HttpServletRequest req, HttpServletResponse res)
+  @Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException {
 
     processRequest(req, res);
@@ -115,7 +120,8 @@ public class XmlRpcController extends HttpServlet {
    * @param req   the HttpServletRequest instance
    * @param res   the HttpServletResponse instance
    */
-  protected void doPost(HttpServletRequest req, HttpServletResponse res)
+  @Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException {
 
     processRequest(req, res);

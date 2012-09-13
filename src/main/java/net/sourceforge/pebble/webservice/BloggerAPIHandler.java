@@ -31,12 +31,22 @@
  */
 package net.sourceforge.pebble.webservice;
 
-import net.sourceforge.pebble.domain.*;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogManager;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.BlogServiceException;
+import net.sourceforge.pebble.domain.Category;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xmlrpc.XmlRpcException;
-
-import java.util.*;
 
 /**
  * A handler for the Blogger API (accessed via XML-RPC).
@@ -71,14 +81,14 @@ public class BloggerAPIHandler extends AbstractAPIHandler {
    * @return  a Hashtable containing user information
    * @throws XmlRpcException    if something goes wrong, including an authentication error
    */
-  public Hashtable getUserInfo(String appkey, String username, String password) throws XmlRpcException {
+	public Hashtable<String, String> getUserInfo(String appkey, String username, String password) throws XmlRpcException {
     log.debug("BloggerAPI.getUserInfo(" +
         appkey + ", " +
         username + ", " +
         "********)");
 
     authenticate((Blog)null, username, password);
-    Hashtable ht = new Hashtable();
+		Hashtable<String, String> ht = new Hashtable<String, String>();
     ht.put("userid", username);
 
     return ht;
@@ -94,19 +104,20 @@ public class BloggerAPIHandler extends AbstractAPIHandler {
    * @return  a Vector of Hashtables (an array of structs) representing blogs
    * @throws XmlRpcException    if something goes wrong, including an authentication error
    */
-  public Vector getUsersBlogs(String appkey, String username, String password) throws XmlRpcException {
+	public Vector<Hashtable<String, String>> getUsersBlogs(String appkey, String username, String password)
+			throws XmlRpcException {
     log.debug("BloggerAPI.getUsersBlogs(" +
         appkey + ", " +
         username + ", " +
         "********)");
 
     Collection<Blog> blogs = BlogManager.getInstance().getBlogs();
-    Vector usersBlogs = new Vector();
+		Vector<Hashtable<String, String>> usersBlogs = new Vector<Hashtable<String, String>>();
 
     for (Blog blog : blogs) {
       try {
         authenticate(blog, username, password);
-        Hashtable blogInfo = new Hashtable();
+				Hashtable<String, String> blogInfo = new Hashtable<String, String>();
         blogInfo.put(URL, blog.getUrl());
         blogInfo.put(BLOG_ID, blog.getId());
         blogInfo.put(BLOG_NAME, blog.getName());
@@ -131,7 +142,8 @@ public class BloggerAPIHandler extends AbstractAPIHandler {
    * @return  a Vector of Hashtables (an array of structs) representing blog entries
    * @throws XmlRpcException    if something goes wrong, including an authentication error
    */
-  public Vector getRecentPosts(String appkey, String blogid, String username, String password, int numberOfPosts) throws XmlRpcException {
+	public Vector<Hashtable<String, Object>> getRecentPosts(String appkey, String blogid, String username,
+			String password, int numberOfPosts) throws XmlRpcException {
     log.debug("BloggerAPI.getRecentPosts(" +
         appkey + ", " +
         blogid + ", " +
@@ -141,13 +153,13 @@ public class BloggerAPIHandler extends AbstractAPIHandler {
     Blog blog = getBlogWithBlogId(blogid);
     authenticate(blog, username, password);
 
-    Vector posts = new Vector();
-    Collection coll = blog.getRecentBlogEntries(numberOfPosts);
+		Vector<Hashtable<String, Object>> posts = new Vector<Hashtable<String, Object>>();
+		List<BlogEntry> coll = blog.getRecentBlogEntries(numberOfPosts);
 
-    Iterator it = coll.iterator();
+		Iterator<BlogEntry> it = coll.iterator();
     BlogEntry entry;
     while (it.hasNext()) {
-      entry = (BlogEntry)it.next();
+      entry = it.next();
       posts.add(adaptBlogEntry(entry));
     }
 
@@ -164,7 +176,8 @@ public class BloggerAPIHandler extends AbstractAPIHandler {
    * @return  a Hashtable representing a blog entry
    * @throws XmlRpcException    if something goes wrong, including an authentication error
    */
-  public Hashtable getPost(String appkey, String postid, String username, String password) throws XmlRpcException {
+	public Hashtable<String, Object> getPost(String appkey, String postid, String username, String password)
+			throws XmlRpcException {
     log.debug("BloggerAPI.getPost(" +
         appkey + ", " +
         postid + ", " +
@@ -316,12 +329,12 @@ public class BloggerAPIHandler extends AbstractAPIHandler {
    * @param entry   the BlogEntry to adapt
    * @return  a Hashtable representing the major properties of the entry
    */
-  private Hashtable adaptBlogEntry(BlogEntry entry) {
-    Hashtable post = new Hashtable();
+	private Hashtable<String, Object> adaptBlogEntry(BlogEntry entry) {
+		Hashtable<String, Object> post = new Hashtable<String, Object>();
     String categories = "";
-    Iterator it = entry.getCategories().iterator();
+		Iterator<Category> it = entry.getCategories().iterator();
     while (it.hasNext()) {
-      Category category = (Category)it.next();
+      Category category = it.next();
       categories += category.getId();
       if (it.hasNext()) {
         categories += ",";

@@ -31,8 +31,6 @@
  */
 package net.sourceforge.pebble.util;
 
-import java.util.Collection;
-
 import javax.servlet.http.HttpServletRequest;
 
 import net.sourceforge.pebble.Constants;
@@ -44,16 +42,10 @@ import net.sourceforge.pebble.security.SecurityRealmException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import cn.zhouyiyan.pebble.User;
 
@@ -80,23 +72,7 @@ public final class SecurityUtils {
   }
 
   public static boolean isUserInRole(String role) {
-    SecurityContext ctx = SecurityContextHolder.getContext();
-    Authentication auth = ctx.getAuthentication();
-    return isUserInRole(auth, role);
-  }
-
-	private static boolean isUserInRole(Authentication auth, String role) {
-    if (auth != null) {
-      Collection<GrantedAuthority> authorities = auth.getAuthorities();
-      if (authorities != null) {
-        for (GrantedAuthority authority : authorities) {
-          if (authority.getAuthority().equals(role)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
+		return User.current().hasRole(role);
   }
 
   /**
@@ -140,32 +116,28 @@ public final class SecurityUtils {
    *
    * @return  true if the user is a Pebble admin, false otherwise
    */
-  public static boolean isBlogAdmin(Authentication auth) {
-    return isUserInRole(auth, Constants.BLOG_ADMIN_ROLE);
-  }
+	// public static boolean isBlogAdmin(Authentication auth) {
+	// return isUserInRole(auth, Constants.BLOG_ADMIN_ROLE);
+	// }
 
   public static void runAsBlogOwner() {
-    Authentication auth = new TestingAuthenticationToken("username", "password", new GrantedAuthority[] {new GrantedAuthorityImpl(Constants.BLOG_OWNER_ROLE)});
-    SecurityContextHolder.getContext().setAuthentication(auth);
+		User.login(User.mock("username", "password", Constants.BLOG_OWNER_ROLE));
   }
 
   public static void runAsBlogPublisher() {
-    Authentication auth = new TestingAuthenticationToken("username", "password", new GrantedAuthority[] {new GrantedAuthorityImpl(Constants.BLOG_PUBLISHER_ROLE)});
-    SecurityContextHolder.getContext().setAuthentication(auth);
+		User.login(User.mock("username", "password", Constants.BLOG_PUBLISHER_ROLE));
   }
 
   public static void runAsBlogContributor() {
-    Authentication auth = new TestingAuthenticationToken("username", "password", new GrantedAuthority[] {new GrantedAuthorityImpl(Constants.BLOG_CONTRIBUTOR_ROLE)});
-    SecurityContextHolder.getContext().setAuthentication(auth);
+		User.login(User.mock("username", "password", Constants.BLOG_CONTRIBUTOR_ROLE));
   }
 
   public static void runAsAnonymous() {
-    Authentication auth = new TestingAuthenticationToken("username", "password", new GrantedAuthority[] {});
-    SecurityContextHolder.getContext().setAuthentication(auth);
+		User.login(User.mock("username", "password"));
   }
 
   public static void runAsUnauthenticated() {
-    SecurityContextHolder.getContext().setAuthentication(null);
+		User.logout();
   }
 
 	public static boolean isUserAuthorisedForBlogAsBlogOwner(Blog blog, String username) {
@@ -188,8 +160,7 @@ public final class SecurityUtils {
   }
 
   public static boolean isUserAuthenticated() {
-    SecurityContext ctx = SecurityContextHolder.getContext();
-    return ctx.getAuthentication() != null;
+		return User.isAuthenticated();
   }
 
   public static void main(String[] args) {

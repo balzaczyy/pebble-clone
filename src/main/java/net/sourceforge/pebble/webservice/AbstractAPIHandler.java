@@ -37,10 +37,8 @@ import net.sourceforge.pebble.util.SecurityUtils;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
+
+import cn.zhouyiyan.pebble.User;
 
 /**
  * A handler for the XML-RPC blogging APIs.
@@ -58,6 +56,10 @@ public abstract class AbstractAPIHandler {
     return authenticationManager;
   }
 
+	/**
+	 * @deprecated use User.setAuthenticateMethod() instead.
+	 */
+	@Deprecated
   public void setAuthenticationManager(AuthenticationManager authenticationManager) {
     this.authenticationManager = authenticationManager;
   }
@@ -71,16 +73,12 @@ public abstract class AbstractAPIHandler {
    * @param password  the password used for logging in via XML-RPC
    */
   protected void authenticate(Blog blog, String username, String password) throws XmlRpcAuthenticationException {
-    try {
-      Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-      SecurityContextHolder.getContext().setAuthentication(auth);
-
+		if (!User.authenticate(username, password)) {
+			throw new XmlRpcAuthenticationException("Username and password did not pass authentication.");
+		}
 			if (blog != null && !SecurityUtils.isUserAuthorisedForBlogAsBlogContributor(blog, username)) {
         throw new XmlRpcAuthenticationException("Not authorised for this blog.");
       }
-    } catch (AuthenticationException ae) {
-      throw new XmlRpcAuthenticationException("Username and password did not pass authentication.");
-    }
   }
 
   /**

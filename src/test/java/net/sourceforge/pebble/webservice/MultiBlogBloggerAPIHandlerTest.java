@@ -31,14 +31,20 @@
  */
 package net.sourceforge.pebble.webservice;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.apache.xmlrpc.XmlRpcException;
-
 import java.util.Hashtable;
 import java.util.Vector;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.Category;
+import net.sourceforge.pebble.domain.MultiBlogTestCase;
+import net.sourceforge.pebble.mock.MockAuthenticateMethod;
+
+import org.apache.xmlrpc.XmlRpcException;
+
+import cn.zhouyiyan.pebble.User;
 
 /**
  * Tests for the BloggerAPIHandler class, when using a composite blog.
@@ -47,19 +53,20 @@ import java.util.Vector;
  */
 public class MultiBlogBloggerAPIHandlerTest extends MultiBlogTestCase {
 
-  private BloggerAPIHandler handler = new BloggerAPIHandler();
+  private final BloggerAPIHandler handler = new BloggerAPIHandler();
 
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
 
-    handler.setAuthenticationManager(new net.sourceforge.pebble.mock.MockAuthenticationManager(true, new GrantedAuthority[] {new GrantedAuthorityImpl(Constants.BLOG_CONTRIBUTOR_ROLE)}));
+		User.setAuthenticateMethod(new MockAuthenticateMethod(true, Constants.BLOG_CONTRIBUTOR_ROLE));
     blog1.setProperty(Blog.BLOG_CONTRIBUTORS_KEY, "username");
     blog2.setProperty(Blog.BLOG_CONTRIBUTORS_KEY, "username2");
   }
 
   public void testGetRecentPostsFromEmptyBlog() {
     try {
-      Vector posts = handler.getRecentPosts("appkey", "blog1", "username", "password", 3);
+			Vector<Hashtable<String, Object>> posts = handler.getRecentPosts("appkey", "blog1", "username", "password", 3);
       assertTrue(posts.isEmpty());
     } catch (Exception e) {
       fail();
@@ -100,16 +107,16 @@ public class MultiBlogBloggerAPIHandlerTest extends MultiBlogTestCase {
       entry4.setBody("body4");
       service.putBlogEntry(entry4);
 
-      Vector posts = handler.getRecentPosts("appkey", "blog1", "username", "password", 3);
+			Vector<Hashtable<String, Object>> posts = handler.getRecentPosts("appkey", "blog1", "username", "password", 3);
 
       assertEquals(3, posts.size());
-      Hashtable ht = (Hashtable)posts.get(0);
+			Hashtable<String, Object> ht = posts.get(0);
       assertEquals("blog1/" + entry4.getId(), ht.get(BloggerAPIHandler.POST_ID));
       assertEquals("<title>title4</title><category></category>body4", ht.get(BloggerAPIHandler.CONTENT));
-      ht = (Hashtable)posts.get(1);
+			ht = posts.get(1);
       assertEquals("blog1/" + entry3.getId(), ht.get(BloggerAPIHandler.POST_ID));
       assertEquals("<title>title3</title><category></category>body3", ht.get(BloggerAPIHandler.CONTENT));
-      ht = (Hashtable)posts.get(2);
+			ht = posts.get(2);
       assertEquals("blog1/" + entry2.getId(), ht.get(BloggerAPIHandler.POST_ID));
       assertEquals("<title>title2</title><category></category>body2", ht.get(BloggerAPIHandler.CONTENT));
     } catch (Exception e) {
@@ -127,7 +134,7 @@ public class MultiBlogBloggerAPIHandlerTest extends MultiBlogTestCase {
       entry.setAuthor("simon");
       service.putBlogEntry(entry);
 
-      Hashtable post = handler.getPost("appkey", "blog1/" + entry.getId(), "username", "password");
+			Hashtable<String, Object> post = handler.getPost("appkey", "blog1/" + entry.getId(), "username", "password");
       assertEquals("<title>title</title><category></category>body", post.get(BloggerAPIHandler.CONTENT));
       assertEquals(entry.getAuthor(), post.get(BloggerAPIHandler.USER_ID));
       assertEquals(entry.getDate(), post.get(BloggerAPIHandler.DATE_CREATED));
@@ -148,7 +155,7 @@ public class MultiBlogBloggerAPIHandlerTest extends MultiBlogTestCase {
       entry.addCategory(new Category("java", "Java"));
       service.putBlogEntry(entry);
 
-      Hashtable post = handler.getPost("appkey", "blog1/" + entry.getId(), "username", "password");
+			Hashtable<String, Object> post = handler.getPost("appkey", "blog1/" + entry.getId(), "username", "password");
       assertEquals("<title>title</title><category>/java</category>body", post.get(BloggerAPIHandler.CONTENT));
       assertEquals(entry.getAuthor(), post.get(BloggerAPIHandler.USER_ID));
       assertEquals(entry.getDate(), post.get(BloggerAPIHandler.DATE_CREATED));
@@ -219,7 +226,7 @@ public class MultiBlogBloggerAPIHandlerTest extends MultiBlogTestCase {
 
   public void testGetUserInfo() {
     try {
-      Hashtable userInfo = handler.getUserInfo("appkey", "username", "password");
+			Hashtable<String, String> userInfo = handler.getUserInfo("appkey", "username", "password");
       assertEquals("username", userInfo.get("userid"));
     } catch (Exception e) {
       e.printStackTrace();
@@ -229,10 +236,10 @@ public class MultiBlogBloggerAPIHandlerTest extends MultiBlogTestCase {
 
   public void testGetUsersBlogs() {
     try {
-      Vector blogs = handler.getUsersBlogs("appkey", "username", "password");
+			Vector<Hashtable<String, String>> blogs = handler.getUsersBlogs("appkey", "username", "password");
       assertEquals(1, blogs.size());
 
-      Hashtable blog = (Hashtable)blogs.get(0);
+			Hashtable<String, String> blog = blogs.get(0);
       assertEquals("http://www.yourdomain.com/blog/blog1/", blog.get("url"));
       assertEquals("blog1", blog.get("blogid"));
       assertEquals("My blog", blog.get("blogName"));
