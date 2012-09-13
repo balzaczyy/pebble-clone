@@ -93,7 +93,7 @@ public class User {
 
 	public static boolean authenticate(String username, String password) {
 		User user = authenticateMethod.authenticate(username, password);
-		current.set(user);
+		if (user != null) current.set(user);
 		return user != null;
 	}
 
