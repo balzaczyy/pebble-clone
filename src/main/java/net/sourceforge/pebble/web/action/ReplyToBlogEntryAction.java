@@ -50,19 +50,12 @@ import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * Allows the user to reply to a specific blog entry.
  *
  * @author    Simon Brown
  */
 public class ReplyToBlogEntryAction extends AbstractCommentAction {
-
-  /** the log used for this action */
-  private static final Log log = LogFactory.getLog(ViewBlogEntryAction.class);
-
   /**
    * Peforms the processing associated with this action.
    *
@@ -90,7 +83,7 @@ public class ReplyToBlogEntryAction extends AbstractCommentAction {
       // requesting URL was wrong
 
       return new NotFoundView();
-		} else if (!blogEntry.isPublished() && !(SecurityUtils.isUserAuthorisedForBlog(blog, request))) {
+		} else if (!blogEntry.isPublished() && !(SecurityUtils.isUserAuthorisedForBlog(blog))) {
       // the entry exists, but isn't yet published
       return new NotFoundView();
     } else if (!blogEntry.isCommentsEnabled()) {

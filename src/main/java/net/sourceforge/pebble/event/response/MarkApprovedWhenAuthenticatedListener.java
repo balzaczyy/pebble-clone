@@ -51,8 +51,7 @@ public class MarkApprovedWhenAuthenticatedListener extends BlogEntryResponseList
   @Override
 	protected void blogEntryResponseAdded(Response response) {
     Blog blog = response.getBlogEntry().getBlog();
-		// TODO determine username
-		if (SecurityUtils.isUserAuthorisedForBlog(blog, null)) {
+		if (SecurityUtils.isUserAuthorisedForBlog(blog)) {
       response.setApproved();
     }
   }

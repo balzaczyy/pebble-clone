@@ -90,7 +90,7 @@ public class ViewBlogEntriesByPageAction extends Action {
         page = 1;
       }
       boolean publishedOnly = true;
-			if (SecurityUtils.isUserAuthorisedForBlog(blog, request)) {
+			if (SecurityUtils.isUserAuthorisedForBlog(blog)) {
         publishedOnly = false;
       }
 

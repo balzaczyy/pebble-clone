@@ -71,7 +71,7 @@ public abstract class AbstractConfirmationStrategy implements CommentConfirmatio
     String required = props.getProperty(REQUIRED_KEY);
 
     Blog blog = comment.getBlogEntry().getBlog();
-		if (SecurityUtils.isUserAuthorisedForBlog(blog, request)) {
+		if (SecurityUtils.isUserAuthorisedForBlog(blog)) {
       return false;
     } else {
       // run a subset of the default comment listeners to figure out whether
@@ -98,7 +98,7 @@ public abstract class AbstractConfirmationStrategy implements CommentConfirmatio
    * @return true if the confirmation is required, false otherwise
    */
 	public boolean confirmationRequired(Blog blog, HttpServletRequest request) {
-		return !SecurityUtils.isUserAuthorisedForBlog(blog, request);
+		return !SecurityUtils.isUserAuthorisedForBlog(blog);
   }
 
 }

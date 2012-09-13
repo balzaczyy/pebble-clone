@@ -83,7 +83,7 @@ public class ViewBlogEntryAction extends AbstractCommentAction {
       // requesting URL was wrong
 
       return new NotFoundView();
-		} else if (!blogEntry.isPublished() && !(SecurityUtils.isUserAuthorisedForBlog(blog, request))) {
+		} else if (!blogEntry.isPublished() && !(SecurityUtils.isUserAuthorisedForBlog(blog))) {
       // the entry exists, but isn't yet published
       return new NotFoundView();
     } else {

@@ -31,8 +31,6 @@
  */
 package net.sourceforge.pebble.util;
 
-import javax.servlet.http.HttpServletRequest;
-
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.domain.Blog;
@@ -111,15 +109,6 @@ public final class SecurityUtils {
     return isUserInRole(Constants.BLOG_CONTRIBUTOR_ROLE);
   }
 
-  /**
-   * Determines whether this user is a Pebble admin user.
-   *
-   * @return  true if the user is a Pebble admin, false otherwise
-   */
-	// public static boolean isBlogAdmin(Authentication auth) {
-	// return isUserInRole(auth, Constants.BLOG_ADMIN_ROLE);
-	// }
-
   public static void runAsBlogOwner() {
 		User.login(User.mock("username", "password", Constants.BLOG_OWNER_ROLE));
   }
@@ -152,7 +141,7 @@ public final class SecurityUtils {
 		return isBlogContributor() && blog.isUserInRole(Constants.BLOG_CONTRIBUTOR_ROLE, username);
   }
 
-	public static boolean isUserAuthorisedForBlog(Blog blog, HttpServletRequest request) {
+	public static boolean isUserAuthorisedForBlog(Blog blog) {
 		String currentUser = getUsername();
 		return isUserAuthorisedForBlogAsBlogOwner(blog, currentUser) //
 				|| isUserAuthorisedForBlogAsBlogPublisher(blog, currentUser) //

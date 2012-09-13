@@ -113,7 +113,7 @@ public class ViewMonthAction extends Action {
       if (
           blogEntry.isPublished() ||
           (
-(SecurityUtils.isUserAuthorisedForBlog(blog, request) && blogEntry.isUnpublished())
+(SecurityUtils.isUserAuthorisedForBlog(blog) && blogEntry.isUnpublished())
           )
          ) {
         filtered.add(blogEntry);

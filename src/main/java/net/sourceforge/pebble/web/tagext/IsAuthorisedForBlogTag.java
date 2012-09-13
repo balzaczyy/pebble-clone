@@ -63,7 +63,7 @@ public class IsAuthorisedForBlogTag extends TagSupport {
 
     if (abstractBlog instanceof Blog) {
       Blog blog = (Blog)abstractBlog;
-			if (SecurityUtils.isUserAuthorisedForBlog(blog, request)) {
+			if (SecurityUtils.isUserAuthorisedForBlog(blog)) {
         return EVAL_BODY_INCLUDE;
       }
     }
