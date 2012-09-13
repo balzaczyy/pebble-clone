@@ -83,7 +83,7 @@ public class SaveUserPreferencesAction extends SecureAction {
         }
       }
 
-			PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails(request);
+			PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
 
       // can the user change their user details?
       if (!currentUserDetails.isDetailsUpdateable()) {

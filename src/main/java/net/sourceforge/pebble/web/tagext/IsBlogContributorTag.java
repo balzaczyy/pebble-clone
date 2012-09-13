@@ -63,7 +63,7 @@ public class IsBlogContributorTag extends TagSupport {
 
     if (abstractBlog instanceof Blog) {
       Blog blog = (Blog)abstractBlog;
-			if (SecurityUtils.isUserAuthorisedForBlogAsBlogContributor(blog, SecurityUtils.getUsername(request))) {
+			if (SecurityUtils.isUserAuthorisedForBlogAsBlogContributor(blog, SecurityUtils.getUsername())) {
         return EVAL_BODY_INCLUDE;
       }
     }

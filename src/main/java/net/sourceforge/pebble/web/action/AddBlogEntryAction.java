@@ -99,7 +99,7 @@ public class AddBlogEntryAction extends SecureAction {
       entry.setBody("<p>\n\n</p>");
     }
 
-		entry.setAuthor(SecurityUtils.getUsername(request));
+		entry.setAuthor(SecurityUtils.getUsername());
 
     getModel().put(Constants.BLOG_ENTRY_KEY, entry);
 

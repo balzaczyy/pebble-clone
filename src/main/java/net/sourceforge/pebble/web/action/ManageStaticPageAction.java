@@ -85,7 +85,7 @@ public class ManageStaticPageAction extends SecureAction {
       return new ForwardView("/editStaticPage.secureaction?page=" + id);
     } else if (submit.equalsIgnoreCase("Remove") && confirm != null && confirm.equals("true")) {
       try {
-				if (service.lock(staticPage, SecurityUtils.getUsername(request))) {
+				if (service.lock(staticPage, SecurityUtils.getUsername())) {
           service.removeStaticPage(staticPage);
           blog.info("Static page \"" + staticPage.getTitle() + "\" removed.");
           service.unlock(staticPage);

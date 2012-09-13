@@ -58,7 +58,7 @@ public class EditUserDetailsAction extends SecureAction {
    */
   @Override
 	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-		PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails(request);
+		PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
     getModel().put("user", currentUserDetails);
 
     // can the user change their user details?

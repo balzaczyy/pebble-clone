@@ -74,7 +74,7 @@ public class SaveUserDetailsAction extends SecureAction {
       String website = request.getParameter("website");
       String profile = request.getParameter("profile");
 
-			PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails(request);
+			PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
 
       // can the user change their user details?
       if (!currentUserDetails.isDetailsUpdateable()) {

@@ -70,7 +70,7 @@ public class AddOpenIdAction extends SecureAction {
 
   @Override
 	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-		PebbleUserDetails userDetails = SecurityUtils.getUserDetails(request);
+		PebbleUserDetails userDetails = SecurityUtils.getUserDetails();
     ValidationContext validationContext = new ValidationContext();
     AbstractBlog blog = (AbstractBlog)getModel().get(Constants.BLOG_KEY);
 

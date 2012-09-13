@@ -64,7 +64,7 @@ public class IsBlogPublisherTag extends TagSupport {
 
     if (abstractBlog instanceof Blog) {
       Blog blog = (Blog)abstractBlog;
-      if (SecurityUtils.isUserAuthorisedForBlogAsBlogPublisher(blog, SecurityUtils.getUsername(request))) {
+			if (SecurityUtils.isUserAuthorisedForBlogAsBlogPublisher(blog, SecurityUtils.getUsername())) {
         return EVAL_BODY_INCLUDE;
       }
     }

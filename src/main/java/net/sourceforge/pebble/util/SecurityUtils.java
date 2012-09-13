@@ -34,7 +34,6 @@ package net.sourceforge.pebble.util;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
@@ -56,6 +55,8 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import cn.zhouyiyan.pebble.User;
+
 /**
  * A collection of utility methods for security.
  *
@@ -64,15 +65,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public final class SecurityUtils {
   private static final Log log = LogFactory.getLog(SecurityUtils.class);
 
-	public static String getUsername(HttpServletRequest request) {
-		HttpSession session = request != null ? request.getSession(false) : null;
-		return session != null ? (String) session.getAttribute("username") : null;
+	public static String getUsername() {
+		return User.current().getName();
   }
 
-	public static PebbleUserDetails getUserDetails(HttpServletRequest request) {
+	public static PebbleUserDetails getUserDetails() {
     try {
       SecurityRealm realm = PebbleContext.getInstance().getConfiguration().getSecurityRealm();
-			return realm.getUser(getUsername(request));
+			return realm.getUser(getUsername());
     } catch (SecurityRealmException e) {
       log.error("Exception encountered", e);
       return null;
@@ -181,7 +181,7 @@ public final class SecurityUtils {
   }
 
 	public static boolean isUserAuthorisedForBlog(Blog blog, HttpServletRequest request) {
-		String currentUser = getUsername(request);
+		String currentUser = getUsername();
 		return isUserAuthorisedForBlogAsBlogOwner(blog, currentUser) //
 				|| isUserAuthorisedForBlogAsBlogPublisher(blog, currentUser) //
 				|| isUserAuthorisedForBlogAsBlogContributor(blog, currentUser);

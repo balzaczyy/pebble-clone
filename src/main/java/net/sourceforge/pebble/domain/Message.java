@@ -61,8 +61,7 @@ public class Message {
   }
 
   private void setText(String text) {
-		// TODO determine the username
-		String username = SecurityUtils.getUsername(null);
+		String username = SecurityUtils.getUsername();
     if (username != null) {
       this.text = "[" + username + "] " + text;
     } else {

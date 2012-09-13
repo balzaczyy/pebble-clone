@@ -74,7 +74,7 @@ public class ChangePasswordAction extends SecureAction {
 	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     try {
       SecurityRealm realm = PebbleContext.getInstance().getConfiguration().getSecurityRealm();
-			PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails(request);
+			PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
       String password1 = request.getParameter("password1");
       String password2 = request.getParameter("password2");
       String submit = request.getParameter("submit");

@@ -48,8 +48,7 @@ public class AuditTrail {
   private static Log log = LogFactory.getLog(AuditTrail.class);
 
   public static void log(String event) {
-		// TODO how to determine the username?
-		String username = SecurityUtils.getUsername(null);
+		String username = SecurityUtils.getUsername();
     if (username == null) {
       username = "anonymous";
     }

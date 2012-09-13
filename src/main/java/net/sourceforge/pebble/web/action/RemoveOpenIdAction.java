@@ -58,7 +58,7 @@ public class RemoveOpenIdAction extends SecureAction {
 
   @Override
   public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-		PebbleUserDetails userDetails = SecurityUtils.getUserDetails(request);
+		PebbleUserDetails userDetails = SecurityUtils.getUserDetails();
     AbstractBlog blog = (AbstractBlog)getModel().get(Constants.BLOG_KEY);
 
     String openId = request.getParameter("openid");

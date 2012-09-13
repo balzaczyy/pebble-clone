@@ -48,6 +48,7 @@ import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.BlogService;
 import net.sourceforge.pebble.domain.BlogServiceException;
+import net.sourceforge.pebble.domain.Category;
 import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.util.StringUtils;
 import net.sourceforge.pebble.web.security.RequireSecurityToken;
@@ -151,7 +152,7 @@ public class SaveBlogEntryAction extends SecureAction {
       }
     } else {
       BlogEntry blogEntry = new BlogEntry(blog);
-			blogEntry.setAuthor(SecurityUtils.getUsername(request));
+			blogEntry.setAuthor(SecurityUtils.getUsername());
       return blogEntry;
     }
   }
@@ -199,7 +200,7 @@ public class SaveBlogEntryAction extends SecureAction {
     blogEntry.setSubtitle(subtitle);
     blogEntry.setBody(body);
     blogEntry.setExcerpt(excerpt);
-    Set categories = new HashSet();
+		Set<Category> categories = new HashSet<Category>();
     if (category != null) {
       for (int i = 0; i < category.length; i++) {
         categories.add(blog.getCategory(category[i]));

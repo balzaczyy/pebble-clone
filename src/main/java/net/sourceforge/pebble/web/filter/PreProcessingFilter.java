@@ -163,7 +163,7 @@ public class PreProcessingFilter implements Filter {
         request.setCharacterEncoding(blog.getCharacterEncoding());
       }
 
-			PebbleUserDetails user = SecurityUtils.getUserDetails(httpRequest);
+			PebbleUserDetails user = SecurityUtils.getUserDetails();
       if (user != null) {
         httpRequest.setAttribute(Constants.AUTHENTICATED_USER, user);
       }

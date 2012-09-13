@@ -66,7 +66,7 @@ public class AddStaticPageAction extends SecureAction {
     staticPage.setName(name);
     staticPage.setTitle("Title");
     staticPage.setBody("<p>\n\n</p>");
-		staticPage.setAuthor(SecurityUtils.getUsername(request));
+		staticPage.setAuthor(SecurityUtils.getUsername());
 
     getModel().put(Constants.STATIC_PAGE_KEY, staticPage);
 

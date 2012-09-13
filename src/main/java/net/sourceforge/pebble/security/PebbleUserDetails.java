@@ -32,12 +32,19 @@
 
 package net.sourceforge.pebble.security;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import net.sourceforge.pebble.Constants;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.*;
 
 /**
  * Extension of the Acegi User class that adds additional information
@@ -46,8 +53,8 @@ import java.util.*;
  * @author    Simon Brown
  */
 public class PebbleUserDetails implements UserDetails {
-
-  public static final String OPEN_IDS_PREFERENCE = "openids";
+	private static final long serialVersionUID = 5078360844782658234L;
+	public static final String OPEN_IDS_PREFERENCE = "openids";
   // Reserved unwise character from RFC-2396
   private static final String OPEN_IDS_SEPARATOR = "|";
 
@@ -73,7 +80,7 @@ public class PebbleUserDetails implements UserDetails {
 
   private boolean detailsUpdateable = true;
 
-  private Collection<String> openIds;
+	// private Collection<String> openIds;
 
   public PebbleUserDetails() {
   }

@@ -64,7 +64,7 @@ public class IsBlogAdminOrBlogOwnerTag extends TagSupport {
     if (abstractBlog instanceof Blog) {
       Blog blog = (Blog)abstractBlog;
 			if (SecurityUtils.isBlogAdmin()
-					|| SecurityUtils.isUserAuthorisedForBlogAsBlogOwner(blog, SecurityUtils.getUsername(request))) {
+					|| SecurityUtils.isUserAuthorisedForBlogAsBlogOwner(blog, SecurityUtils.getUsername())) {
         return EVAL_BODY_INCLUDE;
       }
     }

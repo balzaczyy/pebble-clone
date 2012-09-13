@@ -76,7 +76,7 @@ public class RemoveStaticPagesAction extends SecureAction {
         }
         if (staticPage != null) {
           try {
-						if (service.lock(staticPage, SecurityUtils.getUsername(request))) {
+						if (service.lock(staticPage, SecurityUtils.getUsername())) {
               service.removeStaticPage(staticPage);
               blog.info("Static page \"" + staticPage.getTitle() + "\" removed.");
               service.unlock(staticPage);

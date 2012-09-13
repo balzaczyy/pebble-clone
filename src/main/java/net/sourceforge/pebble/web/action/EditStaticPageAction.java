@@ -76,7 +76,7 @@ public class EditStaticPageAction extends SecureAction {
       return new NotFoundView();
     } else {
       getModel().put(Constants.STATIC_PAGE_KEY, staticPage);
-			if (service.lock(staticPage, SecurityUtils.getUsername(request))) {
+			if (service.lock(staticPage, SecurityUtils.getUsername())) {
         return new StaticPageFormView();
       } else {
         return new StaticPageLockedView();
