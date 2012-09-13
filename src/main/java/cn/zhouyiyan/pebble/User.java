@@ -2,17 +2,22 @@ package cn.zhouyiyan.pebble;
 
 import static cn.zhouyiyan.pebble.Predef.set;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import net.sourceforge.pebble.Configuration;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.security.DefaultUserDetailsService;
+import net.sourceforge.pebble.security.SecurityRealm;
+import net.sourceforge.pebble.security.SecurityRealmException;
 
 import org.springframework.security.authentication.dao.ReflectionSaltSource;
 import org.springframework.security.authentication.dao.SaltSource;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -55,14 +60,28 @@ public class User {
 	 * Obtain user by name.
 	 */
 	public static User byName(String username) {
-		return username != null ? new User(username) : UnauthenticatedUser;
+		if (username != null) try {
+			SecurityRealm realm = PebbleContext.getInstance().getConfiguration().getSecurityRealm();
+			Collection<GrantedAuthority> gas = realm.getUser(username).getAuthorities();
+			String[] roles = new String[gas.size()];
+			int idx = 0;
+			for (GrantedAuthority ga : gas) {
+				roles[idx++] = ga.getAuthority();
+			}
+			User ans = new User(username);
+			ans.roles.addAll(Arrays.asList(roles));
+			return ans;
+		} catch (SecurityRealmException sre) {
+			sre.printStackTrace();
+		}
+		return UnauthenticatedUser;
 	}
 
 	/**
 	 * Mock a user with given name, password, and roles.
 	 */
 	public static User mock(String username, String password, String... roles) {
-		return new User(username, password, set(roles));
+		return new User(username, set(roles));
 	}
 
 	public interface AuthenticateMethod {
@@ -105,17 +124,14 @@ public class User {
 	}
 
 	private final String username;
-	private final String password;
 	private final Set<String> roles = new HashSet<String>();
 
 	private User(String username) {
 		this.username = username;
-		this.password = null;
 	}
 
-	public User(String username, String password, Set<String> roles) {
+	public User(String username, Set<String> roles) {
 		this.username = username;
-		this.password = password;
 		this.roles.addAll(roles);
 	}
 
