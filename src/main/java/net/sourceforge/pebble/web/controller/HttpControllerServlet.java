@@ -44,13 +44,21 @@ import javax.servlet.http.HttpServletResponse;
  * @author James Roper
  */
 public class HttpControllerServlet extends HttpServlet {
-
-  private HttpController httpController;
+	private static final long serialVersionUID = 1484500025347310780L;
+	private HttpController httpController;
 
   @Override
   public void init() throws ServletException {
     super.init();
-		httpController = new DefaultHttpController();
+		// TODO avoid hard code string
+		String beanName = getServletConfig().getInitParameter("httpControllerBeanName");
+		if ("httpController".equals(beanName)) {
+			httpController = new DefaultHttpController(".action", "action.properties");
+		} else if ("secureHttpController".equals(beanName)) {
+			httpController = new DefaultHttpController(".secureaction", "secure-action.properties");
+		} else {
+			throw new IllegalArgumentException("Invalid httpControllerBeanName: " + beanName);
+		}
   }
 
   @Override

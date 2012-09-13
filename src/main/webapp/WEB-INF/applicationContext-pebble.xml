@@ -12,14 +12,4 @@
   <context:component-scan base-package="net.sourceforge.pebble"/>
 
   <bean id="lastModifiedService" class="net.sourceforge.pebble.service.DefaultLastModifiedService"/>
-
-  <bean id="secureHttpController" class="net.sourceforge.pebble.web.controller.DefaultHttpController">
-    <property name="actionExtension" value=".secureaction"/>
-    <property name="actionFactory" ref="secureActionFactory"/>
-  </bean>
-
-  <bean id="secureActionFactory" class="net.sourceforge.pebble.web.action.DefaultActionFactory">
-    <property name="actionMappingFileName" value="secure-action.properties"/>
-  </bean>
-
 </beans>

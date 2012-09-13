@@ -33,7 +33,6 @@ package net.sourceforge.pebble.web.controller;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -65,24 +64,27 @@ import org.apache.commons.logging.LogFactory;
  * @author Simon Brown
  */
 public class DefaultHttpController implements HttpController {
-
   private static final Log log = LogFactory.getLog(DefaultHttpController.class);
 
   /**
    * a reference to the factory used to create Action instances
    */
-	private ActionFactory actionFactory = new DefaultActionFactory();
+	private final ActionFactory actionFactory;
 
   /**
    * the extension used to refer to actions
    */
-  private String actionExtension = ".action";
+	private final String actionExtension;
 
   /**
    * The security token validator
    */
-  @Inject
 	private final SecurityTokenValidator securityTokenValidator = new SecurityTokenValidatorImpl();
+
+	public DefaultHttpController(String actionExtension, String actionMappingFileName) {
+		this.actionExtension = actionExtension;
+		this.actionFactory = new DefaultActionFactory(actionMappingFileName);
+	}
 
   /**
    * Processes the request - this is delegated to from doGet and doPost.
@@ -203,13 +205,5 @@ public class DefaultHttpController implements HttpController {
       }
     }
     return false;
-  }
-
-  public void setActionFactory(ActionFactory actionFactory) {
-    this.actionFactory = actionFactory;
-  }
-
-  public void setActionExtension(String actionExtension) {
-    this.actionExtension = actionExtension;
   }
 }

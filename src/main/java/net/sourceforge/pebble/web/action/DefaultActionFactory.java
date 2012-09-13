@@ -34,15 +34,11 @@ package net.sourceforge.pebble.web.action;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A factory class from which to look up and retrieve an instance
@@ -51,15 +47,11 @@ import org.slf4j.LoggerFactory;
  * @author    Simon Brown
  */
 public class DefaultActionFactory implements ActionFactory {
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultActionFactory.class);
   /** the log used by this class */
   private static Log log = LogFactory.getLog(DefaultActionFactory.class);
 
   /** the collection of actions that we know about */
-  private final Map<String, String> actions = new HashMap<String, String>();
-
-  /** the name of the action mapping file */
-	private final String actionMappingFileName = "action.properties";
+	private final Properties actions = new Properties();
 
   /**
 	 * Initializes this component, reading in and creating the map of action names
@@ -68,7 +60,7 @@ public class DefaultActionFactory implements ActionFactory {
 	 * @throws IOException
 	 *           If an error occurs looking up all the actions
 	 */
-	public DefaultActionFactory() {
+	public DefaultActionFactory(String actionMappingFileName) {
     // Load all resources by the given name, allows for plugins to provide their own actions
 		ClassLoader loader = getClass().getClassLoader();
 		URL url = loader.getResource(actionMappingFileName);
@@ -77,9 +69,7 @@ public class DefaultActionFactory implements ActionFactory {
       InputStream in = null;
       try {
         in = url.openStream();
-        Properties props = new Properties();
-        props.load(in);
-        actions.putAll((Map) props);
+			actions.load(in);
       } catch (IOException ioe) {
         log.error("Error reading actions for class: " + url, ioe);
       } finally {
@@ -98,7 +88,7 @@ public class DefaultActionFactory implements ActionFactory {
     try {
       // instantiate the appropriate class to handle the request
       if (actions.containsKey(name)) {
-        Class<?> c = getClass().getClassLoader().loadClass(actions.get(name));
+				Class<?> c = getClass().getClassLoader().loadClass(actions.getProperty(name));
         Class<? extends Action> actionClass = c.asSubclass(Action.class);
 				return actionClass.newInstance();
       } else {
