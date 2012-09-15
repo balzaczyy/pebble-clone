@@ -52,8 +52,6 @@ import net.sourceforge.pebble.comparator.PebbleUserDetailsComparator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jasypt.util.password.BasicPasswordEncryptor;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.event.ContextRefreshedEvent;
 
 /**
  * Implementation of the SecurityRealm that gets authentication
@@ -81,42 +79,32 @@ public class DefaultSecurityRealm implements SecurityRealm {
 
 	public DefaultSecurityRealm(Configuration configuration) {
 		this.configuration = configuration;
-	}
-
-  /**
-   * Creates the underlying security realm upon creation, if necessary, and initialises the openIdMap.
-   *
-   * Note, this used to be an init method for the bean, however, due to a circular dependency between this bean and the
-   * Pebble configuration bean, it was possible for the Pebble configuration to have been injected and the init method
-   * called before the configuration had the home directory set.  This bug exhibited itself when we upgraded to Spring
-   * 3.  So, we initialise on framework start.
-   */
-  public void onApplicationEvent(ApplicationEvent event) {
-    if (event instanceof ContextRefreshedEvent) {
-      try {
-        File realm = getFileForRealm();
-        if (!realm.exists()) {
-          realm.mkdirs();
-          log.warn("*** Creating default user (username/password)");
-          log.warn("*** Don't forget to delete this user in a production deployment!");
-          PebbleUserDetails defaultUser = new PebbleUserDetails("username", "password", "Default User", "username@domain.com", "http://www.domain.com", "Default User...", new String[] {Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE, Constants.BLOG_CONTRIBUTOR_ROLE, Constants.BLOG_ADMIN_ROLE}, new HashMap<String,String>(), true);
-          createUser(defaultUser);
-        }
-      } catch (SecurityRealmException e) {
-        log.error("Error while creating security realm", e);
+		try {
+			File realm = getFileForRealm();
+			if (!realm.exists()) {
+				realm.mkdirs();
+				log.warn("*** Creating default user (username/password)");
+				log.warn("*** Don't forget to delete this user in a production deployment!");
+				PebbleUserDetails defaultUser = new PebbleUserDetails("username", "password", "Default User",
+						"username@domain.com", "http://www.domain.com", "Default User...", new String[] {
+								Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE, Constants.BLOG_CONTRIBUTOR_ROLE,
+								Constants.BLOG_ADMIN_ROLE }, new HashMap<String, String>(), true);
+				createUser(defaultUser);
       }
+		} catch (SecurityRealmException e) {
+			log.error("Error while creating security realm", e);
+		}
 
-      try {
-        // Initialise open id map
-        openIdMap = new HashMap<String, String>();
-        for (PebbleUserDetails user : getUsers()) {
-          for (String openId : user.getOpenIds()) {
-            openIdMap.put(openId, user.getUsername());
-          }
+		try {
+			// Initialise open id map
+			openIdMap = new HashMap<String, String>();
+			for (PebbleUserDetails user : getUsers()) {
+				for (String openId : user.getOpenIds()) {
+					openIdMap.put(openId, user.getUsername());
         }
-      } catch (SecurityRealmException e) {
-        log.error("Error initialising open ids map", e);
       }
+		} catch (SecurityRealmException e) {
+			log.error("Error initialising open ids map", e);
     }
   }
 
@@ -331,9 +319,5 @@ public class DefaultSecurityRealm implements SecurityRealm {
     // find the directory and file corresponding to the user, of the form
     // ${pebbleContext.dataDirectory}/realm/${username}.properties
     return new File(getFileForRealm(), username + ".properties");
-  }
-
-  public Configuration getConfiguration() {
-    return configuration;
   }
 }

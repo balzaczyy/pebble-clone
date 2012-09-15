@@ -40,9 +40,6 @@ import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.domain.SingleBlogTestCase;
 
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.support.StaticApplicationContext;
-
 /**
  * Tests for the DefaultSecurityRealm class.
  *
@@ -57,7 +54,8 @@ public class DefaultSecurityRealmTest extends SingleBlogTestCase {
     super.setUp();
 
 		realm = new DefaultSecurityRealm(PebbleContext.getInstance().getConfiguration());
-		realm.onApplicationEvent(new ContextRefreshedEvent(new StaticApplicationContext()));
+		// realm.onApplicationEvent(new ContextRefreshedEvent(new
+		// StaticApplicationContext()));
   }
 
   @Override
