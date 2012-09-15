@@ -48,8 +48,6 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.StringTokenizer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.servlet.http.HttpServletRequest;
@@ -108,9 +106,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 
 /**
  * Represents a blog.
@@ -199,9 +194,6 @@ public class Blog extends AbstractBlog {
   private final List<FeedDecorator> feedDecorators = new CopyOnWriteArrayList<FeedDecorator>();
 
   private EmailSubscriptionList emailSubscriptionList;
-
-  /** the Cache that can be used by services to cache arbitrary config */
-  private final ConcurrentMap<String, Supplier<?>> serviceCache = new ConcurrentHashMap<String, Supplier<?>>();
 
   /**
    * Creates a new Blog instance, based at the specified location.
@@ -1977,34 +1969,6 @@ public class Blog extends AbstractBlog {
       }
     }
     return salt;
-  }
-
-  /**
-   * Get an item from the cache
-   *
-   * @param key The key in the cache
-   * @param supplier The supplier of the item.  This would usually be a memoized supplier, created using Suppliers.memoize()
-   * @param <T> The type of the time
-   *
-   * @return The item
-   */
-  public <T> T getServiceCacheItem(String key, Supplier<T> supplier) {
-    Supplier<T> memoizedSupplier = Suppliers.memoize(supplier);
-    Supplier<T> cachedSupplier = (Supplier<T>) serviceCache.putIfAbsent(key, memoizedSupplier);
-    if (cachedSupplier == null) {
-      return memoizedSupplier.get();
-    } else {
-      return cachedSupplier.get();
-    }
-  }
-
-  /**
-   * Reset an item in the cache
-   *
-   * @param key The item to reset
-   */
-  public void resetServiceCacheItem(String key) {
-    serviceCache.remove(key);
   }
 
   private List<String> getStringsFromProperty(String key) {
