@@ -31,28 +31,32 @@
  */
 package net.sourceforge.pebble.web.security;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.AbstractBlog;
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.web.action.Action;
-import org.apache.commons.codec.binary.Base64;
-import org.springframework.stereotype.Component;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.domain.AbstractBlog;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.web.action.Action;
+
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * Checks requests for a security token
  *
  * @author James Roper
  */
-@Component
 public class SecurityTokenValidatorImpl implements SecurityTokenValidator {
 
   /**
@@ -182,7 +186,8 @@ public class SecurityTokenValidatorImpl implements SecurityTokenValidator {
         if (servletPath.startsWith("/")) {
           servletPath = servletPath.substring(1);
         }
-        String hash = hashRequest(servletPath, request.getParameterMap(), salt);
+				@SuppressWarnings("unchecked")
+				String hash = hashRequest(servletPath, request.getParameterMap(), salt);
         return hash.equals(requestHash);
       }
     }
@@ -243,13 +248,20 @@ public class SecurityTokenValidatorImpl implements SecurityTokenValidator {
       for (String value : param.getValue()) {
         url.append(sep);
         sep = "&amp;";
-        url.append(URLEncoder.encode(param.getKey()));
+				url.append(encodeAsUTF8(param.getKey()));
         url.append("=");
-        url.append(URLEncoder.encode(value));
+				url.append(encodeAsUTF8(value));
       }
     }
-    url.append(sep).append(PEBBLE_SECURITY_SIGNATURE_PARAMETER).append("=").append(URLEncoder.encode(hash));
+		url.append(sep).append(PEBBLE_SECURITY_SIGNATURE_PARAMETER).append("=").append(encodeAsUTF8(hash));
     return url.toString();
   }
 
+	private String encodeAsUTF8(String value) {
+		try {
+			return URLEncoder.encode(value, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException(e);
+		}
+	}
 }

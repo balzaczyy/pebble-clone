@@ -45,8 +45,6 @@ import net.sourceforge.pebble.webservice.PebbleAPIHandler;
 import net.sourceforge.pebble.webservice.SearchAPIHandler;
 
 import org.apache.xmlrpc.XmlRpcServer;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * Single entry point for all XML-RPC requests (e.g. Blogger API).
@@ -75,19 +73,10 @@ public class XmlRpcController extends HttpServlet {
 
     try {
       XmlRpcServer xmlrpc = new XmlRpcServer();
-      ApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
-
-      BloggerAPIHandler bloggerApi = (BloggerAPIHandler)ctx.getBean("bloggerApiHandler");
-      xmlrpc.addHandler("blogger", bloggerApi);
-
-      MetaWeblogAPIHandler metaweblogApi = (MetaWeblogAPIHandler)ctx.getBean("metaweblogApiHandler");
-      xmlrpc.addHandler("metaWeblog", metaweblogApi);
-
-      PebbleAPIHandler pebbleApi = (PebbleAPIHandler)ctx.getBean("pebbleApiHandler");
-      xmlrpc.addHandler("pebble", pebbleApi);
-
-      SearchAPIHandler searchApi = (SearchAPIHandler)ctx.getBean("searchApiHandler");
-      xmlrpc.addHandler("search", searchApi);
+			xmlrpc.addHandler("blogger", new BloggerAPIHandler());
+			xmlrpc.addHandler("metaWeblog", new MetaWeblogAPIHandler());
+			xmlrpc.addHandler("pebble", new PebbleAPIHandler());
+			xmlrpc.addHandler("search", new SearchAPIHandler());
 
       byte[] result = xmlrpc.execute(request.getInputStream());
       response.setContentType("text/xml; charset=UTF-8");

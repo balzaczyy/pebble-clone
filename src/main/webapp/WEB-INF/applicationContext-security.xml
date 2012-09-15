@@ -50,19 +50,6 @@
     <property name="forceHttps" value="false"/>
   </bean>
 
-  <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-    <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
-  </bean>
-
-  <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
-    <property name="allowIfAllAbstainDecisions" value="false"/>
-    <property name="decisionVoters">
-      <list>
-        <ref bean="roleVoter"/>
-      </list>
-    </property>
-  </bean>
-
   <bean id="basicProcessingFilter"
         class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
     <property name="authenticationManager" ref="authenticationManager"/>
@@ -105,23 +92,4 @@
       </security:filter-security-metadata-source>
     </property>
   </bean>
-
-  <!-- ===================== PRIVATE BLOG SECURITY ==================== -->
-
-  <bean id="privateBlogRoleVoter" class="net.sourceforge.pebble.security.PrivateBlogVoter"/>
-
-  <bean id="privateBlogAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
-    <property name="allowIfAllAbstainDecisions" value="false"/>
-    <property name="decisionVoters">
-      <list>
-        <ref bean="privateBlogRoleVoter"/>
-      </list>
-    </property>
-  </bean>
-
-  <bean id="privateBlogInvocationInterceptor" class="net.sourceforge.pebble.security.PrivateBlogSecurityInterceptor">
-    <property name="authenticationManager" ref="authenticationManager"/>
-    <property name="accessDecisionManager" ref="privateBlogAccessDecisionManager"/>
-  </bean>
-
 </beans>

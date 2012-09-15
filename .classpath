@@ -129,13 +129,6 @@
       <attribute value="jar:file:/home/zhouyiy/.m2/repository/org/slf4j/slf4j-log4j12/1.7.0/slf4j-log4j12-1.7.0-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-aop/3.0.3.RELEASE/spring-aop-3.0.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-aop/3.0.3.RELEASE/spring-aop-3.0.3.RELEASE-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-asm/3.0.3.RELEASE/spring-asm-3.0.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-asm/3.0.3.RELEASE/spring-asm-3.0.3.RELEASE-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-beans/3.0.3.RELEASE/spring-beans-3.0.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-beans/3.0.3.RELEASE/spring-beans-3.0.3.RELEASE-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-context/3.0.3.RELEASE/spring-context-3.0.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-context/3.0.3.RELEASE/spring-context-3.0.3.RELEASE-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-core/3.0.3.RELEASE/spring-core-3.0.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-core/3.0.3.RELEASE/spring-core-3.0.3.RELEASE-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-expression/3.0.3.RELEASE/spring-expression-3.0.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-expression/3.0.3.RELEASE/spring-expression-3.0.3.RELEASE-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-web/3.0.3.RELEASE/spring-web-3.0.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-web/3.0.3.RELEASE/spring-web-3.0.3.RELEASE-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/taglibs/standard/1.1.2/standard-1.1.2.jar" sourcepath="M2_REPO/taglibs/standard/1.1.2/standard-1.1.2-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/net/homeip/yusuke/twitter4j/2.0.10/twitter4j-2.0.10.jar" sourcepath="M2_REPO/net/homeip/yusuke/twitter4j/2.0.10/twitter4j-2.0.10-sources.jar">
     <attributes>
