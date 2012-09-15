@@ -42,18 +42,13 @@ import java.util.Set;
 
 import net.sourceforge.pebble.Constants;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.springframework.security.core.userdetails.UserDetails;
-
 /**
  * Extension of the Acegi User class that adds additional information
  * such as the user's e-mail address.
  *
  * @author    Simon Brown
  */
-public class PebbleUserDetails implements UserDetails {
-	private static final long serialVersionUID = 5078360844782658234L;
+public class PebbleUserDetails {
 	public static final String OPEN_IDS_PREFERENCE = "openids";
   // Reserved unwise character from RFC-2396
   private static final String OPEN_IDS_SEPARATOR = "|";
@@ -76,7 +71,7 @@ public class PebbleUserDetails implements UserDetails {
   /** the user's preferences */
   private Map<String,String> preferences = new HashMap<String,String>();
 
-  private Collection<GrantedAuthority> grantedAuthories;
+	private Collection<String> grantedAuthories;
 
   private boolean detailsUpdateable = true;
 
@@ -168,16 +163,16 @@ public class PebbleUserDetails implements UserDetails {
     return this.profile;
   }
 
-  public Collection<GrantedAuthority> getAuthorities() {
+	public Collection<String> getAuthorities() {
     return this.grantedAuthories;
   }
 
   public String[] getRoles() {
-    Collection<GrantedAuthority> authorities = getAuthorities();
+		Collection<String> authorities = getAuthorities();
     String[] roles = new String[authorities.size()];
     int i = 0;
-    for (GrantedAuthority authority: authorities) {
-      roles[i++] = authority.getAuthority();
+		for (String authority : authorities) {
+			roles[i++] = authority;
     }
 
     return roles;
@@ -187,20 +182,20 @@ public class PebbleUserDetails implements UserDetails {
     StringBuffer buf = new StringBuffer();
 
     String sep = "";
-    for (GrantedAuthority authority: getAuthorities()) {
+		for (String authority : getAuthorities()) {
       buf.append(sep);
       sep = ",";
-      buf.append(authority.getAuthority());
+			buf.append(authority);
     }
 
     return buf.toString();
   }
 
   public boolean isUserInRole(String role) {
-    Collection<GrantedAuthority> authorities = getAuthorities();
+		Collection<String> authorities = getAuthorities();
     if (authorities != null) {
-      for (GrantedAuthority authority : authorities) {
-        if (authority.getAuthority().equals(role)) {
+			for (String authority : authorities) {
+				if (authority.equals(role)) {
           return true;
         }
       }
@@ -224,14 +219,14 @@ public class PebbleUserDetails implements UserDetails {
     return isUserInRole(Constants.BLOG_CONTRIBUTOR_ROLE);
   }
 
-  private static Collection<GrantedAuthority> createGrantedAuthorities(String roles[]) {
-    Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+	private static Collection<String> createGrantedAuthorities(String roles[]) {
+		Set<String> authorities = new HashSet<String>();
     if (roles != null) {
       for (String role : roles) {
-        authorities.add(new GrantedAuthorityImpl(role.trim()));
+				authorities.add(role.trim());
       }
     }
-    authorities.add(new GrantedAuthorityImpl(Constants.BLOG_READER_ROLE));
+		authorities.add(Constants.BLOG_READER_ROLE);
 
     return authorities;
   }
@@ -254,14 +249,6 @@ public class PebbleUserDetails implements UserDetails {
 
   public void setWebsite(String website) {
     this.website = website;
-  }
-
-  public void setProfile(String profile) {
-    this.profile = profile;
-  }
-
-  public void setGrantedAuthories(Collection<GrantedAuthority> grantedAuthories) {
-    this.grantedAuthories = grantedAuthories;
   }
 
   public boolean isDetailsUpdateable() {

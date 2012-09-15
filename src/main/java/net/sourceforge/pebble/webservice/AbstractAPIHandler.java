@@ -36,7 +36,6 @@ import net.sourceforge.pebble.domain.BlogManager;
 import net.sourceforge.pebble.util.SecurityUtils;
 
 import org.apache.xmlrpc.XmlRpcException;
-import org.springframework.security.authentication.AuthenticationManager;
 
 import cn.zhouyiyan.pebble.User;
 
@@ -49,20 +48,6 @@ public abstract class AbstractAPIHandler {
 
   /** character used to separate blog and post IDs in multi-user mode */
   static final char BLOG_ID_SEPARATOR = '/';
-
-  private AuthenticationManager authenticationManager;
-
-  public AuthenticationManager getAuthenticationManager() {
-    return authenticationManager;
-  }
-
-	/**
-	 * @deprecated use User.setAuthenticateMethod() instead.
-	 */
-	@Deprecated
-  public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-    this.authenticationManager = authenticationManager;
-  }
 
   /**
    * A helper method to authenticate a username/password pair against the

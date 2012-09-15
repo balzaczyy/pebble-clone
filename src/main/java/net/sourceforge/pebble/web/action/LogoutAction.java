@@ -31,14 +31,12 @@
  */
 package net.sourceforge.pebble.web.action;
 
-import net.sourceforge.pebble.web.view.RedirectView;
-import net.sourceforge.pebble.web.view.View;
-import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
-
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.pebble.web.view.RedirectView;
+import net.sourceforge.pebble.web.view.View;
 
 /**
  * Logs out the current user.
@@ -54,13 +52,16 @@ public class LogoutAction extends Action {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     String redirectUrl = request.getParameter("redirectUrl");
     request.getSession().invalidate();
 
-    Cookie terminate = new Cookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, null);
-    terminate.setMaxAge(-1);
-    response.addCookie(terminate);
+		// Cookie terminate = new
+		// Cookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
+		// null);
+		// terminate.setMaxAge(-1);
+		// response.addCookie(terminate);
     
     return new RedirectView(redirectUrl);
   }

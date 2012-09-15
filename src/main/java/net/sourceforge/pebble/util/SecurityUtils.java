@@ -40,10 +40,6 @@ import net.sourceforge.pebble.security.SecurityRealmException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 
 import cn.zhouyiyan.pebble.User;
 
@@ -152,21 +148,21 @@ public final class SecurityUtils {
 		return User.isAuthenticated();
   }
 
-  public static void main(String[] args) {
-    if (args.length != 3) {
-      System.out.println("Usage : [md5|sha|plaintext] username password");
-    } else if (args[0].equals("md5")) {
-      PasswordEncoder encoder = new Md5PasswordEncoder();
-      System.out.println(encoder.encodePassword(args[2], args[1]));
-    } else if (args[0].equals("sha")) {
-      PasswordEncoder encoder = new ShaPasswordEncoder();
-      System.out.println(encoder.encodePassword(args[2], args[1]));
-    } else if (args[0].equals("plaintext")) {
-      PasswordEncoder encoder = new PlaintextPasswordEncoder();
-      System.out.println(encoder.encodePassword(args[2], args[1]));
-    } else {
-      System.out.println("Algorithm must be md5, sha or plaintext");
-    }
-  }
+	// public static void main(String[] args) {
+	// if (args.length != 3) {
+	// System.out.println("Usage : [md5|sha|plaintext] username password");
+	// } else if (args[0].equals("md5")) {
+	// PasswordEncoder encoder = new Md5PasswordEncoder();
+	// System.out.println(encoder.encodePassword(args[2], args[1]));
+	// } else if (args[0].equals("sha")) {
+	// PasswordEncoder encoder = new ShaPasswordEncoder();
+	// System.out.println(encoder.encodePassword(args[2], args[1]));
+	// } else if (args[0].equals("plaintext")) {
+	// PasswordEncoder encoder = new PlaintextPasswordEncoder();
+	// System.out.println(encoder.encodePassword(args[2], args[1]));
+	// } else {
+	// System.out.println("Algorithm must be md5, sha or plaintext");
+	// }
+	// }
 
 }

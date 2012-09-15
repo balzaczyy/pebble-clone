@@ -31,18 +31,25 @@
  */
 package net.sourceforge.pebble.web.filter;
 
+import java.io.IOException;
+import java.net.URLDecoder;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.domain.AbstractBlog;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogManager;
 import net.sourceforge.pebble.domain.MultiBlog;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URLDecoder;
 
 /**
  * A filter that transforms an incoming URI into an action URI.
@@ -50,10 +57,6 @@ import java.net.URLDecoder;
  * @author    Simon Brown
  */
 public class TransformingFilter implements Filter {
-
-  /** the config of this filter */
-  private FilterConfig filterConfig;
-
   /** the log used by this class */
   private static Log log = LogFactory.getLog(TransformingFilter.class);
 
@@ -62,15 +65,12 @@ public class TransformingFilter implements Filter {
    *
    * @param config    a FilterConfig instance
    */
-  public void init(FilterConfig config) {
-    this.filterConfig = config;
-  }
+	public void init(FilterConfig config) {}
 
   /**
    * Called when this filter is taken out of service.
    */
-  public void destroy() {
-  }
+	public void destroy() {}
 
   /**
    * Contains the processing associated with this filter.

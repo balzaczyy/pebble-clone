@@ -32,13 +32,11 @@
 
 package net.sourceforge.pebble.security;
 
-import junit.framework.TestCase;
-import net.sourceforge.pebble.Constants;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
-
 import java.util.Collection;
 import java.util.HashMap;
+
+import junit.framework.TestCase;
+import net.sourceforge.pebble.Constants;
 
 /**
  * Tests for the PebbleUserDetails class.
@@ -49,7 +47,8 @@ public class PebbleUserDetailsTest extends TestCase {
 
   private PebbleUserDetails user;
 
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     user = new PebbleUserDetails("username", "password", "A user", "emailAddress", "website", "profile", new String[] {Constants.BLOG_OWNER_ROLE}, new HashMap<String,String>(), true);
   }
 
@@ -60,10 +59,10 @@ public class PebbleUserDetailsTest extends TestCase {
     assertEquals("emailAddress", user.getEmailAddress());
     assertEquals("website", user.getWebsite());
 
-    Collection<GrantedAuthority> authorities = user.getAuthorities();
+		Collection<String> authorities = user.getAuthorities();
     assertEquals(2, authorities.size());
-    assertTrue(authorities.contains(new GrantedAuthorityImpl(Constants.BLOG_OWNER_ROLE)));
-    assertTrue(authorities.contains(new GrantedAuthorityImpl(Constants.BLOG_READER_ROLE)));
+		assertTrue(authorities.contains(Constants.BLOG_OWNER_ROLE));
+		assertTrue(authorities.contains(Constants.BLOG_READER_ROLE));
   }
 
   public void testConstructionWithNoExplicitRoles() {
@@ -75,9 +74,9 @@ public class PebbleUserDetailsTest extends TestCase {
     assertEquals("emailAddress", user.getEmailAddress());
     assertEquals("website", user.getWebsite());
 
-    Collection<GrantedAuthority> authorities = user.getAuthorities();
+		Collection<String> authorities = user.getAuthorities();
     assertEquals(1, authorities.size());
-    assertTrue(authorities.contains(new GrantedAuthorityImpl(Constants.BLOG_READER_ROLE)));
+		assertTrue(authorities.contains(Constants.BLOG_READER_ROLE));
   }
 
 }

@@ -44,6 +44,11 @@
   </filter>
 
   <filter>
+    <filter-name>PrivateBlogInterceptor</filter-name>
+    <filter-class>cn.zhouyiyan.pebble.PrivateBlogInterceptor</filter-class>
+  </filter>
+
+  <filter>
     <filter-name>BlogLookupFilter</filter-name>
     <filter-class>net.sourceforge.pebble.web.filter.BlogLookupFilter</filter-class>
   </filter>
@@ -78,7 +83,7 @@
     <filter-name>BlogLookupFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-
+  
   <!-- gzip filter *must* come after the blog lookup filter, because it uses the encoding of the
       currently set blog -->
   <filter-mapping>
@@ -98,6 +103,12 @@
 
   <filter-mapping>
     <filter-name>TransformingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <!--  must stay after TransformingFilter, as it depends on INTERNAL_URI -->
+  <filter-mapping>
+    <filter-name>PrivateBlogInterceptor</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 

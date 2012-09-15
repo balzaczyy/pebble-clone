@@ -51,12 +51,9 @@ import net.sourceforge.pebble.comparator.PebbleUserDetailsComparator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.security.authentication.dao.ReflectionSaltSource;
-import org.springframework.security.authentication.dao.SaltSource;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 
 /**
  * Implementation of the SecurityRealm that gets authentication
@@ -65,32 +62,25 @@ import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
  * @author    Simon Brown
  */
 public class DefaultSecurityRealm implements SecurityRealm {
-
   private static final Log log = LogFactory.getLog(DefaultSecurityRealm.class);
-
   private static final String REALM_DIRECTORY_NAME = "realm";
+	private static final String PASSWORD = "password";
+	private static final String ROLES = "roles";
+	private static final String NAME = "name";
+	private static final String EMAIL_ADDRESS = "emailAddress";
+	private static final String WEBSITE = "website";
+	private static final String PROFILE = "profile";
+	private static final String DETAILS_UPDATEABLE = "detailsUpdateable";
+	private static final String PREFERENCE = "preference.";
 
-  protected static final String PASSWORD = "password";
-  protected static final String ROLES = "roles";
-  protected static final String NAME = "name";
-  protected static final String EMAIL_ADDRESS = "emailAddress";
-  protected static final String WEBSITE = "website";
-  protected static final String PROFILE = "profile";
-  protected static final String DETAILS_UPDATEABLE = "detailsUpdateable";
-  protected static final String PREFERENCE = "preference.";
-
-  private Configuration configuration;
-
-	private PasswordEncoder passwordEncoder = new ShaPasswordEncoder();
-
-	private SaltSource saltSource = new ReflectionSaltSource();
+	private final Configuration configuration;
+	private final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
 
   /** Map of open ids to users, cached in a copy on write map */
   private volatile Map<String, String> openIdMap;
 
 	public DefaultSecurityRealm(Configuration configuration) {
 		this.configuration = configuration;
-		((ReflectionSaltSource) this.saltSource).setUserPropertyToUse("getUsername");
 	}
 
   /**
@@ -274,7 +264,7 @@ public class DefaultSecurityRealm implements SecurityRealm {
 
     Properties props = new Properties();
     if (updatePassword) {
-      props.setProperty(DefaultSecurityRealm.PASSWORD, passwordEncoder.encodePassword(pud.getPassword(), saltSource.getSalt(pud)));
+			props.setProperty(DefaultSecurityRealm.PASSWORD, passwordEncryptor.encryptPassword(pud.getPassword()));
     } else {
       props.setProperty(DefaultSecurityRealm.PASSWORD, currentDetails.getPassword());
     }
@@ -346,25 +336,4 @@ public class DefaultSecurityRealm implements SecurityRealm {
   public Configuration getConfiguration() {
     return configuration;
   }
-
-  public void setConfiguration(Configuration configuration) {
-    this.configuration = configuration;
-  }
-
-  public PasswordEncoder getPasswordEncoder() {
-    return passwordEncoder;
-  }
-
-  public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-    this.passwordEncoder = passwordEncoder;
-  }
-
-  public SaltSource getSaltSource() {
-    return saltSource;
-  }
-
-  public void setSaltSource(SaltSource saltSource) {
-    this.saltSource = saltSource;
-  }
-
 }

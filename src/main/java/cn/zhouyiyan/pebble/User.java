@@ -10,16 +10,11 @@ import java.util.Set;
 import net.sourceforge.pebble.Configuration;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.security.DefaultUserDetailsService;
+import net.sourceforge.pebble.security.PebbleUserDetails;
 import net.sourceforge.pebble.security.SecurityRealm;
 import net.sourceforge.pebble.security.SecurityRealmException;
 
-import org.springframework.security.authentication.dao.ReflectionSaltSource;
-import org.springframework.security.authentication.dao.SaltSource;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.jasypt.util.password.BasicPasswordEncryptor;
 
 public class User {
 	private static final User UnauthenticatedUser = new User(null) {};
@@ -62,11 +57,11 @@ public class User {
 	public static User byName(String username) {
 		if (username != null) try {
 			SecurityRealm realm = PebbleContext.getInstance().getConfiguration().getSecurityRealm();
-			Collection<GrantedAuthority> gas = realm.getUser(username).getAuthorities();
+			Collection<String> gas = realm.getUser(username).getAuthorities();
 			String[] roles = new String[gas.size()];
 			int idx = 0;
-			for (GrantedAuthority ga : gas) {
-				roles[idx++] = ga.getAuthority();
+			for (String ga : gas) {
+				roles[idx++] = ga;
 			}
 			User ans = new User(username);
 			ans.roles.addAll(Arrays.asList(roles));
@@ -88,11 +83,8 @@ public class User {
 		User authenticate(String username, String password);
 	}
 
-	private static final PasswordEncoder passwordEncoder = new ShaPasswordEncoder();
-	private static final SaltSource saltSource = new ReflectionSaltSource();
-	static {
-		((ReflectionSaltSource) saltSource).setUserPropertyToUse("getUsername");
-	}
+	private static final BasicPasswordEncryptor passwordEncryptor = new BasicPasswordEncryptor();
+
 	/**
 	 * Default authenticate method.
 	 */
@@ -100,9 +92,9 @@ public class User {
 		public User authenticate(String username, String password) {
 			if (username != null && password != null) {
 				Configuration conf = PebbleContext.getInstance().getConfiguration();
-				UserDetailsService uds = new DefaultUserDetailsService(conf);
-				UserDetails ud = uds.loadUserByUsername(username);
-				if (ud != null && ud.getPassword().equals(passwordEncoder.encodePassword(password, saltSource.getSalt(ud)))) { //
+				DefaultUserDetailsService uds = new DefaultUserDetailsService(conf);
+				PebbleUserDetails ud = uds.loadUserByUsername(username);
+				if (ud != null && passwordEncryptor.checkPassword(password, ud.getPassword())) { //
 					return User.byName(username);
 				}
 			}
