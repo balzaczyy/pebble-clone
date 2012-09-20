@@ -1,0 +1,106 @@
+##
+## Displays the basic navigation mechanisms; including the calendar, search and links to category/tag pages.
+##
+#if ($blogType == "singleblog")
+  #set ($month = $monthlyBlog)
+  #if (!$month)
+    #set ($month = $blog.BlogForToday.Month)
+  #end
+  #set ($now = $blog.Calendar)
+  #set ($firstDayOfMonth = $blog.Calendar)
+  $firstDayOfMonth.setTime($month.getBlogForDay(1).Date)
+  #set ($firstMonth = $blog.BlogForFirstMonth)
+  
+<div class="sidebarItem">
+  <div class="sidebarItemTitle"><span>$fmt.message("sidebar.navigate")</span></div>
+  <div class="sidebarItemBody">
+    <div class="calendar">
+      <table width="100%">
+        <tr>
+          <td colspan="7" align="center">
+#set ($formattedDate = $fmt.formatDate($month.Date, "MMMM yyyy"))
+#if ($month.before($firstMonth))
+            <b>$formattedDate</b>
+#else
+            <b><a href="$url.rewrite($month.Permalink)">$formattedDate</a></b>
+#end
+          </td>
+        </tr>
+
+## write out the calendar header
+#set ($firstDayOfWeek = $now.FirstDayOfWeek)
+        <tr>
+#foreach ($i in [$firstDayOfWeek..7])
+          <td class="calendarDayHeader" width="14%">$days.get($i)</td>
+#end
+#if ($firstDayOfWeek > 1)
+#set ($firstDayOfWeekMinusOne = $firstDayOfWeek - 1)
+#foreach ($i in [1..$firstDayOfWeekMinusOne])
+          <td class="calendarDayHeader">$days.get($i)</td>
+#end
+#end
+        </tr>
+
+## write out the body of the calendar
+#set ($count = 0)
+#foreach ($cal in $calendarTool.getDatesForCompleteWeeks($blog, $month))
+  #set ($daily = $blog.getBlogForDay($cal.Time))
+  #set ($formattedNumber = $fmt.formatDayOfMonth($cal))
+  #if ($count % 7 == 0)
+        <tr>
+  #end
+  ## output padding if the date to display isn't in the month
+  ## Calendar.MONTH = 2
+  #if ($cal.get(2) != $firstDayOfMonth.get(2)) {
+          <td class="calendarDay">&nbsp;
+  ## Calendar.YEAR = 1, DAY_OF_MONTH = 5
+  #elseif ($now.get(1) == $cal.get(1) && $now.get(2) == $cal.get(2) && $now.get(5) == $cal.get(5))
+          <td class="calendarToday">
+    #if ($daily.hasBlogEntries())
+          &nbsp;<a href="$url.rewrite($daily.Permalink)">$formattedNumber</a>&nbsp;
+    #else
+          &nbsp;${formattedNumber}&nbsp
+    #end
+  #else
+    #if ($daily.hasBlogEntries())
+          <td class="calendarDayWithEntries">&nbsp;<a href="$url.rewrite($daily.Permalink)">$formattedNumber</a>&nbsp;
+    #else
+          <td class="calendarDay">&nbsp;${formattedNumber}&nbsp;
+    #end
+  #end
+          </td>
+  #if ($count % 7 == 6)
+        </tr>
+  #end
+  #set ($count = $count + 1)
+#end
+
+## write out the footer of the calendar
+#set ($previous = $month.PreviousMonth)
+#set ($next = $month.NextMonth)
+        <tr>
+          <td colspan="7" align="center">"
+## only display the previous month link if there are blog entries
+#set ($formattedDate = $fmt.formatDate($previous.Date, "MMM"))
+#set ($rewrittenedLink = $url.rewrite($previous.Permalink))
+#if ($previous.before($firstMonth))
+            $formattedDate
+#else
+            <a href="$rewrittenedLink">$formattedDate</a>
+#end
+            &nbsp; | &nbsp;<a href="$rewrittenedLink">$fmt.message("common.today")</a>&nbsp; | &nbsp;
+## only display the next month date if it's not in the future
+#set ($formattedDate = $fmt.formatDate($next.Date, "MMM"))
+#set ($rewrittenedLink = $url.rewrite($next.Permalink))
+#if ($next.Date.after($now.Time) || $next.before($firstMonth))
+            $formattedDate
+#else
+            <a href="$rewrittenedLink">$formattedDate</a>
+#end
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+#end

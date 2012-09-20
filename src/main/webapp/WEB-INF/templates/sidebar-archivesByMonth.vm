@@ -1,0 +1,36 @@
+##
+##  Displays month-by-month archive links.
+##
+#if ($blogType == "singleblog")
+<div class="sidebarItem">
+  <div class="sidebarItemTitle"><span>$fmt.message("sidebar.archives")</span></div>
+  <div class="sidebarItemBody">
+    <table width="99%" cellpadding="0" cellspacing="0">
+#set ($count = 1)
+#foreach ($year in $archives)
+  #if ($count % 2 == 1)
+      <tr>
+  #end
+        <td valign="top">
+          <b>$fmt.formatDate("$year.Date", "yyyy")</b><br />
+  #foreach ($month in $year.Archives)
+    #if ($month.NumberOfBlogEntries > 0)
+          <a href="$url.rewrite($month.Permalink)" title="Blog archive for $month.Date">
+            $fmt.formatDate($month.Date, "MMMM")
+          </a> ($month.NumberOfBlogEntries)<br />
+    #end
+  #end
+          <br />
+        </td>
+  #if ($count % 2 == 0)
+      </tr>
+  #end
+  $set ($count = $count + 1)
+#end
+#if ($count % 2 == 0)
+      </tr>
+#end
+    </table>
+  </div>
+</div>
+#end

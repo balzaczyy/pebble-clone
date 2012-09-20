@@ -1,0 +1,26 @@
+##
+##  Displays a list of category names and links, including the blog entry count for each.
+##
+#set ($categories = $blog.Categories)
+#if ($blogType == "singleblog" && $categories.size() > 0 && $categories.get(0).SubCategories)
+<div class="sidebarItem">
+  <div class="sidebarItemTitle"><span>$fmt.message("category.categories")</span></div>
+  <div class="sidebarItemBody">
+#set ($count = 0)
+#foreach ($category in $categories)
+  #if ($count >= 1)
+    #set ($name = $category.Name)
+    #set ($link = $url.rewrite($category.Permalink))
+    <a title="URL for blog category $name" href="$link">
+      $url.escape($name)
+    </a> ($category.NumberOfBlogEntries)
+    <a title="RSS feed for blog category $name" href="${link}rss.xml" style="border: 0px;">
+      <img src="common/images/feed-icon-10x10.png" alt="RSS feed" border="0" />
+    </a>
+    <br />
+  #end
+  #set ($count = $count + 1)
+#end
+  </div>
+</div>
+#end

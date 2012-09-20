@@ -1,0 +1,66 @@
+<!-- // todo only show nav links when detail is blog entry, not static page -->
+#set ($home = $fmt.getString("common.home"))
+#set ($blogUrl = $url.rewrite($blog.Url))
+#if ($displayMode == "detail")
+  #if ($blogEntry.PreviousBlogEntry)
+    #set ($href = $url.rewrite($blogEntry.PreviousBlogEntry.LocalPermalink))
+<a href="$href" title="$href">&lt;&lt; $blogEntry.PreviousBlogEntry.Title</a> |
+  #end
+<a href="$blogUrl" title="$blogUrl">$home</a>
+  #if ($blogEntry.NextBlogEntry)
+    #set ($href = $url.rewrite($blogEntry.NextBlogEntry.LocalPermalink))
+| <a href="$href" title="$href">$blogEntry.NextBlogEntry.Title &gt;&gt;</a>
+  #end
+#elseif ($displayMode == "month")
+  #if ($previousMonth)
+    #set ($href = $url.rewrite($previousMonth.Permalink))
+    <a href="$href" title="$href">&lt;&lt; $fmt.formatDate($previousMonth.Date, "MMMM yyyy") |
+  #end
+  <a href="$blogUrl" title="$blogUrl">$home</a>
+  #if ($nextMonth)
+    #set ($href = $url.rewrite($nextMonth.Permalink))
+    | <a href="$href" title="href">$fmt.formatDate($nextMonth.Date, "MMMM yyyy") &gt;&gt;</a>
+  #end
+#elseif ($displayMode == "logSummaryForMonth")
+  #if ($previousMonth)
+    #set ($href = "${logAction}.secureaction?year=${previousMonth.Year.Year}&amp;month=${previousMonth.Month}")
+    <a href="$href" title="$href">&lt;&lt; fmt.formatDate($previousMonth.Date, "MMMM yyyy")</a> |
+  #end
+  <a href="$blogUrl" title="$blogUrl">$home</a>
+  #if ($nextMonth)
+    #set ($href = "${logAction}.secureaction?year=${nextMonth.Year.Year}&month=${nextMonth.Month}")
+    | <a href="$href" title="$href">$fmt.formatDate($nextMonth.Date, "MMMM yyyy") &gt;&gt;</a>
+  #end
+#elseif ($displayMode == "logSummaryForDay")
+  #if ($previousDay)
+    #set ($href = "${logAction}.secureaction?year=${previousDay.Month.Year.Year}&amp;month=${previousDay.Month.Month}&amp;day=${previousDay.Day}")
+    <a href="$href" title="$href">&lt;&lt; $fmt.longDate($previousDay.Date)</a> |
+  #end
+  <a href="$blogUrl" title="$blogUrl">$home</a>
+  #if ($nextDay)
+    #set ($href = "${logAction}.secureaction?year=${nextDay.Month.Year.Year}&month=${nextDay.Month.Month}&day=${nextDay.Day}")
+    | <a href="$href" href="$href">fmt.longDate($nextDay.Date) &gt;&gt;</a>
+  #end
+#elseif ($displayMode == "day")
+  #if ($previousDay)
+    #set ($href = $url.rewrite($previousDay.Permalink))
+    <a href="$href" title="$href">&lt;&lt; $fmt.longDate($previousDay.Date)</a> |
+  #end
+  <a href="$blogUrl" title="$blogUrl">$home</a>
+  #if ($nextDay)
+    #set ($href = $url.rewrite($nextDay.Permalink))
+    | <a href="$href" title="$href">$fmt.longDate($nextDay.Date) &gt;&gt;</a>
+  #end
+#elseif ($displayMode == "page")
+  #if ($pageable.Page < $pageable.MaxPageRange)
+    #set ($href = "blogentries/${pageable.NextPage}.html")
+    <a href="$href" title="$href">$fmt.message("common.previous")</a> |
+  #end
+  <a href="$blogUrl" title="$blogUrl">$home</a>
+  #if ($pageable.Page > $pageable.MinPageRange)
+    #set ($href = "blogentries/${pageable.PreviousPage}.html")
+    | <a title="$href" href="$href">$fmt.message("common.next")</a>
+  #end
+#else
+  <a href="$blogUrl" title="$blogUrl">$home</a>
+#end

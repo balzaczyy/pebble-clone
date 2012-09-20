@@ -59,15 +59,17 @@ import net.sourceforge.pebble.util.UrlRewriter;
  * @author    Simon Brown
  */
 public class CalendarTag extends TagSupport {
+	private static final long serialVersionUID = 4780717755604046775L;
 
-  /**
-   * Implementation from the Tag interface - this is called when the opening tag
-   * is encountered.
-   *
-   * @return  an integer specifying what to do afterwards
-   * @throws  JspException    if something goes wrong
-   */
-  public int doStartTag() throws JspException {
+	/**
+	 * Implementation from the Tag interface - this is called when the opening tag is encountered.
+	 * 
+	 * @return an integer specifying what to do afterwards
+	 * @throws JspException
+	 *           if something goes wrong
+	 */
+  @Override
+	public int doStartTag() throws JspException {
 
     HttpServletRequest request = (HttpServletRequest)pageContext.getRequest();
     Blog blog = (Blog)request.getAttribute(Constants.BLOG_KEY);
@@ -126,11 +128,11 @@ public class CalendarTag extends TagSupport {
       out.write("</tr>");
 
       // write out the body of the calendar
-      Iterator it = getDatesForCompleteWeeks(blog, month).iterator();
+			Iterator<Calendar> it = getDatesForCompleteWeeks(blog, month).iterator();
       Calendar cal;
       int count = 0;
       while (it.hasNext()) {
-        cal = (Calendar)it.next();
+        cal = it.next();
         Day daily = blog.getBlogForDay(cal.getTime());
 
         String formattedNumber = numberFormatter.format(cal.get(Calendar.DAY_OF_MONTH));
@@ -222,8 +224,8 @@ public class CalendarTag extends TagSupport {
    * @param month   the month
    * @return  a List of Calendar instances
    */
-  private List getDatesForCompleteWeeks(Blog blog, Month month) {
-    List dates = new ArrayList();
+	public List<Calendar> getDatesForCompleteWeeks(Blog blog, Month month) {
+		List<Calendar> dates = new ArrayList<Calendar>();
     Calendar start = blog.getCalendar();
     start.setTime(month.getBlogForDay(1).getDate());
     Calendar end = blog.getCalendar();
@@ -241,14 +243,14 @@ public class CalendarTag extends TagSupport {
     cal = (Calendar)start.clone();
     while (cal.get(Calendar.DAY_OF_WEEK) != cal.getFirstDayOfWeek()) {
       cal.add(Calendar.DATE, -1);
-      dates.add(0, cal.clone());
+			dates.add(0, (Calendar) cal.clone());
     }
 
     // pad out after month, until the last day of the week
     cal = (Calendar)end.clone();
     cal.add(Calendar.DATE, 1);
     while (cal.get(Calendar.DAY_OF_WEEK) != cal.getFirstDayOfWeek()) {
-      dates.add(cal.clone());
+			dates.add((Calendar) cal.clone());
       cal.add(Calendar.DATE, 1);
     }
 

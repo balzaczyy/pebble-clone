@@ -184,6 +184,16 @@
     <servlet-name>ping</servlet-name>
     <servlet-class>net.sourceforge.pebble.web.servlet.PingServlet</servlet-class>
   </servlet>
+  
+  <servlet>
+  	<servlet-name>velocity</servlet-name>
+  	<servlet-class>org.apache.velocity.tools.view.servlet.VelocityViewServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>velocity</servlet-name>
+    <url-pattern>*.vm</url-pattern>
+  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>ping</servlet-name>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<head>
+  <base href="$url.rewrite($blogUrl)" />
+  <meta http-equiv="Content-Type" content="text/html; charset=${blog.CharacterEncoding}"/>
+#if ($title)
+  #set ($pageTitle = $blog.Name)
+#else
+  #set ($pageTitle = "$title - $blog.Name")
+#end
+  <meta name="description" content="${pageTitle}" />
+#if ($displayMode && $displayMode == "detail")
+  #if ($blogEntry)
+  <meta name="keywords" content="${blogEntry.TagsAsCommaSeparated}" />
+  #elseif ($staticPage)
+  <meta name="keywords" content="${staticPage.TagsAsCommaSeparated}" />
+  #end
+#end
+  <meta name="abstract" content="${blog.Description}" />
+  <meta name="author" content="${blog.Author}" />
+  <meta name="generator" content="Pebble (http://pebble.sourceforge.net)" />
+  <title>$pageTitle</title>
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="${blog.Url}rss.xml" />
+  <link rel="alternate" type="application/rdf+xml" title="RDF" href="${blog.Url}rdf.xml" />
+  <link rel="alternate" type="application/atom+xml" title="Atom" href="${blog.Url}atom.xml" />
+
+  <link rel="stylesheet" href="pebble.css" type="text/css" media="screen" />
+  <link rel="stylesheet" href="themes/_pebble/handheld.css" type="text/css" media="handheld" />
+  <link rel="stylesheet" href="themes/${theme}/screen.css" type="text/css" media="screen" />
+  <link rel="stylesheet" href="themes/${theme}/print.css" type="text/css" media="print" />
+
+  <link rel="shortcut icon" href="${request.ContextPath}/themes/${theme}/images/favicon.ico" type="image/x-icon" />
+
+  <script type="text/javascript" src="${request.ContextPath}/FCKeditor/fckeditor.js"></script>
+  <script type="text/javascript" src="${request.ContextPath}/scripts/pebble.js"></script>
+  <script type="text/javascript" src="${request.ContextPath}/scripts/prototype.js"></script>
+  <script type="text/javascript" src="${request.ContextPath}/scripts/scriptaculous.js"></script>
+  <script type='text/javascript' src='${request.ContextPath}/scripts/dwr-engine.js'></script>
+  <script type='text/javascript' src='${request.ContextPath}/dwr/util.js'></script>
+  <script type='text/javascript' src='${request.ContextPath}/dwr/interface/Pebble.js'></script>
+
+  <!-- include plugin head -->
+
+#if ($themeHeadUri)
+#parse ("$themeHeadUri")
+#end
+</head>
+
+<body>
+
+  <!-- include plugin header -->
+
+#if ($isAuthenticated)
+#parse ("admin.vm")
+#end
+
+#parse ("$template")
+
+  <!-- include plugin footer -->
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+<!--
+ Displays the "about" information, as set on the blog properties page.
+-->
+#if ($blogType == "singleblog" && $blog.About)
+<div class="sidebarItem">
+  <div class="sidebarItemTitle"><span>$fmt.message("common.about")</span></div>
+  <div class="sidebarItemBody">
+    ${blog.About}
+  </div>
+</div>
+#end

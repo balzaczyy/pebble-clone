@@ -1,0 +1,19 @@
+<!--
+ Displays the "about" information, as set on the blog properties page.
+-->
+#if ($blogType == "singleblog" && $displayMode == "detail" && $blogEntry && $blogEntry.User.Profile)
+  #set ($username = $blogEntry.User.Username)
+<div class="sidebarItem">
+  <div class="sidebarItemTitle">
+    <span>$fmt.message("common.aboutAuthor")
+      <a href="authors/$username/rss.xml" title="RSS feed for $username">
+        <img src="common/images/feed-icon-10x10.png" alt="RSS feed" border="0" /></a>
+    </span>
+  </div>
+  <div class="sidebarItemBody">
+    ${blogEntry.User.Profile}
+    <br /><br />
+    <a href="authors/$username/" title="About $username">$fmt.message("common.readMore")</a>
+  </div>
+</div>
+#end

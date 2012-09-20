@@ -31,16 +31,21 @@
  */
 package net.sourceforge.pebble.domain;
 
+import java.io.File;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
-import net.sourceforge.pebble.event.DefaultEventDispatcher;
 import net.sourceforge.pebble.api.event.blog.BlogEvent;
 import net.sourceforge.pebble.api.event.blog.BlogListener;
+import net.sourceforge.pebble.event.DefaultEventDispatcher;
 import net.sourceforge.pebble.logging.CombinedLogFormatLogger;
 import net.sourceforge.pebble.permalink.DefaultPermalinkProvider;
-
-import java.io.File;
-import java.util.*;
 
 /**
  * Tests for the Blog class.
@@ -248,7 +253,7 @@ public class BlogTest extends SingleBlogTestCase {
     assertEquals("user1", blog.getProperty(Blog.BLOG_OWNERS_KEY));
     assertEquals("user1", blog.getBlogOwnersAsString());
 
-    Collection users = blog.getUsersInRole(Constants.BLOG_OWNER_ROLE);
+		Collection<String> users = blog.getUsersInRole(Constants.BLOG_OWNER_ROLE);
     assertEquals(1, users.size());
     assertTrue(users.contains("user1"));
 
@@ -269,7 +274,7 @@ public class BlogTest extends SingleBlogTestCase {
     blog.removeProperty(Blog.BLOG_OWNERS_KEY);
     assertEquals(null, blog.getBlogOwnersAsString());
 
-    Collection users = blog.getUsersInRole(Constants.BLOG_OWNER_ROLE);
+		Collection<String> users = blog.getUsersInRole(Constants.BLOG_OWNER_ROLE);
     assertEquals(0, users.size());
   }
 
@@ -300,7 +305,7 @@ public class BlogTest extends SingleBlogTestCase {
     assertEquals("user1", blog.getProperty(Blog.BLOG_CONTRIBUTORS_KEY));
     assertEquals("user1", blog.getBlogContributorsAsString());
 
-    Collection users = blog.getUsersInRole(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Collection<String> users = blog.getUsersInRole(Constants.BLOG_CONTRIBUTOR_ROLE);
     assertEquals(1, users.size());
     assertTrue(users.contains("user1"));
 
@@ -330,7 +335,7 @@ public class BlogTest extends SingleBlogTestCase {
     blog.removeProperty(Blog.BLOG_CONTRIBUTORS_KEY);
     assertEquals(null, blog.getBlogContributorsAsString());
 
-    Collection users = blog.getUsersInRole(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Collection<String> users = blog.getUsersInRole(Constants.BLOG_CONTRIBUTOR_ROLE);
     assertEquals(0, users.size());
   }
 
@@ -388,7 +393,7 @@ public class BlogTest extends SingleBlogTestCase {
     entry4.setBody("body4");
     service.putBlogEntry(entry4);
 
-    List entries = blog.getRecentBlogEntries(3);
+		List<BlogEntry> entries = blog.getRecentBlogEntries(3);
 
     assertEquals(3, entries.size());
     assertEquals(entry4, entries.get(0));
@@ -440,7 +445,7 @@ public class BlogTest extends SingleBlogTestCase {
     blog.setProperty(Blog.EMAIL_KEY, "me@mydomain.com,you@yourdomain.com");
     assertEquals("me@mydomain.com,you@yourdomain.com", blog.getEmail());
     assertEquals(2, blog.getEmailAddresses().size());
-    Iterator it = blog.getEmailAddresses().iterator();
+		Iterator<String> it = blog.getEmailAddresses().iterator();
     assertEquals("me@mydomain.com", it.next());
     assertEquals("you@yourdomain.com", it.next());
   }

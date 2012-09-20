@@ -1,0 +1,34 @@
+## Displays a tag cloud.
+##
+## Parameters
+##  - rankThreshold : the minimum tag ranking to display (1-10)
+##
+<%@ attribute name="rankThreshold"%>
+#if (!$rankThreashold || $rankThreashold < 1)
+  #set ($rankThreashold = 1)
+#end
+
+#set ($tags = $blog.Tags)
+#if ($blogType == "singleblog" && $tags)
+<div class="sidebarItem">
+  <div class="sidebarItemTitle"><span>$fmt.message("tag.tags")</span></div>
+  <div class="sidebarItemBody">
+    <div class="sidebarTagCloud">
+    <ul>
+#foreach ($tag in $tags)
+  #if ($tag.Rank >= $rankThreashold)
+    #set ($link = $url.rewrite($tag.Permalink))
+      <li>
+        <span class="tagCloud${tag.Rank}">
+          <a href="$link" title="rank=${tag.Rank}, blog entries=${tag.NumberOfBlogEntries}">
+            $url.escape($tag.Name)
+          </a>
+        </span>
+      </li>
+  #end
+#end
+    </ul>
+    </div>
+  </div>
+</div>
+#end
