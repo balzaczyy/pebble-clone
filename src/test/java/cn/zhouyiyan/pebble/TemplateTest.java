@@ -25,6 +25,7 @@ import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.Category;
 import net.sourceforge.pebble.domain.Day;
 import net.sourceforge.pebble.domain.Month;
+import net.sourceforge.pebble.domain.MultiBlog;
 import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.Tag;
 import net.sourceforge.pebble.domain.Year;
@@ -101,7 +102,7 @@ public class TemplateTest {
 
 	@Test
 	public void testLayout() throws Exception {
-		Template template = Velocity.getTemplate("recentResponses.vm"); // page
+		Template template = Velocity.getTemplate("sidebar-blogSummary.vm"); // page
 
 		Date date = new Date();
 
@@ -166,6 +167,9 @@ public class TemplateTest {
 		when(blog.getTags()).thenReturn(tags);
 		when(blog.getRecentResponsesOnHomePage()).thenReturn(1);
 
+		List<Blog> blogs = new ArrayList<Blog>();
+		blogs.add(blog);
+
 		PebbleUserDetails pud = mock(PebbleUserDetails.class);
 		when(pud.getProfile()).thenReturn("profile");
 		when(pud.getUsername()).thenReturn("owner");
@@ -185,7 +189,10 @@ public class TemplateTest {
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getContextPath()).thenReturn("");
 
-		CalendarTag calendarTool = new CalendarTag();
+		MultiBlog multiBlog = mock(MultiBlog.class);
+		when(multiBlog.getName()).thenReturn("MultiBlog");
+		when(multiBlog.getUrl()).thenReturn("http://zhouyiyan.cn/blog/multi/");
+		when(multiBlog.getDescription()).thenReturn("MultiDescription");
 
 		VelocityContext context = new VelocityContext();
 		context.put("fmt", new Formatter(blog.getLocale(), blog.getTimeZone()));
@@ -203,9 +210,11 @@ public class TemplateTest {
 		context.put("template", "template.vm");
 		context.put("content", "blogEntries.html");
 		context.put("days", Arrays.asList(new DateFormatSymbols(blog.getLocale()).getShortWeekdays()));
-		context.put("calendarTool", calendarTool);
+		context.put("calendarTool", new CalendarTag());
 		context.put("archives", blog.getArchives());
 		context.put("recentResponses", responses);
+		context.put("blogs", blogs);
+		context.put("multiBlog", multiBlog);
 
 		StringWriter sw = new StringWriter();
 		template.merge(context, sw);
