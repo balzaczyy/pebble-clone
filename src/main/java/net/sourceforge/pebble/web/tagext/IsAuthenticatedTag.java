@@ -31,10 +31,10 @@
  */
 package net.sourceforge.pebble.web.tagext;
 
-import net.sourceforge.pebble.util.SecurityUtils;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
+
+import net.sourceforge.pebble.util.SecurityUtils;
 
 /**
  * A custom tag that includes its body content if the current user
@@ -43,15 +43,17 @@ import javax.servlet.jsp.tagext.TagSupport;
  * @author    Simon Brown
  */
 public class IsAuthenticatedTag extends TagSupport {
+	private static final long serialVersionUID = -8645708676087301751L;
 
-  /**
-   * Implementation from the Tag interface - this is called when the opening tag
-   * is encountered.
-   *
-   * @return  an integer specifying what to do afterwards
-   * @throws  javax.servlet.jsp.JspException    if something goes wrong
-   */
-  public int doStartTag() throws JspException {
+	/**
+	 * Implementation from the Tag interface - this is called when the opening tag is encountered.
+	 * 
+	 * @return an integer specifying what to do afterwards
+	 * @throws javax.servlet.jsp.JspException
+	 *           if something goes wrong
+	 */
+  @Override
+	public int doStartTag() throws JspException {
     if (SecurityUtils.isUserAuthenticated()) {
       return EVAL_BODY_INCLUDE;
     } else {

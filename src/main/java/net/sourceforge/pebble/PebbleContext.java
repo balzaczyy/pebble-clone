@@ -56,8 +56,8 @@ public class PebbleContext {
   private String buildVersion;
   private String buildDate;
 
-  private static final String BUILD_VERSION_KEY = "build.version";
-  private static final String BUILD_DATE_KEY = "build.date";
+	// private static final String BUILD_VERSION_KEY = "build.version";
+	// private static final String BUILD_DATE_KEY = "build.date";
 
   /** the time that Pebble was started */
   private final Date startTime;

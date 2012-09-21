@@ -20,6 +20,7 @@ import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.Category;
@@ -56,6 +57,10 @@ public class TemplateTest {
 
 		public String message(String key) {
 			return rb.getString(key);
+		}
+
+		public String message(String key, String var) {
+			return rb.getString(key).replace("{0}", var);
 		}
 
 		public String formatDate(Date date, String pattern) {
@@ -102,7 +107,7 @@ public class TemplateTest {
 
 	@Test
 	public void testLayout() throws Exception {
-		Template template = Velocity.getTemplate("sidebar-blogSummary.vm"); // page
+		Template template = Velocity.getTemplate("page.vm"); // page
 
 		Date date = new Date();
 
@@ -215,6 +220,7 @@ public class TemplateTest {
 		context.put("recentResponses", responses);
 		context.put("blogs", blogs);
 		context.put("multiBlog", multiBlog);
+		context.put("pebbleContext", PebbleContext.getInstance());
 
 		StringWriter sw = new StringWriter();
 		template.merge(context, sw);

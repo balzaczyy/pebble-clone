@@ -1,17 +1,17 @@
-<!--
-  The main template into which all other content is placed. The following
-  objects are available for use in templates.
-
-   - blog                   net.sourceforge.pebble.domain.Blog
-   - pebbleContext          net.sourceforge.pebble.PebbleContext
-   - categories             java.util.List<net.sourceforge.pebble.domain.Category>
-   - tags                   java.util.List<net.sourceforge.pebble.domain.Tag>
-   - recentBlogEntries      java.util.List<net.sourceforge.pebble.domain.BlogEntry>
-   - recentResponses        java.util.List<net.sourceforge.pebble.domain.Response>
-   - archives               java.util.List<net.sourceforge.pebble.domain.Year>
-   - pluginProperties       net.sourceforge.pebble.PluginProperties
-   - authenticatedUser      net.sourceforge.pebble.security.PebbleUserDetails
--->
+##
+##  The main template into which all other content is placed. The following
+##  objects are available for use in templates.
+##
+##   - blog                   net.sourceforge.pebble.domain.Blog
+##   - pebbleContext          net.sourceforge.pebble.PebbleContext
+##   - categories             java.util.List<net.sourceforge.pebble.domain.Category>
+##   - tags                   java.util.List<net.sourceforge.pebble.domain.Tag>
+##   - recentBlogEntries      java.util.List<net.sourceforge.pebble.domain.BlogEntry>
+##   - recentResponses        java.util.List<net.sourceforge.pebble.domain.Response>
+##   - archives               java.util.List<net.sourceforge.pebble.domain.Year>
+##   - pluginProperties       net.sourceforge.pebble.PluginProperties
+##   - authenticatedUser      net.sourceforge.pebble.security.PebbleUserDetails
+##
 <div id="body">
 ## the header, containing blog name and description
   <div id="header">
@@ -42,22 +42,22 @@
 ## #feed("del.icio.us", "http://del.icio.us/rss/simongbrown", "3", "true", "true")
   </div>
 
-  <!-- the main area into which content gets rendered -->
+## the main area into which content gets rendered
   <div id="content">
-#parse ("$content")
+ #if ($content)
+   #parse ("$content")
+ #end
   </div>
 
-  <!-- the footer, containing the "powered by" link -->
+## the footer, containing the "powered by" link
+#set ($version = $pebbleContext.BuildVersion)
+#set ($secureUrl = ${pebbleContext.Configuration.SecureUrl})
   <div id="footer">
-    <template:poweredByPebble/>
-    <pebble:isNotAuthenticated>
-    |
-    <a href="${pebbleContext.configuration.secureUrl}login.secureaction"><fmt:message key="login.title" /></a>
-    </pebble:isNotAuthenticated>
-    <pebble:isAuthenticated>
-    |
-    <a href="${pebbleContext.configuration.secureUrl}logout.action?redirectUrl=${blogUrl}">Logout</a>
-    </pebble:isAuthenticated>
+    $fmt.message("common.poweredBy", "<a title='Powered by Pebble ${version}' href='http://pebble.sourceforge.net/'>Pebble $version</a>")
+#if (!$isAuthenticated)    
+    |<a href="${secureUrl}login.secureaction">$fmt.message("login.title")</a>
+#else
+    |<a href="${secureUrl}logout.action?redirectUrl=${blogUrl}">Logout</a>
+#end
   </div>
-
 </div>
