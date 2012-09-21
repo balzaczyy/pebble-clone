@@ -1,0 +1,60 @@
+##
+## Reads the specified feed and formats it for the sidebar. Each entry is rendered as (approximately) :
+##
+##  <a href="entryLink">entryTitle</a><br />
+##  entryBody
+##
+## Parameters
+##  - name : the name of the feed, which is displayed in the sidebar item title
+##  - url : the URL of the RSS/RDF/Atom feed
+##  - maxEntries : the maximum number of entries to display from this feed
+##  - showBody : flag to indicate whether the body of the entry should be displayed
+##  - truncateBody : flag to indicate whether the body of the entry should be truncated (i.e. HTML stripped and truncated to 255 characters max)
+
+#macro(feed, $name, $url, $maxEntries, $showBody, $truncateBody)
+
+#if (!$showBody) #set ($showBody = "true") #end
+#if (!$truncateBody) #set ($truncateBody = "true") #end
+
+<c:catch var="e">
+<pebble:getFeed url="${url}"/>
+#if ($feedEntries)
+<div class="sidebarItem">
+  <div class="sidebarItemTitle">
+    <span>
+      ${name}&nbsp;
+      <a href="${url}" title="${url}" style="border: 0px;">
+        <img src="common/images/feed-icon-10x10.png" alt="RSS feed" border="0" />
+      </a>
+    </span>
+  </div>
+  <div class="sidebarItemBody">
+    <ul>
+#set ($count = 0)
+#foreach ($entry in $feedEntries)
+  #if ($count < $maxEntries)
+    #set ($link = $url.escape($url.rewrite($entry.Link)))
+    #set ($escapedName = $url.escape($name))
+    #set ($escapedTitle = $url.escape($title))
+        <li>
+          <a href="$link" title="${escapedName} - ${escapedTitle}" target="_blank">
+            ${escapedTitle}
+          </a>
+    #if ($showBody == "true")
+          <br />
+      #if ($truncateBody == "false")
+        $entry.Body
+      #else
+        $entry.TruncatedBody
+      #end
+    #end
+        </li>
+  #end
+    </ul>
+  </div>
+</div>
+#end
+</c:catch>
+<c:if test="${not empty e}"><!-- Exception with feed URL ${url} : ${e} --></c:if>
+
+#end

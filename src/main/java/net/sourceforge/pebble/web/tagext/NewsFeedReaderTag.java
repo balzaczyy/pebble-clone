@@ -31,31 +31,29 @@
  */
 package net.sourceforge.pebble.web.tagext;
 
-import net.sourceforge.pebble.aggregator.NewsFeed;
-import net.sourceforge.pebble.aggregator.NewsFeedCache;
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.Constants;
+import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
-import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.aggregator.NewsFeed;
+import net.sourceforge.pebble.aggregator.NewsFeedCache;
+import net.sourceforge.pebble.domain.Blog;
 
 /**
- * Gets entries for the specified news feed. 
- *
- * @author    Simon Brown
+ * Gets entries for the specified news feed.
+ * 
+ * @author Simon Brown
  */
+// TODO rewrite using Velocity toolbox
 public class NewsFeedReaderTag extends SimpleTagSupport {
-
-  private static final Log log = LogFactory.getLog(NewsFeedReaderTag.class);
 
   private String url;
 
-  public void doTag() throws JspException, IOException {
+  @Override
+	public void doTag() throws JspException, IOException {
     NewsFeed feed = NewsFeedCache.getInstance().getFeed(url);
     getJspContext().setAttribute("feedEntries", feed.getEntries());
   }

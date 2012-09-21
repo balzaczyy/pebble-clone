@@ -37,10 +37,9 @@
 #parse ("sidebar-tagCloud.vm")
 #parse ("sidebar-recentResponses.vm")
 #parse ("sidebar-blogSummary.vm")
-    <!-- the following is an example of the feed component that lets you aggregate a RSS/Atom feed into your blog
-    <sidebar:feed name="del.icio.us" url="http://del.icio.us/rss/simongbrown" maxEntries="3" showBody="true" truncateBody="true"/>
-    -->
-    <sidebar:loginForm/>
+## the following is an example of the feed component that lets you aggregate a RSS/Atom feed into your blog
+## #parse ("sidebar-feed.vm")
+## #feed("del.icio.us", "http://del.icio.us/rss/simongbrown", "3", "true", "true")
   </div>
 
   <!-- the main area into which content gets rendered -->
