@@ -25,6 +25,7 @@ import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.Category;
 import net.sourceforge.pebble.domain.Day;
 import net.sourceforge.pebble.domain.Month;
+import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.Tag;
 import net.sourceforge.pebble.domain.Year;
 import net.sourceforge.pebble.index.IndexedTag;
@@ -100,7 +101,7 @@ public class TemplateTest {
 
 	@Test
 	public void testLayout() throws Exception {
-		Template template = Velocity.getTemplate("sidebar-tagCloud.vm"); // page
+		Template template = Velocity.getTemplate("recentResponses.vm"); // page
 
 		Date date = new Date();
 
@@ -163,6 +164,7 @@ public class TemplateTest {
 		when(blog.getArchives()).thenReturn(years);
 		when(blog.getCategories()).thenReturn(categories);
 		when(blog.getTags()).thenReturn(tags);
+		when(blog.getRecentResponsesOnHomePage()).thenReturn(1);
 
 		PebbleUserDetails pud = mock(PebbleUserDetails.class);
 		when(pud.getProfile()).thenReturn("profile");
@@ -171,6 +173,14 @@ public class TemplateTest {
 		BlogEntry blogEntry = mock(BlogEntry.class);
 		when(blogEntry.getTagsAsCommaSeparated()).thenReturn("a,b,c");
 		when(blogEntry.getUser()).thenReturn(pud);
+
+		Response response = mock(Response.class);
+		when(response.getTitle()).thenReturn("response title");
+		when(response.getPermalink()).thenReturn("http://zhouyiyan.cn/blog/feedback/0");
+		when(response.getTruncatedContent()).thenReturn("hello world");
+
+		List<Response> responses = new ArrayList<Response>();
+		responses.add(response);
 
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		when(request.getContextPath()).thenReturn("");
@@ -195,6 +205,7 @@ public class TemplateTest {
 		context.put("days", Arrays.asList(new DateFormatSymbols(blog.getLocale()).getShortWeekdays()));
 		context.put("calendarTool", calendarTool);
 		context.put("archives", blog.getArchives());
+		context.put("recentResponses", responses);
 
 		StringWriter sw = new StringWriter();
 		template.merge(context, sw);

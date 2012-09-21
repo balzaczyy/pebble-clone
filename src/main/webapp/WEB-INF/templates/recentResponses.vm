@@ -1,0 +1,31 @@
+##
+##  Displays the recent responses (comments and TrackBacks).
+##
+#if ($blogType == "singleblog" && $recentResponses && $blog.RecentResponsesOnHomePage > 0)
+<div class="sidebarItem">
+  <div class="sidebarItemTitle">
+    <span>
+      $fmt.message("sidebar.recentResponses")&nbsp;
+      <a title="RSS feed for blog responses" href="responses/rss.xml">
+        <img src="common/images/feed-icon-10x10.png" alt="RSS feed for responses" border="0" />
+      </a>
+    </span>
+  </div>
+  <div class="sidebarItemBody">
+    <ul>
+#set ($count = 0)
+#foreach ($aResponse in $recentResponses)
+  #if ($count < $blog.RecentResponsesOnHomePage)
+    #set ($link = $url.rewrite($aResponse.Permalink))
+    #set ($title = "${aResponse.Title} - ${aResponse.Permalink}")
+      <li>
+        <a href="$link" title="$title">${aResponse.Title}</a>
+        <br />${aResponse.TruncatedContent}
+      </li>
+  #end
+  #set ($count = $count + 1)
+#end
+    </ul>
+  </div>
+</div>
+#end

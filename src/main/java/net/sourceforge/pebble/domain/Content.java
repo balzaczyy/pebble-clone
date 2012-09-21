@@ -158,6 +158,7 @@ public abstract class Content implements Permalinkable, Cloneable, Serializable 
    *
    * @return  a List of PropertyChangeEvent instances
    */
+	@SuppressWarnings("unchecked")
 	public List<PropertyChangeEvent> getPropertyChangeEvents() {
 		return (List<PropertyChangeEvent>) propertyChangeEvents.clone();
   }

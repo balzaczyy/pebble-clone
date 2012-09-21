@@ -35,7 +35,7 @@
 #parse ("sidebar-archivesByMonth.vm")
 #parse ("sidebar-categories.vm")
 #parse ("sidebar-tagCloud.vm")
-    <sidebar:recentResponses/>
+#parse ("recentResponses.vm")
     <sidebar:blogSummary/>
     <!-- the following is an example of the feed component that lets you aggregate a RSS/Atom feed into your blog
     <sidebar:feed name="del.icio.us" url="http://del.icio.us/rss/simongbrown" maxEntries="3" showBody="true" truncateBody="true"/>

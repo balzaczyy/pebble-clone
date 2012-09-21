@@ -42,8 +42,9 @@ import net.sourceforge.pebble.util.StringUtils;
  * @author    Simon Brown
  */
 public abstract class Response extends Content {
+	private static final long serialVersionUID = 9041041454641810751L;
 
-  /** the title */
+	/** the title */
   protected String title;
 
   /** the ip address of the author */
