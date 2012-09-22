@@ -187,7 +187,7 @@
   
   <servlet>
   	<servlet-name>velocity</servlet-name>
-  	<servlet-class>org.apache.velocity.tools.view.servlet.VelocityViewServlet</servlet-class>
+  	<servlet-class>cn.zhouyiyan.pebble.VelocityTemplateServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

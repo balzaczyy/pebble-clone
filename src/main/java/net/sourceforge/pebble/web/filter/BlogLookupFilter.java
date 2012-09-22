@@ -31,16 +31,25 @@
  */
 package net.sourceforge.pebble.web.filter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
-import net.sourceforge.pebble.PebbleContext;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+
 import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.*;
+import net.sourceforge.pebble.PebbleContext;
+import net.sourceforge.pebble.domain.AbstractBlog;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogManager;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * A filter respsonsible for setting up the blog object.
@@ -52,17 +61,12 @@ public class BlogLookupFilter implements Filter {
   /** the log used by this class */
   private static Log log = LogFactory.getLog(BlogLookupFilter.class);
 
-  /** the config of this filter */
-  private FilterConfig filterConfig;
-
   /**
    * Initialises this instance.
    *
    * @param config    a FilterConfig instance
    */
-  public void init(FilterConfig config) {
-    this.filterConfig = config;
-  }
+	public void init(FilterConfig config) {}
 
   /**
    * Called when this filter is taken out of service.

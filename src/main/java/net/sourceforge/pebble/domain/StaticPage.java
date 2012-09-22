@@ -31,12 +31,12 @@
  */
 package net.sourceforge.pebble.domain;
 
-import net.sourceforge.pebble.util.StringUtils;
-import net.sourceforge.pebble.web.validation.ValidationContext;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import net.sourceforge.pebble.util.StringUtils;
+import net.sourceforge.pebble.web.validation.ValidationContext;
 
 /**
  * Represents a page.
@@ -44,8 +44,9 @@ import java.util.List;
  * @author Simon Brown
  */
 public class StaticPage extends PageBasedContent {
+	private static final long serialVersionUID = 5264132022720733918L;
 
-	public static final String TEMPLATE_PROPERTY = "template";
+	private static final String TEMPLATE_PROPERTY = "template";
 	
   /** the name of the page */
   private String name;
@@ -76,7 +77,8 @@ public class StaticPage extends PageBasedContent {
    *
    * @return  a List of tags
    */
-  public List<Tag> getAllTags() {
+  @Override
+	public List<Tag> getAllTags() {
     List<Tag> list = new ArrayList<Tag>(getTagsAsList());
     Collections.sort(list);
 
@@ -90,7 +92,8 @@ public class StaticPage extends PageBasedContent {
    *
    * @return an absolute URL as a String
    */
-  public String getLocalPermalink() {
+  @Override
+	public String getLocalPermalink() {
     return getBlog().getUrl() + "pages/" + name + ".html";
   }
 
@@ -130,7 +133,8 @@ public class StaticPage extends PageBasedContent {
    * @see #hashCode()
    * @see java.util.Hashtable
    */
-  public boolean equals(Object o) {
+  @Override
+	public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -149,7 +153,8 @@ public class StaticPage extends PageBasedContent {
    * @return a clone of this instance.
    * @see Cloneable
    */
-  public Object clone() {
+  @Override
+	public Object clone() {
     StaticPage page = new StaticPage(getBlog());
     page.setEventsEnabled(false);
     page.setPersistent(isPersistent());
