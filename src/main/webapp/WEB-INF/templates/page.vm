@@ -3,9 +3,9 @@
   <base href="$url.rewrite($blogUrl)" />
   <meta http-equiv="Content-Type" content="text/html; charset=${blog.CharacterEncoding}"/>
 #if ($title)
-  #set ($pageTitle = $blog.Name)
-#else
   #set ($pageTitle = "$title - $blog.Name")
+#else
+  #set ($pageTitle = $blog.Name)
 #end
   <meta name="description" content="${pageTitle}" />
 #if ($displayMode && $displayMode == "detail")
@@ -38,7 +38,7 @@
   <script type='text/javascript' src='${request.ContextPath}/dwr/util.js'></script>
   <script type='text/javascript' src='${request.ContextPath}/dwr/interface/Pebble.js'></script>
 
-  <!-- include plugin head -->
+## include plugin head
 
 #if ($themeHeadUri)
 #parse ("$themeHeadUri")
@@ -47,7 +47,7 @@
 
 <body>
 
-  <!-- include plugin header -->
+## include plugin header
 
 #if ($isAuthenticated)
 #parse ("admin.vm")
@@ -55,7 +55,7 @@
 
 #parse ("$template")
 
-  <!-- include plugin footer -->
+## include plugin footer
 
 </body>
 </html>

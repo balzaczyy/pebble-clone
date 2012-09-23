@@ -1,5 +1,5 @@
-<!-- // todo only show nav links when detail is blog entry, not static page -->
-#set ($home = $fmt.getString("common.home"))
+## // todo only show nav links when detail is blog entry, not static page
+#set ($home = $fmt.message("common.home"))
 #set ($blogUrl = $url.rewrite($blog.Url))
 #if ($displayMode == "detail")
   #if ($blogEntry.PreviousBlogEntry)

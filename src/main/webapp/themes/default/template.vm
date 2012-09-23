@@ -43,7 +43,7 @@
   </div>
 
 ## the main area into which content gets rendered
-  <div id="content">
+  <div id="content" data-content="$content">
  #if ($content)
    #parse ("$content")
  #end

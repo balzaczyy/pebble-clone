@@ -68,7 +68,8 @@ public abstract class HtmlView extends JspView {
    *
    * @return  the title as a String
    */
-  public String getContentType() {
+  @Override
+	public String getContentType() {
     AbstractBlog blog = (AbstractBlog)getModel().get(Constants.BLOG_KEY);
     return "text/html; charset=" + blog.getCharacterEncoding();
   }
@@ -114,17 +115,18 @@ public abstract class HtmlView extends JspView {
    * @param response the HttpServletResponse instance
    * @param context
    */
-  public void dispatch(HttpServletRequest request, HttpServletResponse response, ServletContext context) throws ServletException {
+  @Override
+	public void dispatch(HttpServletRequest request, HttpServletResponse response, ServletContext context) throws ServletException {
     String theme = getTheme();
     request.setAttribute(Constants.THEME, theme);
     request.setAttribute(Constants.TITLE_KEY, getTitle());
     log.debug("Content is " + getUri());
     request.setAttribute("content", getUri());
-    String headUri = "/themes/" + theme + "/head.jsp";
+		String headUri = "/themes/" + theme + "/head.vm";
     if (hasThemeHeadUri(headUri)) {
       request.setAttribute("themeHeadUri", headUri);
     }
-    String uri = "/themes/" + theme + "/" + getTemplate() + ".jsp";
+		String uri = "/themes/" + theme + "/" + getTemplate() + ".vm";
     log.debug("Dispatching to " + uri);
 
     response.setHeader("Cache-Control","no-cache, no-store");
@@ -148,7 +150,7 @@ public abstract class HtmlView extends JspView {
       return "template";
     }
     if (!getModel().contains(Constants.STATIC_PAGE_KEY)) {
-      return "template";
+ return "page";
     }
     StaticPage staticPage = (StaticPage) getModel().get(Constants.STATIC_PAGE_KEY);
     Blog blog = (Blog) getModel().get(Constants.BLOG_KEY);

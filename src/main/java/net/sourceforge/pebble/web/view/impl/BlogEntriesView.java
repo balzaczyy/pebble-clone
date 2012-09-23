@@ -31,14 +31,15 @@
  */
 package net.sourceforge.pebble.web.view.impl;
 
-import net.sourceforge.pebble.web.view.HtmlView;
-import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
+import java.util.Collections;
+import java.util.List;
+
 import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.comparator.BlogEntryComparator;
 import net.sourceforge.pebble.decorator.ContentDecoratorChain;
-
-import java.util.List;
-import java.util.Collections;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.web.view.HtmlView;
 
 /**
  * Represents a page displaying blog entries.
@@ -47,12 +48,14 @@ import java.util.Collections;
  */
 public class BlogEntriesView extends HtmlView {
 
-  public void prepare() {
+  @Override
+	public void prepare() {
     ContentDecoratorContext context = new ContentDecoratorContext();
     context.setView(ContentDecoratorContext.SUMMARY_VIEW);
     context.setMedia(ContentDecoratorContext.HTML_PAGE);
 
-    List blogEntries = (List)getModel().get(Constants.BLOG_ENTRIES);
+		@SuppressWarnings("unchecked")
+		List<BlogEntry> blogEntries = (List<BlogEntry>) getModel().get(Constants.BLOG_ENTRIES);
     ContentDecoratorChain.decorate(context, blogEntries);
     Collections.sort(blogEntries, new BlogEntryComparator());
     getModel().put(Constants.BLOG_ENTRIES, blogEntries);
@@ -63,7 +66,8 @@ public class BlogEntriesView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return null;
   }
 
@@ -72,7 +76,8 @@ public class BlogEntriesView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
+  @Override
+	public String getUri() {
     return "/WEB-INF/jsp/blogEntries.jsp";
   }
 

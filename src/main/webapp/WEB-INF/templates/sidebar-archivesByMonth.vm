@@ -12,7 +12,7 @@
       <tr>
   #end
         <td valign="top">
-          <b>$fmt.formatDate("$year.Date", "yyyy")</b><br />
+          <b>$fmt.formatDate($year.Date, "yyyy")</b><br />
   #foreach ($month in $year.Archives)
     #if ($month.NumberOfBlogEntries > 0)
           <a href="$url.rewrite($month.Permalink)" title="Blog archive for $month.Date">
@@ -25,7 +25,7 @@
   #if ($count % 2 == 0)
       </tr>
   #end
-  $set ($count = $count + 1)
+  #set ($count = $count + 1)
 #end
 #if ($count % 2 == 0)
       </tr>

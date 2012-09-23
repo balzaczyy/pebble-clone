@@ -31,12 +31,20 @@
  */
 package net.sourceforge.pebble.web.filter;
 
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
 import net.sourceforge.pebble.Constants;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.*;
-import java.io.IOException;
 
 /**
  * A filter that dispatches to the internal URI.
@@ -48,17 +56,12 @@ public class DispatchingFilter implements Filter {
   /** the log used by this class */
   private static Log log = LogFactory.getLog(DispatchingFilter.class);
 
-  /** the config of this filter */
-  private FilterConfig filterConfig;
-
   /**
    * Initialises this instance.
    *
    * @param config    a FilterConfig instance
    */
-  public void init(FilterConfig config) {
-    this.filterConfig = config;
-  }
+	public void init(FilterConfig config) {}
 
   /**
    * Called when this filter is taken out of service.

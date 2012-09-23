@@ -3,7 +3,6 @@
 ## Parameters
 ##  - rankThreshold : the minimum tag ranking to display (1-10)
 ##
-<%@ attribute name="rankThreshold"%>
 #if (!$rankThreashold || $rankThreashold < 1)
   #set ($rankThreashold = 1)
 #end

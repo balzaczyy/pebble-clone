@@ -34,10 +34,10 @@
           <td class="calendarDayHeader" width="14%">$days.get($i)</td>
 #end
 #if ($firstDayOfWeek > 1)
-#set ($firstDayOfWeekMinusOne = $firstDayOfWeek - 1)
-#foreach ($i in [1..$firstDayOfWeekMinusOne])
+  #set ($firstDayOfWeekMinusOne = $firstDayOfWeek - 1)
+  #foreach ($i in [1..$firstDayOfWeekMinusOne])
           <td class="calendarDayHeader">$days.get($i)</td>
-#end
+  #end
 #end
         </tr>
 
@@ -51,7 +51,7 @@
   #end
   ## output padding if the date to display isn't in the month
   ## Calendar.MONTH = 2
-  #if ($cal.get(2) != $firstDayOfMonth.get(2)) {
+  #if ($cal.get(2) != $firstDayOfMonth.get(2))
           <td class="calendarDay">&nbsp;
   ## Calendar.YEAR = 1, DAY_OF_MONTH = 5
   #elseif ($now.get(1) == $cal.get(1) && $now.get(2) == $cal.get(2) && $now.get(5) == $cal.get(5))
@@ -79,7 +79,7 @@
 #set ($previous = $month.PreviousMonth)
 #set ($next = $month.NextMonth)
         <tr>
-          <td colspan="7" align="center">"
+          <td colspan="7" align="center">
 ## only display the previous month link if there are blog entries
 #set ($formattedDate = $fmt.formatDate($previous.Date, "MMM"))
 #set ($rewrittenedLink = $url.rewrite($previous.Permalink))

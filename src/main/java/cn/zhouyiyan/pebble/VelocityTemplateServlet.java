@@ -1,7 +1,16 @@
 package cn.zhouyiyan.pebble;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.DateFormatSymbols;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,11 +27,17 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.servlet.VelocityServlet;
 
-import cn.zhouyiyan.pebble.TemplateTest.Formatter;
-import edu.emory.mathcs.backport.java.util.Arrays;
-
 public class VelocityTemplateServlet extends VelocityServlet {
 	private static final long serialVersionUID = 2560897251673033438L;
+	private static final Map<Locale, List<String>> days = new HashMap<Locale, List<String>>();
+
+	@Override
+	protected Properties loadConfiguration(ServletConfig config) throws IOException, FileNotFoundException {
+		Properties props = super.loadConfiguration(config);
+		props.setProperty("file.resource.loader.path",
+				"src/main/webapp/WEB-INF/templates,src/main/webapp/themes/default,src/main/webapp");
+		return props;
+	}
 
 	@Override
 	protected Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context ctx)
@@ -51,17 +66,34 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		// ctx.put("displayMode", "detail"); // TODO no where to inject
 		// Blog entry
 		ctx.put("blogEntry", request.getAttribute(Constants.BLOG_ENTRY_KEY));
-		// Calendar
-		ctx.put("days", Arrays.asList(new DateFormatSymbols(blog.getLocale()).getShortWeekdays()));
-		ctx.put("calendarTool", new CalendarTag());
 		// Blog list
 		ctx.put("blogs", request.getAttribute(Constants.BLOGS));
 		// MultiBlog
 		ctx.put("multiBlog", request.getAttribute(Constants.MULTI_BLOG_KEY));
 
+		Locale blogLocale = blog.getLocale();
 		// General utilities
-		ctx.put("fmt", new Formatter(blog.getLocale(), blog.getTimeZone()));
+		ctx.put("fmt", new Formatter(blogLocale, blog.getTimeZone()));
 		ctx.put("url", new UrlFunctions());
+		// Calendar
+		synchronized (days) {
+			if (!days.containsKey(blogLocale)) {
+				// convert zh_CN days to even shorter form
+				String[] dayNames = new DateFormatSymbols(blog.getLocale()).getShortWeekdays();
+				if (Locale.CHINA.equals(blogLocale) && dayNames[1].length() > 2) {
+					for (int i = 1; i < dayNames.length; i++) {
+						dayNames[i] = "周" + dayNames[i].substring(2);
+					}
+				}
+				List<String> dn = new ArrayList<String>();
+				for (String dayName : dayNames) {
+					dn.add(dayName);
+				}
+				days.put(blogLocale, dn);
+			}
+		}
+		ctx.put("days", days.get(blogLocale));
+		ctx.put("calendarTool", new CalendarTag());
 
 		String name = FilenameUtils.getName(request.getRequestURI());
 		return getTemplate(name);
