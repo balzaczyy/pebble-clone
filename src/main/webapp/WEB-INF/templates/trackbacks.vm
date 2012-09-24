@@ -1,0 +1,18 @@
+##
+##  Renders a collection of TrackBacks, calling trackback.jsp for each TrackBack.
+##
+##  ${blog} : the current Blog instance
+##  ${blogEntry} : the current BlogEntry instance
+##
+<a name="trackbacks"></a>
+
+#set ($count = 0)
+#foreach ($trackback in $blogEntry.Trackbacks)
+  #if ($count % 2 == 0)
+<div class="even">
+  #else
+<div class="odd">
+  #end
+  #parse ("trackback.vm")
+</div>
+#end

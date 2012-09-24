@@ -1,0 +1,52 @@
+<div class="contentItemLinks">
+#if ($displayMode != "preview")
+  #if ($isAuthorisedForBlog)
+  <div class="inlineAdminLinks">
+    <form name="blogEntryForm" action="manageBlogEntry.secureaction" method="post">
+      <input type="hidden" name="pebbleSecurityToken" value="$token" />
+      <input type="hidden" name="entry" value="${blogEntry.Id}" />
+  #end
+
+  #if ($isBlogContributor)
+      <button type="submit" name="submit" value="Edit">$fmt.message("common.edit")</button>
+  #end
+
+  #if ($isBlogPublisher)
+    #if ($blogEntry.isUnpublished())
+      <button type="submit" name="submit" value="Publish" >$fmt.message("common.publish")</button>
+    #end
+    #if ($blogEntry.isPublished())
+      <button type="submit" name="submit" value="Unpublish" >$fmt.message("common.unpublish")</button>
+    #end
+  #end
+
+  #if ($isBlogContributor)
+      <button type="submit" name="submit" value="Clone" >$fmt.message("common.clone")</button>
+      &nbsp;
+      <input type="checkbox" name="confirm" value="true" />
+      <button type="submit" name="submit" value="Remove" >$fmt.message("common.remove")</button>
+  #end
+
+  #if ($isAuthorisedForBlog)
+    </form>
+  #end
+
+  #if ($isBlogContributor)
+    <form action="sendTrackBack.secureaction" method="post">
+      <input type="hidden" name="pebbleSecurityToken" value="$token" />
+      <input type="hidden" name="entry" value="${blogEntry.Id}" />
+      <button type="submit" value="Send TrackBack" >$fmt.message("common.sendTrackback")</button>
+    </form>
+  #end
+
+  #if ($blogEntry.isUnpublished())
+    <br />
+    $fmt.message("blogEntry.notYetPublished")
+  #end
+
+  #if ($isAuthorisedForBlog)
+  </div>
+  #end
+
+#end
+</div>

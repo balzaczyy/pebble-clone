@@ -1,0 +1,19 @@
+##
+##  Renders a collection of comments, calling comment.jsp for each comment.
+##
+##  ${blog} : the current Blog instance
+##  ${blogEntry} : the current BlogEntry instance
+##
+<a name="comments"></a>
+
+#set ($count = 0)
+#foreach ($comment in $blogEntry.Comments)
+  #if ($count % 2 == 0)
+<div class="even">
+  #else
+<div class="odd">
+  #end
+  #set ($commentIdentifier = "comment${comment.Id}")
+  #parse ("comment.vm")
+</div>
+#end

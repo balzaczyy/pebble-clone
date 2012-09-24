@@ -1,0 +1,38 @@
+##
+##  renders a single TrackBack
+##
+#if ($trackback.isPending())
+<div class="response pending">
+#elseif ($trackback.isRejected())
+<div class="response rejected">
+#else
+<div class="response approved">
+#end
+
+<div class="contentItemLinks">
+  <a href="$url.rewrite($trackback.Url)">$fmt.message("common.readMore")</a>
+#if ($isBlogContributor)
+  | <input type="checkbox" name="response" value="${trackback.Guid}" />
+#end
+</div>
+
+  <h1>
+    <a name="trackback${trackback.Id}"></a>${trackback.Title}
+  </h1>
+
+  <div class="metadata">
+#set ($trackbackAuthor = $trackback.BlogName)
+#if ($isAuthorisedForBlog)
+  #set ($trackbackAuthor = "$trackbackAuthor (${trackback.IpAddress})")
+#end
+#set ($trackbackDate = $fmt.longDate($trackback.Date, $blogEntry.TimeZone))
+
+    $fmt.message("trackback.from", $trackbackAuthor, $trackbackDate)
+    <a href="$url.rewrite($trackback.Permalink)" title="${trackback.Permalink}">#</a>
+  </div>
+
+  <div class="responseBody">
+    $url.escape($trackback.Excerpt)
+  </div>
+
+</div>

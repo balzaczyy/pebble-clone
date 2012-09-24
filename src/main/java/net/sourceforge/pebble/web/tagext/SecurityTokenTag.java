@@ -31,20 +31,21 @@
  */
 package net.sourceforge.pebble.web.tagext;
 
-import net.sourceforge.pebble.web.security.SecurityTokenValidatorImpl;
+import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
-import java.io.IOException;
+
+import net.sourceforge.pebble.web.security.SecurityTokenValidatorImpl;
 
 /**
  * Tag that writes the security token as a hidden input parameter to the request
  * @author James Roper
  */
 public class SecurityTokenTag extends TagSupport {
-
-  /** true if we're rendering for a query */
+	private static final long serialVersionUID = -8975437282144471555L;
+	/** true if we're rendering for a query */
   private boolean query;
 
   @Override

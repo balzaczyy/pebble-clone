@@ -1,0 +1,106 @@
+##
+##  renders a single blog entry
+##
+#if ($blogEntry.isUnpublished())
+<div class="contentItem unpublished">
+#else
+<div class="contentItem published">
+#end
+
+#parse ("blogEntryLinks.vm")
+
+  <a name="a${blogEntry.Id}"></a>
+  <h1><a href="${url.rewrite($blogEntry.Permalink)}">${blogEntry.Title}</a></h1>
+  <h2>${blogEntry.Subtitle}</h2>
+
+  <div class="contentItemBody">
+#if ($displayMode == "detail")
+  ## here the blog entry is being shown on its own page
+  $blogEntry.Body
+#elseif ($displayMode == "preview")
+  ## this is the blog entry preview, where both excerpt and body need to be shown
+  #if ($blogEntry.Excerpt)
+  <p><b>Excerpt</b></p>$blogEntry.Excerpt
+  #end
+  #if ($blogEntry.Body)
+  <p><b>Body</b></p>$blogEntry.Body
+  #end
+#else
+  #if ($blogEntry.Excerpt && $blogEntry.Excerpt.length() > 0)
+    ## an excerpt is present, so show this
+    $blogEntry.Excerpt
+  #else
+    ## there is no excerpt, so show the body
+    $blogEntry.Body
+  #end
+#end
+
+    <div class="metadata">
+#parse ("responseLinks.vm")
+#if ($blogEntry.User.Website)
+  #set ($author = "<a href='${blogEntry.User.Website}'>${blogEntry.User.Name}</a>")
+#elseif ($blogEntry.User && $blogEntry.User.Profile)
+  #set ($author = "<a href='authors/${blogEntry.User.Username}/'>${blogEntry.User.Name}</a>")
+#elseif ($blogEntry.User)
+  #set ($author = "<a href='authors/${blogEntry.Author}/'>${blogEntry.User.Name}</a>")
+#else
+  #set ($author = "<a href='advancedSearch.action?author=${blogEntry.Author}'>${blogEntry.Author}</a>")
+#end
+#set ($blogEntryDate = $fmt.longDate($blogEntry.Date, $blogEntry.TimeZone))
+      $fmt.message("blogentry.from", $author, $blogEntryDate)
+#set ($link = $blogEntry.LocalPermalink)
+      <a href="${url.rewrite($link)}" title="$link">#</a>
+#if ($blogEntry.Attachment)
+      <a href="${url.rewrite($blogEntry.Attachment.Url)}" title="${blogEntry.Attachment.Size} bytes, ${blogEntry.Attachment.Type}">
+        $fmt.message("blogentry.attachment")
+      </a>
+#end
+    </div>
+  </div>
+
+#if ($displayMode == "detail" && $isBlogContributor && $blogEntry.NumberOfResponses > 0)
+  <form name="responsesForm" method="post" action="manageResponses.secureaction">
+  #if ($token)
+    <input type="hidden" name="pebbleSecurityToken" value="$token" />
+    <input type="hidden" name="redirectUrl" value="${url.rewrite($blogEntry.LocalPermalink)}" />
+  #end
+
+    <br /><br />
+    <a name="responses"></a>
+  #parse ("comments.vm")
+  #parse ("trackbacks.vm")
+
+  #if ($isBlogContributor && $blogEntry.NumberOfResponses > 0)
+    <br />
+    <table width="99%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="left">
+          <input type="button" value="Check All" onclick="checkAll(document.responsesForm.response)" />
+          <input type="button" value="Uncheck All" onclick="uncheckAll(document.responsesForm.response)" />
+        </td>
+        <td align="right">
+          <button type="submit" name="submit" value="Approve" ><fmt:message key="common.approve"/></button>
+          <button type="submit" name="submit" value="Reject" ><fmt:message key="common.reject"/></button>
+          <button type="submit" name="submit" value="Remove" ><fmt:message key="common.remove"/></button>
+        </td>
+      </tr>
+    </table>
+  </form>
+  #end
+  
+  <div align="center">
+    <br />
+  #if ($blogEntry.isCommentsEnabled())
+    <a href="javascript: showCommentForm();">$fmt.message("comment.addComment")</a>
+  #end
+  #if ($blogEntry.isTrackbacksEnabled())
+    <a href="generateTrackBackLink.action?entry=${blogEntry.Id}">$fmt.message("trackback.sendTrackBack")</a>
+  #end
+  </div>
+
+  <div id="commentFormDiv" style="display:none;">
+  #parse ("commentForm.vm")
+  </div>
+#end
+
+</div>

@@ -46,9 +46,13 @@ public class UrlFunctions {
 		// for all cases, but gives an idea where rewriting an
 		// url is done (and has succeeded)
 		return UrlRewriter.doRewrite(url); // + "\" style=\"background-color:blue";
-	};
+	}
 
 	public static String escape(String url) {
 		return StringUtils.transformHTML(url); 
-	};
+	}
+
+	public String createGravatar(String email) {
+		return Util.createGravatar(email);
+	}
 }

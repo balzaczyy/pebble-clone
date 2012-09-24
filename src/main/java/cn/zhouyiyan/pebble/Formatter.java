@@ -28,6 +28,10 @@ public class Formatter {
 		return rb.getString(key).replace("{0}", var);
 	}
 
+	public String message(String key, String var1, String var2) {
+		return rb.getString(key).replace("{0}", var1).replace("{1}", var2);
+	}
+
 	public String formatDate(Date date, String pattern) {
 		DateFormat df = new SimpleDateFormat(pattern, loc);
 		df.setTimeZone(tz);
@@ -37,6 +41,12 @@ public class Formatter {
 	public String longDate(Date date) {
 		DateFormat df = DateFormat.getDateInstance(DateFormat.LONG, loc);
 		df.setTimeZone(tz);
+		return df.format(date);
+	}
+
+	public String longDate(Date date, TimeZone overridedTz) {
+		DateFormat df = DateFormat.getDateInstance(DateFormat.LONG, loc);
+		df.setTimeZone(overridedTz);
 		return df.format(date);
 	}
 

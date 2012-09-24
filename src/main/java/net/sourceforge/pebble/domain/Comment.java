@@ -31,12 +31,12 @@
  */
 package net.sourceforge.pebble.domain;
 
-import net.sourceforge.pebble.api.event.comment.CommentEvent;
-import net.sourceforge.pebble.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import net.sourceforge.pebble.api.event.comment.CommentEvent;
+import net.sourceforge.pebble.util.StringUtils;
 
 /**
  * Represents a blog comment.
@@ -44,8 +44,9 @@ import java.util.List;
  * @author    Simon Brown
  */
 public class Comment extends Response {
+	private static final long serialVersionUID = -7731722561317143892L;
 
-  /** the body of the comment */
+	/** the body of the comment */
   private String body;
 
   /** the name of the author */
@@ -64,7 +65,7 @@ public class Comment extends Response {
   private String avatar;
 
   /** the collection of nested comments */
-  private List comments = new ArrayList();
+	private final List<Comment> comments = new ArrayList<Comment>();
 
   /** a flag to indicate whether the user was authenticated when the comment was left */
   private boolean authenticated = false;
@@ -108,7 +109,8 @@ public class Comment extends Response {
    *
    * @return a String
    */
-  public String getContent() {
+  @Override
+	public String getContent() {
     return getBody();
   }
 
@@ -126,7 +128,8 @@ public class Comment extends Response {
    *
    * @param   title    the title of this comment as a String
    */
-  public void setTitle(String title) {
+  @Override
+	public void setTitle(String title) {
     if (title == null || title.length() == 0) {
       if (blogEntry != null) {
         this.title = "Re: " + blogEntry.getTitle();
@@ -165,7 +168,8 @@ public class Comment extends Response {
    *
    * @return a String
    */
-  public String getSourceName() {
+  @Override
+	public String getSourceName() {
     return getAuthor();
   }
 
@@ -219,7 +223,8 @@ public class Comment extends Response {
    *
    * @return a String
    */
-  public String getSourceLink() {
+  @Override
+	public String getSourceLink() {
     return getWebsite();
   }
 
@@ -346,14 +351,16 @@ public class Comment extends Response {
    * @return a clone of this instance.
    * @see Cloneable
    */
-  public Object clone() {
+  @Override
+	public Object clone() {
     Comment comment = new Comment(title, body, author, email, website, avatar, ipAddress, date, getState(), blogEntry);
     comment.setParent(parent);
     comment.setAuthenticated(authenticated);
     return comment;
   }
 
-  public boolean equals(Object o) {
+  @Override
+	public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -366,14 +373,16 @@ public class Comment extends Response {
     return (getId() == comment.getId() && blogEntry.getId().equals(comment.getBlogEntry().getId()));
   }
 
-  public int hashCode() {
+  @Override
+	public int hashCode() {
     return ("" + getId()).hashCode();
   }
 
   /**
    * Sets the state of this comment.
    */
-  void setState(State s) {
+  @Override
+	void setState(State s) {
     State previousState = getState();
     super.setState(s);
 

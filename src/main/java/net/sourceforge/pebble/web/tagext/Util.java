@@ -32,12 +32,12 @@
 
 package net.sourceforge.pebble.web.tagext;
 
-import org.apache.commons.codec.binary.Hex;
-
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+
+import org.apache.commons.codec.binary.Hex;
 
 /**
  * @author James Roper
@@ -45,7 +45,7 @@ import java.util.Collection;
 public class Util {
   static final String GRAVATAR_URL = "http://www.gravatar.com/avatar/%s?s=50";
 
-  public static boolean contains(Collection collection, Object object) {
+	public static boolean contains(Collection<?> collection, Object object) {
     return collection.contains(object);
   }
 

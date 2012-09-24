@@ -19,6 +19,7 @@ import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.domain.AbstractBlog;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.util.SecurityUtils;
+import net.sourceforge.pebble.web.security.SecurityTokenValidatorImpl;
 import net.sourceforge.pebble.web.tagext.CalendarTag;
 import net.sourceforge.pebble.web.tagext.UrlFunctions;
 
@@ -43,6 +44,11 @@ public class VelocityTemplateServlet extends VelocityServlet {
 	protected Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context ctx)
 			throws Exception {
 		ctx.put("request", request);
+		ctx.put("contextPath", request.getContextPath());
+
+		// Security
+		ctx.put("token", request.getAttribute(SecurityTokenValidatorImpl.PEBBLE_SECURITY_TOKEN_PARAMETER));
+		// rememberMe
 
 		// Blog properties
 		ctx.put("pebbleContext", PebbleContext.getInstance());
@@ -53,6 +59,10 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		ctx.put("isAuthenticated", SecurityUtils.isUserAuthenticated());
 		if (blog instanceof Blog) {
 			ctx.put("archives", ((Blog) blog).getArchives());
+			ctx.put("isBlogContributor",
+					SecurityUtils.isUserAuthorisedForBlogAsBlogContributor((Blog) blog, SecurityUtils.getUsername()));
+			ctx.put("isAuthorisedForBlog", SecurityUtils.isUserAuthorisedForBlog((Blog) blog));
+			ctx.put("isBlogPublisher", SecurityUtils.isBlogPublisher());
 		}
 		ctx.put("recentResponses", request.getAttribute(Constants.RECENT_RESPONSES));
 
@@ -62,14 +72,21 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		ctx.put("themeHeadUri", request.getAttribute("themeHeadUri"));
 		ctx.put("template", "template.vm");
 		ctx.put("content", request.getAttribute("content"));
+		ctx.put("displayMode", request.getAttribute("displayMode"));
 
-		// ctx.put("displayMode", "detail"); // TODO no where to inject
+		// Blog entries
+		ctx.put("blogEntries", request.getAttribute(Constants.BLOG_ENTRIES));
 		// Blog entry
 		ctx.put("blogEntry", request.getAttribute(Constants.BLOG_ENTRY_KEY));
 		// Blog list
 		ctx.put("blogs", request.getAttribute(Constants.BLOGS));
 		// MultiBlog
 		ctx.put("multiBlog", request.getAttribute(Constants.MULTI_BLOG_KEY));
+		// comment
+		ctx.put("validationContext", request.getAttribute("validationContext"));
+		// decoratedComment, undecoratedComment
+		ctx.put(Constants.MONTHLY_BLOG, request.getAttribute(Constants.MONTHLY_BLOG));
+		ctx.put("pageable", request.getAttribute("pageable"));
 
 		Locale blogLocale = blog.getLocale();
 		// General utilities

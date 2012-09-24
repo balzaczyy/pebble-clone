@@ -1,0 +1,61 @@
+##
+##  renders a single comment
+##
+#if ($comment.isPending())
+<div id="$commentIdentifier" class="response pending" style="padding-left: ${(comment.NumberOfParents*16)+30}px;">
+#elseif ($comment.isRejected())
+<div id="$commentIdentifier" class="response rejected" style="padding-left: ${(comment.NumberOfParents*16)+30}px;">
+#else
+<div id="$commentIdentifier" class="response approved" style="padding-left: ${(comment.NumberOfParents*16)+30}px;">
+#end
+
+#if ($comment.Avatar)
+  #set ($avatar = $comment.Avatar)
+#elseif ($comment.Email && $blogEntry.Blog.isGravatarSupportForCommentsEnabled())
+  #set ($avatar = $url.createGravatar($comment.Email))
+#end
+#if ($avatar)
+  <img class="avatar" src="<c:out value="${avatar}"/>" alt="Avatar: ${comment.Author}"/>">
+#end
+
+#if ($displayMode != "preview")
+  #if ($blogEntry.isCommentsEnabled())
+  <a href="replyToBlogEntry.action?entry=${blogEntry.Id}&amp;comment=${comment.Id}">
+    $fmg.message("comment.reply")
+  </a>
+  #end
+  #if ($isBlogContributor)
+  <input type="checkbox" name="response" value="${comment.Guid}" />
+  #end
+#end
+  <h1>
+    <span id="${commentIdentifier}.title">
+      <a name="comment${comment.Id}"></a>$comment.Title
+    </span>
+  </h1>
+
+  <div class="metadata">
+#if ($comment.Website)
+  #set ($commentAuthor = "<a href='${comment.Website}' target='_blank' title='${comment.Website}"/>' rel="nofollow">$comment.Author</a>";
+#else
+  #set ($commentAuthor = $comment.Author)
+#end
+#if ($isAuthorisedForBlog)
+  #set ($commentAuthor = "${commentAuthor} ${comment.Email}/${comment.ipAddress}"
+#end
+#set ($commentDate = $fmt.longDate($comment.Date, $blogEntry.TimeZone))
+
+#if ($comment.isAuthenticated())
+  #set ($clazz = "authenticated")
+#else
+  #set ($clazz = "unauthenticated")
+#end
+    $fmt.message("comment.from", "span id='${commentIdentifier}.author' class='${clazz}'>${commentAuthor}</span>", $commentDate)
+    <a href="${url.rewrite($comment.Permalink)}" title="${comment.Permalink}">#</a>
+  </div>
+
+  <div id="${commentIdentifier}.body" class="responseBody">
+    $url.escape($comment.Body)
+  </div>
+
+</div>

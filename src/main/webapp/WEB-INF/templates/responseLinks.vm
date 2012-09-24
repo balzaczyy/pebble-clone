@@ -1,0 +1,17 @@
+<div class="contentItemLinks">
+#if ($blogEntry.NumberOfResponses > 0)
+  <a href="${url.rewrite($blogEntry.LocalPermalink)}#responses">
+    $fmt.message("blogentry.responses")[${blogEntry.NumberOfResponses}]
+  </a>
+  <a href="${url.rewrite($blogEntry.Blog.Url)}responses/rss.xml?entry=${blogEntry.Id}">
+    <img src="common/images/feed-icon-10x10.png" alt="RSS feed for responses to this blog entry" border="0" />
+  </a>
+#elseif ($blogEntry.isCommentsEnabled())
+  <a href="${url.rewrite($blogEntry.Blog.Url)}replyToBlogEntry.action?entry=${blogEntry.Id}">
+    $fmt.message("comment.addComment")
+  </a>
+  <a href="${url.rewrite($blogEntry.Blog.Url)}responses/rss.xml?entry=${blogEntry.Id}">
+    <img src="common/images/feed-icon-10x10.png" alt="RSS feed for responses to this blog entry" border="0" />
+  </a>
+#end
+</div>

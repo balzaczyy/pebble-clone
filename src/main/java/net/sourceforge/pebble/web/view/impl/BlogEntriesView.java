@@ -78,7 +78,7 @@ public class BlogEntriesView extends HtmlView {
    */
   @Override
 	public String getUri() {
-    return "/WEB-INF/jsp/blogEntries.jsp";
+		return "blogEntries.vm";
   }
 
 }
