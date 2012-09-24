@@ -43,7 +43,8 @@ import net.sourceforge.pebble.web.view.HtmlView;
  */
 public class BlogEntryView extends HtmlView {
 
-  public void prepare() {
+  @Override
+	public void prepare() {
     ContentDecoratorContext context = new ContentDecoratorContext();
     context.setView(ContentDecoratorContext.DETAIL_VIEW);
     context.setMedia(ContentDecoratorContext.HTML_PAGE);
@@ -57,7 +58,8 @@ public class BlogEntryView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     BlogEntry blogEntry = (BlogEntry)getModel().get(Constants.BLOG_ENTRY_KEY);
     return blogEntry.getTitle();
   }
@@ -67,8 +69,9 @@ public class BlogEntryView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/blogEntry.jsp";
+  @Override
+	public String getUri() {
+		return "blogEntry.vm";
   }
 
 }
