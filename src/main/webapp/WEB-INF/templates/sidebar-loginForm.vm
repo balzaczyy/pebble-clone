@@ -1,0 +1,59 @@
+##
+##  Displays the login form.
+##
+
+#if (!$isAuthenticated && !$isLoginPage)
+<div class="sidebarItem">
+  <div class="sidebarItemTitle"><span>$fmt.message('login.login')</span></div>
+  <div class="loginSideForm">
+    <div id="loginOptionPasswordArea" class="loginOptionArea">
+      <form id="passwordLoginForm" name="passwordLoginForm" method="post"
+            action="${pebbleContext.Configuration.SecureUrl}j_spring_security_check">
+        <input type="hidden" name="redirectUrl" value="${blog.RelativeUrl}"/>
+        <div class="field">
+          <label for="username">$fmt.message("login.username")</label>
+          <input id="username" type="text" name="j_username"/>
+        </div>
+        <div class="field">
+          <label for="password">$fmt.message("login.password")</label>
+          <input id="password" type="password" name="j_password"/>
+        </div>
+        <div class="field">
+          <label for="rememberMe">$fmt.message('login.rememberMe')</label>
+          <input id="rememberMe" type="checkbox" name="_spring_security_remember_me"/>
+        </div>
+        <div class="loginButtons"><input type="submit" value="$fmt.message('login.button')"/></div>
+      </form>
+    </div>
+
+    <div id="loginOptionOpenIdArea" class="loginOptionArea">
+      <form id="openIdLoginForm" name="openIdloginForm" method="post"
+            action="${pebbleContext.Configuration.SecureUrl}j_spring_openid_security_check">
+        <input type="hidden" name="redirectUrl" value="${blog.RelativeUrl}"/>
+
+        <div class="field">
+          <label for="openIdIdentifier">OpenId</label>
+          <input id="openIdIdentifier" type="text" name="openid_identifier"/>
+        </div>
+        <div class="field">
+          <label for="openIdRememberMe">$fmt.message('login.rememberMe')</label>
+          <input id="openIdRememberMe" type="checkbox" name="_spring_security_remember_me"/>
+        </div>
+        <div class="loginButtons"><input type="submit" value="$fmt.message('login.button')"/></div>
+      </form>
+    </div>
+
+    <div id="loginOptionGoogleArea" class="loginOptionArea">
+      <div class="loginUsingGoogle">Log me in using <img src="common/images/google_logo.jpg" alt="Google"/></div>
+    </div>
+    <ul id="loginOptions">
+      <li id="loginOptionPassword" class="loginOption loginOptionSelected">&nbsp;</li>
+      <li id="loginOptionOpenId" class="loginOption">&nbsp;</li>
+      <li id="loginOptionGoogle" class="loginOption">&nbsp;</li>
+    </ul>
+    <script type="text/javascript">
+      Event.observe(window, "load", initLoginScreen);
+    </script>
+  </div>
+</div>
+#end

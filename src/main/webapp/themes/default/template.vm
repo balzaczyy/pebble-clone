@@ -40,6 +40,7 @@
 ## the following is an example of the feed component that lets you aggregate a RSS/Atom feed into your blog
 ## #parse ("sidebar-feed.vm")
 ## #feed("del.icio.us", "http://del.icio.us/rss/simongbrown", "3", "true", "true")
+#parse ("sidebar-loginForm.vm")
   </div>
 
 ## the main area into which content gets rendered

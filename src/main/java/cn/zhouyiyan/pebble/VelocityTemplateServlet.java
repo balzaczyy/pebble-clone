@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -48,6 +49,8 @@ public class VelocityTemplateServlet extends VelocityServlet {
 
 		// Security
 		ctx.put("token", request.getAttribute(SecurityTokenValidatorImpl.PEBBLE_SECURITY_TOKEN_PARAMETER));
+		ctx.put("isLoginPage", request.getAttribute("isLoginPage"));
+		ctx.put(Constants.AUTHENTICATED_USER, request.getAttribute(Constants.AUTHENTICATED_USER));
 		// rememberMe
 
 		// Blog properties
@@ -63,6 +66,16 @@ public class VelocityTemplateServlet extends VelocityServlet {
 					SecurityUtils.isUserAuthorisedForBlogAsBlogContributor((Blog) blog, SecurityUtils.getUsername()));
 			ctx.put("isAuthorisedForBlog", SecurityUtils.isUserAuthorisedForBlog((Blog) blog));
 			ctx.put("isBlogPublisher", SecurityUtils.isBlogPublisher());
+			ctx.put("isBlogAdmin", SecurityUtils.isBlogAdmin());
+			ctx.put(
+					"isBlogAdminOrBlogOwner",
+					SecurityUtils.isBlogAdmin()
+							|| SecurityUtils.isUserAuthorisedForBlogAsBlogOwner((Blog) blog, SecurityUtils.getUsername()));
+		}
+		if (PebbleContext.getInstance().getConfiguration().isMultiBlog()) { // TODO duplicate of Blog check?
+			ctx.put(Constants.BLOG_MANAGER, request.getAttribute(Constants.BLOG_MANAGER)); // TODO remove
+			ctx.put(Constants.MULTI_BLOG_URL, request.getAttribute(Constants.MULTI_BLOG_URL));
+			ctx.put(Constants.MULTI_BLOG_KEY, request.getAttribute(Constants.MULTI_BLOG_KEY));
 		}
 		ctx.put("recentResponses", request.getAttribute(Constants.RECENT_RESPONSES));
 
@@ -72,12 +85,13 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		ctx.put("themeHeadUri", request.getAttribute("themeHeadUri"));
 		ctx.put("template", "template.vm");
 		ctx.put("content", request.getAttribute("content"));
-		ctx.put("displayMode", request.getAttribute("displayMode"));
+
 
 		// Blog entries
 		ctx.put("blogEntries", request.getAttribute(Constants.BLOG_ENTRIES));
 		// Blog entry
 		ctx.put("blogEntry", request.getAttribute(Constants.BLOG_ENTRY_KEY));
+		ctx.put("displayMode", request.getAttribute("displayMode"));
 		// Blog list
 		ctx.put("blogs", request.getAttribute(Constants.BLOGS));
 		// MultiBlog
@@ -111,6 +125,7 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		}
 		ctx.put("days", days.get(blogLocale));
 		ctx.put("calendarTool", new CalendarTag());
+		ctx.put("yearNow", Calendar.getInstance().get(Calendar.YEAR));
 
 		String name = FilenameUtils.getName(request.getRequestURI());
 		return getTemplate(name);

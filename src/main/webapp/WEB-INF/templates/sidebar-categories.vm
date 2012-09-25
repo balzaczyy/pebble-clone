@@ -2,7 +2,7 @@
 ##  Displays a list of category names and links, including the blog entry count for each.
 ##
 #set ($categories = $blog.Categories)
-#if ($blogType == "singleblog" && $categories.size() > 0 && $categories.get(0).SubCategories)
+#if ($blogType == "singleblog" && $categories.size() > 0 && !$categories.get(0).SubCategories.isEmpty())
 <div class="sidebarItem">
   <div class="sidebarItemTitle"><span>$fmt.message("category.categories")</span></div>
   <div class="sidebarItemBody">

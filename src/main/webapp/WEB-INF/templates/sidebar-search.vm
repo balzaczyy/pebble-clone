@@ -9,7 +9,7 @@
       <input type="text" name="query" size="15" value="" />
       <input type="submit" value="$fmt.message('common.search')" />
     </form>
-#if ($blog.RootCategory.SubCategories)
+#if (!$blog.RootCategory.SubCategories.isEmpty())
     <a title="Categories" href="./categories/">$fmt.message("category.categories")</a> |
 #end
 #if ($tags)
