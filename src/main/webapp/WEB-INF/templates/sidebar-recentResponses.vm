@@ -1,7 +1,7 @@
 ##
 ##  Displays the recent responses (comments and TrackBacks).
 ##
-#if ($blogType == "singleblog" && $recentResponses && $blog.RecentResponsesOnHomePage > 0)
+#if ($blogType == "singleblog" && $recentResponses && !$recentResponses.isEmpty() && $blog.RecentResponsesOnHomePage > 0)
 <div class="sidebarItem">
   <div class="sidebarItemTitle">
     <span>

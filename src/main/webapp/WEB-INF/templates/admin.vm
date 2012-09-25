@@ -142,6 +142,8 @@
       <a href="${multiBlogUrl}viewPebbleProperties.secureaction" title="$fmt.message('admin.tooltip.managePebbleProperties')">
         $fmt.message("admin.properties")
       </a> |
+  #end
+  #if (!$multiBlogUrl) #set ($multiBlogUrl = "") #end
       <a href="${multiBlogUrl}viewBlogs.secureaction" title="$fmt.message('admin.tooltip.viewBlogs')">
         $fmt.message("admin.blogs")
       </a> |
@@ -151,7 +153,6 @@
       <a href="${multiBlogUrl}viewUsers.secureaction" title="$fmt.message('admin.tooltip.viewUsers')">
         $fmt.message('admin.users')
       </a>
-  #end
 #end
     </span>
 

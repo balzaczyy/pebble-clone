@@ -8,7 +8,7 @@
 #end
 
 #set ($tags = $blog.Tags)
-#if ($blogType == "singleblog" && $tags)
+#if ($blogType == "singleblog" && $tags && !$tags.isEmpty())
 <div class="sidebarItem">
   <div class="sidebarItemTitle"><span>$fmt.message("tag.tags")</span></div>
   <div class="sidebarItemBody">

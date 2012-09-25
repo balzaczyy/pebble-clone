@@ -36,6 +36,7 @@
 #parse ("sidebar-categories.vm")
 #parse ("sidebar-tagCloud.vm")
 #parse ("sidebar-recentResponses.vm")
+#parse ("sidebar-recentBlogEntries.vm")
 #parse ("sidebar-blogSummary.vm")
 ## the following is an example of the feed component that lets you aggregate a RSS/Atom feed into your blog
 ## #parse ("sidebar-feed.vm")
