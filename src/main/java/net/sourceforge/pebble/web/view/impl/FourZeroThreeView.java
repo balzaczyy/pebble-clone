@@ -31,9 +31,9 @@
  */
 package net.sourceforge.pebble.web.view.impl;
 
-import net.sourceforge.pebble.web.view.HtmlView;
-
 import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.pebble.web.view.HtmlView;
 
 /**
  * Represents the 403 page.
@@ -42,28 +42,22 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class FourZeroThreeView extends HtmlView {
 
-  public void prepare() {
+  @Override
+	public void prepare() {
   }
-
-//  /**
-//   * Gets the name of the theme to use.
-//   *
-//   * @return the theme name as a String
-//   */
-//  protected String getTheme() {
-//    return SYSTEM_THEME;
-//  }
 
   /**
    * Gets the title of this view.
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return null;
   }
 
-  protected int getStatus() {
+  @Override
+	protected int getStatus() {
     return HttpServletResponse.SC_FORBIDDEN;
   }
 
@@ -72,8 +66,9 @@ public class FourZeroThreeView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/403.jsp";
+  @Override
+	public String getUri() {
+		return "403.vm";
   }
 
 }
