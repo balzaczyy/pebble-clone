@@ -31,6 +31,21 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.domain.Blog;
@@ -41,12 +56,6 @@ import net.sourceforge.pebble.service.StaticPageService;
 import net.sourceforge.pebble.service.StaticPageServiceException;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.BlogPropertiesView;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.nio.charset.Charset;
-import java.util.*;
 
 /**
  * Edits the properties associated with the current Blog.
@@ -62,14 +71,15 @@ public class ViewBlogPropertiesAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
 
     getModel().put("properties", blog.getProperties());
 
-    Set resources = request.getSession().getServletContext().getResourcePaths("/themes/");
-    List themes = new ArrayList();
-    Iterator it = resources.iterator();
+		Set<?> resources = request.getSession().getServletContext().getResourcePaths("/themes/");
+		List<String> themes = new ArrayList<String>();
+		Iterator<?> it = resources.iterator();
     String resource;
     while (it.hasNext()) {
       resource = (String)it.next();
@@ -88,7 +98,7 @@ public class ViewBlogPropertiesAction extends SecureAction {
 
     getModel().put("countries", Locale.getISOCountries());
     getModel().put("languages", Locale.getISOLanguages());
-    List timeZones = Arrays.asList(java.util.TimeZone.getAvailableIDs());
+		List<String> timeZones = Arrays.asList(java.util.TimeZone.getAvailableIDs());
     Collections.sort(timeZones);
     getModel().put("timeZones", timeZones);
     getModel().put("characterEncodings", Charset.availableCharsets().keySet());
@@ -103,7 +113,7 @@ public class ViewBlogPropertiesAction extends SecureAction {
 
     StaticPageService service = new StaticPageService();
     try {
-      List staticPages = service.getStaticPages(blog);
+			List<StaticPage> staticPages = service.getStaticPages(blog);
       StaticPage defaultPage = new StaticPage(blog);
       defaultPage.setName("");
       defaultPage.setTitle("Default - recent blog entries");
@@ -133,7 +143,8 @@ public class ViewBlogPropertiesAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     return new String[]{
         Constants.BLOG_ADMIN_ROLE,
         Constants.BLOG_OWNER_ROLE

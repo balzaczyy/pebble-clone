@@ -31,14 +31,15 @@
  */
 package net.sourceforge.pebble.web.tagext;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.tagext.TagSupport;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.JspWriter;
+import javax.servlet.jsp.tagext.TagSupport;
 
 /**
  * Given a Collection or array, this tag produces a HTML select (dropdown) list
@@ -47,9 +48,10 @@ import java.util.Iterator;
  * @author    Simon Brown
  */
 public class SelectTag extends TagSupport {
+	private static final long serialVersionUID = -2482338945225885411L;
 
-  /** the items over which this tag should iterate */
-  private Collection items;
+	/** the items over which this tag should iterate */
+	private Collection<?> items;
 
   /** the name of the select control */
   private String name;
@@ -72,9 +74,10 @@ public class SelectTag extends TagSupport {
   /**
    * Called when the starting tag is encountered.
    */
-  public int doStartTag() throws JspException {
+  @Override
+	public int doStartTag() throws JspException {
     // setup the iterator to be used
-    Iterator iterator = items.iterator();
+		Iterator<?> iterator = items.iterator();
 
     try {
       JspWriter out = pageContext.getOut();
@@ -120,7 +123,7 @@ public class SelectTag extends TagSupport {
 
         if (selected != null) {
           if (selected instanceof Collection) {
-            Collection coll = (Collection)selected;
+						Collection<?> coll = (Collection<?>) selected;
             if (coll.contains(hiddenValue)) {
               out.print(" selected=\"true\"");
             }
@@ -161,7 +164,7 @@ public class SelectTag extends TagSupport {
    */
   public void setItems(Object items) {
     if (items instanceof Collection) {
-      this.items = (Collection)items;
+			this.items = (Collection<?>) items;
     } else if (items instanceof Object[]) {
       this.items = Arrays.asList((Object[])items);
     }

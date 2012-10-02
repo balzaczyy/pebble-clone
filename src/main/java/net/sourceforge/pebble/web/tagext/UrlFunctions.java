@@ -32,6 +32,9 @@
 
 package net.sourceforge.pebble.web.tagext;
 
+import java.lang.reflect.Method;
+import java.util.Collection;
+
 import net.sourceforge.pebble.util.StringUtils;
 import net.sourceforge.pebble.util.UrlRewriter;
 /**
@@ -54,5 +57,18 @@ public class UrlFunctions {
 
 	public String createGravatar(String email) {
 		return Util.createGravatar(email);
+	}
+
+	public Object getField(Object o, String value) throws Exception {
+		if (value != null) {
+			String name = "get" + value.substring(0, 1).toUpperCase() + value.substring(1);
+			Method m = o.getClass().getMethod(name, new Class[] {});
+			return m.invoke(o, new Object[] {}).toString();
+		}
+		return o.toString();
+	}
+
+	public boolean isCollection(Object o) {
+		return o instanceof Collection;
 	}
 }

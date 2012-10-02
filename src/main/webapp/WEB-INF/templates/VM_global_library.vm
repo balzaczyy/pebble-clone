@@ -1,0 +1,48 @@
+#macro (select7 $name $items $selected $label $value $size $multiple)
+
+<select name="$name"
+#if ($size && $size > 0)
+  size="$size"
+#end
+#if ($multiple && $multiple == "true")
+  multiple="true"
+#end
+>
+
+#foreach ($item in $items)
+  #if ($value && $value.length() > 0)
+  	#set ($hiddenValue = $url.getField($item, $value))
+  #else
+    #set ($hiddenValue = $item.toString())
+  #end
+  <option value="$hiddenValue"
+  #if ($selected)
+    #if ($url.isCollection($selected))
+      #if ($selected.contains($hiddenValue))
+        selected="true"
+      #end
+    #elseif ($selected.toString().equals($hiddenValue))
+      selected="true"
+    #end
+  #end
+  >
+
+  #if ($label && $label.length() > 0)
+    $url.getField($item, $label)
+  #else
+    $item.toString()
+  #end
+  </option>
+#end
+
+</select>
+
+#end
+
+#macro (select5 $name $items $selected $label $value)
+  #select7 ($name $items $selected $label $value 0 "")
+#end
+
+#macro (select $name $items $selected)
+  #select5 ($name $items $selected "" "")
+#end

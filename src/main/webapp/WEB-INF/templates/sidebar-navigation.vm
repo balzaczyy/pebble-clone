@@ -2,8 +2,9 @@
 ## Displays the basic navigation mechanisms; including the calendar, search and links to category/tag pages.
 ##
 #if ($blogType == "singleblog")
-  #set ($month = $monthlyBlog)
-  #if (!$month)
+  #if ($monthlyBlog)
+    #set ($month = $monthlyBlog)
+  #elseif (!$month)
     #set ($month = $blog.BlogForToday.Month)
   #end
   #set ($now = $blog.Calendar)

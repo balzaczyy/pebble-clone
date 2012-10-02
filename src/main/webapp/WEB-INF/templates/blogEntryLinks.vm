@@ -3,7 +3,9 @@
   #if ($isAuthorisedForBlog)
   <div class="inlineAdminLinks">
     <form name="blogEntryForm" action="manageBlogEntry.secureaction" method="post">
+    #if ($token)
       <input type="hidden" name="pebbleSecurityToken" value="$token" />
+    #end
       <input type="hidden" name="entry" value="${blogEntry.Id}" />
   #end
 

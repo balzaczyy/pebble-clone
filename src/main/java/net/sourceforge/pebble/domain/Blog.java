@@ -587,7 +587,8 @@ public class Blog extends AbstractBlog {
    * @return    a String
    */
   public String getAbout() {
-    return properties.getProperty(ABOUT_KEY);
+		String ans = properties.getProperty(ABOUT_KEY);
+		return ans == null ? "" : ans;
   }
 
   /**

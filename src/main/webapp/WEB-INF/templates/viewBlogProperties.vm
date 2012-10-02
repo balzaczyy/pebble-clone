@@ -1,0 +1,172 @@
+##
+## View Blog Properties
+##
+## Required parameters:
+##   $fmt - Format Utilities
+##   $blog
+##   $blogUrl
+##   $pebbleContext
+##   $staticPages
+##   $themes
+##   $numbers
+##   $countries
+##   $languages
+##   $timeZones
+##   $characterEncodings
+## Optional parameters:
+##   $token
+## 
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/configuration.html" target="_blank">$fmt.message("common.help")</a>
+  </div>
+
+  <h1>$fmt.message("view.blogProperties")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    <p>
+      $fmt.message("blogproperties.thePropertiesAreOnlyApplicableForThisBlog", $blogUrl, $blog.Name)
+    </p>
+
+    <form name="propertiesForm" action="saveBlogProperties.secureaction" method="POST" accept-charset="${blog.CharacterEncoding}">
+    #if ($token)
+      <input type="hidden" name="pebbleSecurityToken" value="$token" />
+    #end
+    <table>
+      <tr>
+        <td colspan="2"><b>$fmt.message("blogproperties.generalBlogProperties")</b></td>
+      </tr>
+
+      <tr>
+        <td>$fmt.message("blogproperties.name")</td>
+        <td><input type="text" name="name" size="40" value="${blog.Name}"></td>
+      </tr>
+
+      <tr>
+        <td>$fmt.message("blogproperties.description")</td>
+        <td><input type="text" name="description" size="40" value="${blog.Description}"></td>
+      </tr>
+
+      <tr>
+        <td valign="top">$fmt.message("blogproperties.about")</td>
+        <td><textarea name="about" rows="12" cols="50">${blog.About}</textarea></td>
+      </tr>
+
+      <tr>
+        <td>$fmt.message("blogproperties.imageUrl")</td>
+        <td><input type="text" name="image" size="40" value="${blog.Image}"></td>
+      </tr>
+
+      <tr>
+        <td>$fmt.message("blogproperties.author")</td>
+        <td><input type="text" name="author" size="40" value="${blog.Author}"></td>
+      </tr>
+
+      <tr>
+        <td>$fmt.message("blogproperties.emailaddress")</td>
+        <td><input type="text" name="email" size="40" value="${blog.Email}"></td>
+      </tr>
+
+      <tr>
+        <td>$fmt.message("blogproperties.homepage")</td>
+        <td>
+          #select5 ("homePage" $staticPages $blog.HomePage "title" "name")
+        </td>
+      </tr>
+
+
+    #if ($pebbleContext.Configuration.isUserThemesEnabled())
+      <tr>
+        <td>$fmt.message("blogproperties.theme")</td>
+        <td>
+          #select ("theme" $themes $blog.Theme)
+        </td>
+      </tr>
+    #end
+
+      <tr>
+        <td>$fmt.message("blogproperties.recentBlogEntries")</td>
+        <td>
+          #select ("recentBlogEntriesOnHomePage" $numbers $blog.RecentBlogEntriesOnHomePage)
+        </td>
+      </tr>
+
+      <tr>
+        <td>$fmt.message("blogproperties.recentResponses")</td>
+        <td>
+          #select ("recentResponsesOnHomePage" $numbers $blog.RecentResponsesOnHomePage)
+        </td>
+      </tr>
+
+      <tr>
+        <td valign="top">$fmt.message("blogproperties.richTextEditor")</td>
+        <td>
+          <input type="checkbox" name="richTextEditorForCommentsEnabled" value="true"
+            #if ($blog.isRichTextEditorForCommentsEnabled()) checked="true" #end
+          />&nbsp;$fmt.message("blogproperties.comments")
+        </td>
+      </tr>
+
+      <tr>
+        <td valign="top">$fmt.message("blogproperties.gravatarSupport")</td>
+        <td>
+          <input type="checkbox" name="gravatarSupportForCommentsEnabled" value="true"
+            #if ($blog.isGravatarSupportForCommentsEnabled) checked="true" #end
+          />
+        </td>
+      </tr>
+
+      <tr>
+        <td colspan="2">
+          <br />
+          <b>$fmt.message("blogproperties.i18nAndL10n")</b>
+        </td>
+      </tr>
+
+      <tr>
+        <td>$fmt.message("blogproperties.country")</td>
+        <td>
+          #select ("country" $countries $blog.Country)
+        </td>
+      </tr>
+
+      <tr>
+        <td>$fmt.message("blogproperties.language")
+        </td>
+        <td>
+          #select ("language" $languages $blog.Language)
+        </td>
+      </tr>
+
+      <tr>
+        <td>$fmt.message("blogproperties.timeZone")
+        </td>
+        <td>
+          #select ("timeZone" $timeZones $blog.TimeZoneId)
+          <div class="small">$fmt.message("blogproperties.noteChangingWillReindex")</div>
+        </td>
+      </tr>
+
+      <tr>
+        <td>$fmt.message("blogproperties.characterEncoding")
+        </td>
+        <td>
+          #select ("characterEncoding" $characterEncodings $blog.CharacterEncoding)
+        </td>
+      </tr>
+
+      <tr>
+        <td align="right" colspan="2">
+          <button name="submit" type="submit" Value="Save Properties">
+            $fmt.message("common.save")
+          </button>
+        </td>
+      </tr>
+
+    </table>
+    </form>
+  </div>
+
+</div>

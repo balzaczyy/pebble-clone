@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -79,6 +80,10 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		}
 		ctx.put(Constants.RECENT_RESPONSES, request.getAttribute(Constants.RECENT_RESPONSES));
 		ctx.put(Constants.RECENT_BLOG_ENTRIES, request.getAttribute(Constants.RECENT_BLOG_ENTRIES));
+		for (String s : Arrays.asList("staticPages", "themes", "numbers", "countries", "languages", "timeZones",
+				"characterEncodings")) {
+			ctx.put(s, request.getAttribute(s));
+		}
 
 		// View properties
 		ctx.put("title", request.getAttribute(Constants.TITLE_KEY));
