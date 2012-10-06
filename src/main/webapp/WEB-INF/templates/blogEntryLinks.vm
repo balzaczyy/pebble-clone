@@ -35,7 +35,9 @@
 
   #if ($isBlogContributor)
     <form action="sendTrackBack.secureaction" method="post">
+    #if ($token)
       <input type="hidden" name="pebbleSecurityToken" value="$token" />
+    #end
       <input type="hidden" name="entry" value="${blogEntry.Id}" />
       <button type="submit" value="Send TrackBack" >$fmt.message("common.sendTrackback")</button>
     </form>

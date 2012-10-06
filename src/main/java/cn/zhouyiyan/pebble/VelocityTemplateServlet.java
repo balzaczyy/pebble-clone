@@ -97,6 +97,7 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		ctx.put("blogEntries", request.getAttribute(Constants.BLOG_ENTRIES));
 		// Blog entry
 		ctx.put("blogEntry", request.getAttribute(Constants.BLOG_ENTRY_KEY));
+		ctx.put("previewBlogEntry", request.getAttribute("previewBlogEntry"));
 		ctx.put("displayMode", request.getAttribute("displayMode"));
 		// Blog list
 		ctx.put("blogs", request.getAttribute(Constants.BLOGS));

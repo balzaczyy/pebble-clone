@@ -267,6 +267,13 @@ public class PebbleUserDetails {
     return preferences.get(key);
   }
 
+	/**
+	 * Is preference enabled? Equals to "true" test.
+	 */
+	public boolean isEnabled(String key) {
+		return "true".equals(preferences.get(key));
+	}
+
   public void setPreferences(Map<String,String> preferences) {
     this.preferences = new HashMap<String,String>(preferences);
   }

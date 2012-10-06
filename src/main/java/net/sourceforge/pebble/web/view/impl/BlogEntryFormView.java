@@ -31,14 +31,14 @@
  */
 package net.sourceforge.pebble.web.view.impl;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
-import net.sourceforge.pebble.web.view.HtmlView;
-
-import java.util.List;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.web.view.HtmlView;
 
 /**
  * Represents the blog entry form.
@@ -50,7 +50,8 @@ public class BlogEntryFormView extends HtmlView {
   /**
    * Prepares the view for presentation.
    */
-  public void prepare() {
+  @Override
+	public void prepare() {
     BlogEntry blogEntry = (BlogEntry)getModel().get(Constants.BLOG_ENTRY_KEY);
     BlogEntry previewBlogEntry = (BlogEntry)blogEntry.clone();
 
@@ -60,7 +61,7 @@ public class BlogEntryFormView extends HtmlView {
     blogEntry.getBlog().getContentDecoratorChain().decorate(context, previewBlogEntry);
     getModel().put("previewBlogEntry", previewBlogEntry);
 
-    List timeZones = Arrays.asList(java.util.TimeZone.getAvailableIDs());
+		List<String> timeZones = Arrays.asList(java.util.TimeZone.getAvailableIDs());
     Collections.sort(timeZones);
     getModel().put("timeZones", timeZones);
   }
@@ -70,7 +71,8 @@ public class BlogEntryFormView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     BlogEntry blogEntry = (BlogEntry)getModel().get(Constants.BLOG_ENTRY_KEY);
     return blogEntry.getTitle();
   }
@@ -80,8 +82,9 @@ public class BlogEntryFormView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/blogEntryForm.jsp";
+  @Override
+	public String getUri() {
+		return "blogEntryForm.vm";
   }
 
 }

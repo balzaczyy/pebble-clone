@@ -43,7 +43,7 @@ import java.util.List;
 public class ValidationContext {
 
   /** the list of errors */
-  private List errors = new ArrayList();
+	private final List<ValidationError> errors = new ArrayList<ValidationError>();
 
   /**
    * Adds a new error to this context.
@@ -77,7 +77,7 @@ public class ValidationContext {
    *
    * @return  a List of ValidationError instances
    */
-  public List getErrors() {
+	public List<ValidationError> getErrors() {
     return Collections.unmodifiableList(errors);
   }
 
@@ -97,7 +97,7 @@ public class ValidationContext {
    * @return  the ValidationError at the specified index
    */
   public ValidationError getError(int index) {
-    return (ValidationError)errors.get(index);
+    return errors.get(index);
   }
 
 }

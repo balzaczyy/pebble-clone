@@ -1,6 +1,11 @@
 ##
-##  renders a single blog entry
+## renders a single blog entry
 ##
+## Variables:
+##   $blogEntry - target blog entry
+##   $displayMode (preview | detail)
+##
+
 #if ($blogEntry.isUnpublished())
 <div class="contentItem unpublished">
 #else
@@ -19,7 +24,7 @@
   $blogEntry.Body
 #elseif ($displayMode == "preview")
   ## this is the blog entry preview, where both excerpt and body need to be shown
-  #if ($blogEntry.Excerpt)
+  #if ($blogEntry.Excerpt && $blogEntry.Excerpt.length() > 0)
   <p><b>Excerpt</b></p>$blogEntry.Excerpt
   #end
   #if ($blogEntry.Body)
@@ -62,8 +67,8 @@
   <form name="responsesForm" method="post" action="manageResponses.secureaction">
   #if ($token)
     <input type="hidden" name="pebbleSecurityToken" value="$token" />
-    <input type="hidden" name="redirectUrl" value="${url.rewrite($blogEntry.LocalPermalink)}" />
   #end
+    <input type="hidden" name="redirectUrl" value="${url.rewrite($blogEntry.LocalPermalink)}" />
 
     <br /><br />
     <a name="responses"></a>

@@ -31,9 +31,9 @@
  */
 package net.sourceforge.pebble.web.view.impl;
 
-import net.sourceforge.pebble.web.view.HtmlView;
-
 import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.pebble.web.view.HtmlView;
 
 /**
  * Represents the no security token page.
@@ -42,7 +42,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class NoSecurityTokenView extends HtmlView {
 
-  public void prepare() {
+  @Override
+	public void prepare() {
   }
 
   /**
@@ -50,11 +51,13 @@ public class NoSecurityTokenView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return null;
   }
 
-  protected int getStatus() {
+  @Override
+	protected int getStatus() {
     return HttpServletResponse.SC_FORBIDDEN;
   }
 
@@ -63,8 +66,9 @@ public class NoSecurityTokenView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/noSecurityToken.jsp";
+  @Override
+	public String getUri() {
+		return "noSecurityToken.vm";
   }
 
 }
