@@ -1,0 +1,10 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("error.noSecurityTokenTitle")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    $fmt.message("error.noSecurityToken")
+  </div>
+
+</div>

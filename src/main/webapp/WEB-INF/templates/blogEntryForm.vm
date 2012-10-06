@@ -1,0 +1,215 @@
+#if ($authenticatedUser.isEnabled("richTextEditorForBlogEntriesEnabled"))
+  <script type="text/javascript">
+  window.onload = function() {
+    var oFCKeditor = new FCKeditor( 'excerpt' ) ;
+    oFCKeditor.BasePath = '${contextPath}/FCKeditor/' ;
+    oFCKeditor.Config["CustomConfigurationsPath"] = '${contextPath}/fckconfig_pebble.js';
+    oFCKeditor.ToolbarSet = 'BlogEntry' ;
+    oFCKeditor.ReplaceTextarea() ;
+
+    oFCKeditor = new FCKeditor( 'body' ) ;
+    oFCKeditor.BasePath = '${pageContext.request.contextPath}/FCKeditor/' ;
+    oFCKeditor.Config["CustomConfigurationsPath"] = '${contextPath}/fckconfig_pebble.js';
+    oFCKeditor.ToolbarSet = 'BlogEntry' ;
+    oFCKeditor.ReplaceTextarea() ;
+  }
+  </script>
+#end
+<script type="text/javascript">
+  etPhoneHome("${contextPath}");
+</script>
+
+<a name="preview"></a>
+#set ($originalBlogEntry = $blogEntry)
+#set ($blogEntry = $previewBlogEntry)
+#set ($displayMode = "preview")
+#parse ("blogEntry.vm")
+#set ($blogEntry = $originalBlogEntry)
+
+<a name="form"></a>
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/blogEntries.html" target="_blank">$fmt.message("common.help")</a>
+  </div>
+
+  <h1>$fmt.message("blogentry.blogentry")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    <form class="editBlogEntryForm" name="editBlogEntry" action="saveBlogEntry.secureaction#preview" method="POST" accept-charset="${blog.CharacterEncoding}">
+#if ($token)
+    <input type="hidden" name="pebbleSecurityToken" value="$token" />
+#end
+    <input type="hidden" name="entry" value="${blogEntry.Id}" />
+    <input type="hidden" name="persistent" value="${blogEntry.isPersistent()}" />
+
+#if ($validationContext.Errors && !$validationContext.Errors.isEmpty())
+    <div class="validationError">
+      <b>${validationContext.NumberOfErrors} error(s)</b>
+      <ul>
+  #foreach ($error in $validationContext.Errors)
+        <li>${error.Message}</li>
+  #end
+      </ul>
+    </div>
+#end
+
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.title")</b></td>
+        <td><input type="text" name="title" class="fullWidthText" value="${url.escape($blogEntry.Title)}"></td>
+      </tr>
+
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.subtitle")</b></td>
+        <td><input type="text" name="subtitle" class="fullWidthText" value="${url.escape($blogEntry.Subtitle)}"></td>
+      </tr>
+
+      <tr>
+        <td colspan="2" id="companionContainerOpenLink"><a href="#" onclick="openCompanion();return false;">$fmt.message("blogentry.openCompanion")</a></td>
+      </tr>
+      <tr>
+        <td colspan="2"><div id="companionContainer">
+          <textarea id="companionData">$url.escape(${blog.BlogCompanion.Content})</textarea>
+          <br />
+          <input type="button" value="$fmt.message('common.close')" onClick="closeCompanion();" />
+          <input type="button" value="$fmt.message('common.save')" onClick="saveCompanion();" />
+          <span id="companionResult"></span>
+        </div></td> 
+      </tr>
+      
+      <tr>
+        <td colspan="2"><b>$fmt.message("blogentry.excerpt")</b></td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <textarea name="excerpt" class="excerptTextArea">$url.escape(${blogEntry.Excerpt})</textarea>
+          <div class="small">(optional, short version of body for home/month/day pages)</div>
+        </td>
+      </tr>
+
+      <tr>
+        <td colspan="2"><b>$fmt.message("blogentry.body")</b></td>
+      </tr>
+      <tr>
+        <td colspan="2"><textarea name="body" class="bodyTextArea">$url.escape(${blogEntry.Body})</textarea></td>
+      </tr>
+
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.originalPermalink")</b></td>
+        <td>
+#if ($blogEntry.OriginalPermalink)
+          <input type="text" name="originalPermalink" class="fullWidthText" value="${blogEntry.OriginalPermalink}">
+#else
+          <input type="text" name="originalPermalink" class="fullWidthText" value="">
+#end
+          <div class="small">$fmt.message("blogentry.originalPermalink.description")</div>
+        </td>
+      </tr>
+
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.comments")</b></td>
+        <td>
+          $fmt.message("common.enabled")&nbsp;
+          <input type="radio" name="commentsEnabled" value="true"
+#if ($blogEntry.isCommentsEnabled()) checked="checked" #end
+          />
+          $fmt.message("common.disabled")&nbsp;<input type="radio" name="commentsEnabled" value="false"
+#if (!$blogEntry.isCommentsEnabled()) checked="checked" #end
+          />
+        </td>
+      </tr>
+
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.trackbacks")</b></td>
+        <td>
+          $fmt.message("common.enabled")&nbsp;
+          <input type="radio" name="trackBacksEnabled" value="true"
+#if ($blogEntry.isTrackBacksEnabled()) checked="checked" #end
+          />
+          $fmt.message("common.disabled")&nbsp;<input type="radio" name="trackBacksEnabled" value="false"
+#if (!$blogEntry.isTrackBacksEnabled()) checked="checked" #end
+          />
+        </td>
+      </tr>
+
+#if ($blog.RootCategory.SubCategories && !$blog.RootCategory.SubCategories.isEmpty())
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.categories")</b></td>
+        <td>
+          <table width="99%" cellpadding="0" cellspacing="0">
+            <tr>
+  #set ($count = 0)
+  #foreach ($category in $blog.Categories)
+    #if ($count >= 1)
+      #if ($count % 2 == 1) <tr> #end
+              <td>
+              <input type="checkbox" name="category" value="${category.Id}"
+      #foreach ($blogEntryCategory in $blogEntry.Categories)
+        #if ($category == $blogEntryCategory) checked="true" #end
+      #end
+              />&nbsp;${category.Name}
+              </td>
+      #if ($count % 2 == 0) </tr> #end
+    #end
+    #set ($count = $count + 1)
+  #end
+            <tr>
+          </table>
+          <br />
+        </td>
+      </tr>
+#end
+
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.tags")</b></td>
+        <td>
+          <input type="text" name="tags" class="fullWidthText" value="${blogEntry.Tags}">
+          <div class="small">$fmt.message("blogentry.tags.usePlusToSeparate")</div>
+        </td>
+      </tr>
+
+#if (!$blogEntry.isPersistent())
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.dateTime")</b></td>
+        <td>
+          <input type="text" name="date" size="30" value="$fmt.mediumDateShortTime(${blogEntry.Date})">$fmt.message("blogentry.dateTime.cantBeInTheFuture")
+        </td>
+      </tr>
+#end
+
+      <tr>
+        <td><b>$fmt.message("blogentry.timeZone")</b></td>
+        <td>#select ("timeZone" $timeZones $blogEntry.TimeZoneId)</td>
+      </tr>
+      <tr>
+        <td valign="top"><br /><b>$fmt.message("blogentry.attachment")</b></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.attachment.url")</b></td>
+        #set ($value = $fmt.validOrEmpty(${blogEntry.Attachment.Url}))
+        <td><input type="text" name="attachmentUrl" class="fullWidthText" value="$value"></td>
+      </tr>
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.attachment.size")</b></td>
+        #set ($value = $fmt.validOrEmpty(${blogEntry.Attachment.Size}))
+        <td><input type="text" name="attachmentSize" size="20" value="$value"></td>
+      </tr>
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.attachment.type")</b></td>
+        #set ($value = $fmt.validOrEmpty(${blogEntry.Attachment.Type}))
+        <td><input type="text" name="attachmentType" size="20" value="$value"></td>
+      </tr>
+      <tr>
+        <td colspan="2" align="right">
+          <button name="submit" type="submit" Value="Preview">$fmt.message("common.preview")</button>
+          <button name="submit" type="submit" Value="Save">$fmt.message("common.save")</button>
+        </td>
+      </tr>
+    </table>
+    </form>
+  </div>
+
+</div>
