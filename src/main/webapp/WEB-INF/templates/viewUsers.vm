@@ -1,0 +1,65 @@
+<div class="contentItem">
+
+
+  <div class="contentItemLinks">
+    <a href="./help/managingUsers.html" target="_blank">$fmt.message("common.help")</a>
+  </div>
+
+  <h1>$fmt.message("view.users")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+
+    <form name="manageUsersForm" action="manageUsers.secureaction" method="post">
+#if ($token)
+    <input type="hidden" name="pebbleSecurityToken" value="$token" />
+#end
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+      <tr>
+        <th><input type="checkbox" name="allUsers" onclick="toggleCheckAll(document.manageUsersForm.allUsers, document.manageUsersForm.user)"/></th>
+        <th>Username</th>
+        <th>Name</th>
+        <th>Admin</th>
+        <th>Owner</th>
+        <th>Publisher</th>
+        <th>Contributor</th>
+      </tr>
+      </thead>
+      <tbody>
+#set ($count = 0)
+#foreach ($user in $users)
+  #if ($count % 2 == 0)
+        <tr class="even">
+  #else
+        <tr class="odd">
+  #end
+
+        <td valign="top" class="small">
+          <input type="checkbox" name="user" value="${user.Username}" />
+        </td>
+        <td><a href="viewUser.secureaction?user=${user.Username}">${user.Username}</a></td>
+        <td>${user.Name}</td>
+        <td align="center">#if ($user.isBlogAdmin()) X #end</td>
+        <td align="center">#if ($user.isBlogOwner()) X #end</td>
+        <td align="center">#if ($user.isBlogPublisher()) X #end</td>
+        <td align="center">#if ($user.isBlogContributor()) X #end</td>
+      </tr>
+  #set ($count = $count + 1)
+#end
+      </tbody>
+    </table>
+
+    <br />
+
+    <table width="99%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="right">
+          <input type="submit" name="submit" value="Remove" />
+        </td>
+      </tr>
+    </table>
+    </form>
+  </div>
+
+</div>

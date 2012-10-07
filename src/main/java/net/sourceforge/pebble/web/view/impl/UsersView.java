@@ -45,7 +45,8 @@ public class UsersView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return getLocalizedString("view.users");
   }
 
@@ -54,8 +55,9 @@ public class UsersView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/viewUsers.jsp";
+  @Override
+	public String getUri() {
+		return "viewUsers.vm";
   }
 
 }

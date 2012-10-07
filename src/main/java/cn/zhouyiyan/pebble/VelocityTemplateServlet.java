@@ -6,6 +6,7 @@ import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -133,6 +134,12 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		ctx.put("days", days.get(blogLocale));
 		ctx.put("calendarTool", new CalendarTag());
 		ctx.put("yearNow", Calendar.getInstance().get(Calendar.YEAR));
+
+		Enumeration<?> atts = request.getAttributeNames();
+		while (atts.hasMoreElements()) {
+			String key = (String) atts.nextElement();
+			ctx.put(key, request.getAttribute(key));
+		}
 
 		String name = FilenameUtils.getName(request.getRequestURI());
 		return getTemplate(name);
