@@ -1,6 +1,7 @@
 ##
 ##  Displays the administration links that are available after logging in.
 ##
+
 <div id="admin">
   <div class="adminLevel1">
     <table width="99%" cellspacing="0" cellpadding="0">

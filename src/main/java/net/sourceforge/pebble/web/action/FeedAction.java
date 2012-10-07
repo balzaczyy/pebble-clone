@@ -31,21 +31,29 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.comparator.BlogEntryComparator;
-import net.sourceforge.pebble.domain.*;
+import net.sourceforge.pebble.domain.AbstractBlog;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.Category;
+import net.sourceforge.pebble.domain.Tag;
+import net.sourceforge.pebble.service.DefaultLastModifiedService;
 import net.sourceforge.pebble.service.LastModifiedService;
 import net.sourceforge.pebble.web.view.NotModifiedView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.AbstractRomeFeedView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
-
-import javax.inject.Inject;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
 
 /**
  * Gets the RSS for a blog.
@@ -54,8 +62,7 @@ import java.util.*;
  */
 public class FeedAction extends Action {
 
-  @Inject
-  private LastModifiedService lastModifiedService;
+	private LastModifiedService lastModifiedService = new DefaultLastModifiedService();
 
   /**
    * Peforms the processing associated with this action.
@@ -64,7 +71,8 @@ public class FeedAction extends Action {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     AbstractBlog blog = (AbstractBlog) getModel().get(Constants.BLOG_KEY);
     String flavor = request.getParameter("flavor");
 
