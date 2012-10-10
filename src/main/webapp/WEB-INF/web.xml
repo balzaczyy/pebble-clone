@@ -131,22 +131,11 @@
   </listener>
 
   <servlet>
-    <servlet-name>HttpController</servlet-name>
-    <servlet-class>net.sourceforge.pebble.web.controller.HttpControllerServlet</servlet-class>
-
+    <servlet-name>pebbleService</servlet-name>
+    <servlet-class>org.apache.wink.server.internal.servlet.RestServlet</servlet-class>
     <init-param>
-      <param-name>httpControllerBeanName</param-name>
-      <param-value>httpController</param-value>
-    </init-param>
-  </servlet>
-
-  <servlet>
-    <servlet-name>SecureController</servlet-name>
-    <servlet-class>net.sourceforge.pebble.web.controller.HttpControllerServlet</servlet-class>
-
-    <init-param>
-      <param-name>httpControllerBeanName</param-name>
-      <param-value>secureHttpController</param-value>
+      <param-name>applicationConfigLocation</param-name>
+      <param-value>/WEB-INF/providers;/WEB-INF/resources</param-value>
     </init-param>
   </servlet>
 
@@ -189,6 +178,16 @@
   	<servlet-name>velocity</servlet-name>
   	<servlet-class>cn.zhouyiyan.pebble.VelocityTemplateServlet</servlet-class>
   </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>pebbleService</servlet-name>
+    <url-pattern>*.action</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>pebbleService</servlet-name>
+    <url-pattern>*.secureaction</url-pattern>
+  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>velocity</servlet-name>
@@ -205,16 +204,6 @@
     <url-pattern>/dwr/*</url-pattern>
   </servlet-mapping>
 
-
-  <servlet-mapping>
-    <servlet-name>HttpController</servlet-name>
-    <url-pattern>*.action</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>SecureController</servlet-name>
-    <url-pattern>*.secureaction</url-pattern>
-  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>XmlRpcController</servlet-name>
