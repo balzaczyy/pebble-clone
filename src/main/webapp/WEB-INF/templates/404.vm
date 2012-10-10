@@ -1,0 +1,11 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("error.pageNotFoundTitle")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    $fmt.message("error.pageNotFound")
+  </div>
+
+</div>
+
