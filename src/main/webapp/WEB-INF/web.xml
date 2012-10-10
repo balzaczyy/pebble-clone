@@ -131,11 +131,20 @@
   </listener>
 
   <servlet>
+    <servlet-name>pebbleController</servlet-name>
+    <servlet-class>org.apache.wink.server.internal.servlet.RestServlet</servlet-class>
+    <init-param>
+      <param-name>applicationConfigLocation</param-name>
+      <param-value>/WEB-INF/providers</param-value>
+    </init-param>
+  </servlet>
+
+  <servlet>
     <servlet-name>pebbleService</servlet-name>
     <servlet-class>org.apache.wink.server.internal.servlet.RestServlet</servlet-class>
     <init-param>
       <param-name>applicationConfigLocation</param-name>
-      <param-value>/WEB-INF/providers;/WEB-INF/resources</param-value>
+      <param-value>/WEB-INF/resources</param-value>
     </init-param>
   </servlet>
 
@@ -180,13 +189,18 @@
   </servlet>
   
   <servlet-mapping>
-    <servlet-name>pebbleService</servlet-name>
+    <servlet-name>pebbleController</servlet-name>
     <url-pattern>*.action</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>pebbleService</servlet-name>
+    <servlet-name>pebbleController</servlet-name>
     <url-pattern>*.secureaction</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>pebbleService</servlet-name>
+    <url-pattern>/api/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
