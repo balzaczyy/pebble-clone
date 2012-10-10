@@ -31,9 +31,9 @@
  */
 package net.sourceforge.pebble.web.view.impl;
 
-import net.sourceforge.pebble.web.view.HtmlView;
-
 import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.pebble.web.view.HtmlView;
 
 /**
  * Represents the 401 page.
@@ -42,7 +42,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class FourZeroOneView extends HtmlView {
 
-  public void prepare() {
+  @Override
+	public void prepare() {
   }
 
 //  /**
@@ -59,11 +60,13 @@ public class FourZeroOneView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return null;
   }
 
-  protected int getStatus() {
+  @Override
+	protected int getStatus() {
     return HttpServletResponse.SC_UNAUTHORIZED;
   }
 
@@ -72,8 +75,9 @@ public class FourZeroOneView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/401.jsp";
+  @Override
+	public String getUri() {
+		return "401.vm";
   }
 
 }
