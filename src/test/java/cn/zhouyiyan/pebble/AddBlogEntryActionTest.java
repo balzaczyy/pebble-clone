@@ -29,10 +29,11 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.web.action.SecureActionTestCase;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
 
@@ -42,30 +43,23 @@ import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
  * @author    Simon Brown
  */
 public class AddBlogEntryActionTest extends SecureActionTestCase {
+	private Blogs blogs;
 
-  protected void setUp() throws Exception {
-    action = new AddBlogEntryAction();
-
-    super.setUp();
+  @Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.isSecured = false;
   }
 
   public void testProcess() throws Exception {
-    View view = action.process(request, response);
+		View view = blogs.addEntry();
 
-    BlogEntry blogEntry = (BlogEntry)action.getModel().get(Constants.BLOG_ENTRY_KEY);
+		BlogEntry blogEntry = (BlogEntry) request.getAttribute(Constants.BLOG_ENTRY_KEY);
     assertNotNull("No blog entry was created", blogEntry);
     assertFalse(blogEntry.isPersistent());
 
     assertTrue(view instanceof BlogEntryFormView);
   }
-
-  /**
-   * Test that only blog contributors have access to add a blog entry.
-   */
-  public void testOnlyBlogContributorsHaveAccess() {
-    String roles[] = action.getRoles(request);
-    assertEquals(1, roles.length);
-    assertEquals(Constants.BLOG_CONTRIBUTOR_ROLE, roles[0]);
-  }
-
 }

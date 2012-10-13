@@ -26,6 +26,9 @@ import net.sourceforge.pebble.domain.AbstractBlog;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.BlogManager;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.BlogServiceException;
+import net.sourceforge.pebble.domain.Category;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.security.PebbleUserDetails;
 import net.sourceforge.pebble.security.SecurityRealmException;
@@ -37,6 +40,7 @@ import net.sourceforge.pebble.web.view.NotFoundView;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
+import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
 import net.sourceforge.pebble.web.view.impl.BlogPropertiesView;
 import net.sourceforge.pebble.web.view.impl.StaticPageView;
 
@@ -134,7 +138,10 @@ public class Blogs {
 		return list;
 	}
 
+	boolean isSecured = true;
+
 	private void checkUserInRoles(String... roles) {
+		if (!isSecured) return;
 		AbstractBlog ab = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
 		String currentUser = SecurityUtils.getUsername();
 		for (String role : roles) {
@@ -153,10 +160,56 @@ public class Blogs {
 	}
 
 	/**
+	 * Adds a new blog entry. This is called to create a blank blog entry to populate a HTML form containing the contents
+	 * of that entry.
+	 */
+	@GET
+	@Path("/entries/add")
+	public View addEntry() throws BlogServiceException {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		BlogEntry blogEntryToClone = null;
+
+		String entryToClone = request.getParameter("entryToClone");
+		if (entryToClone != null && entryToClone.length() > 0) {
+			BlogService service = new BlogService();
+			blogEntryToClone = service.getBlogEntry(blog, entryToClone);
+		}
+
+		BlogEntry entry = new BlogEntry(blog);
+		if (blogEntryToClone != null) {
+			entry.setTitle(blogEntryToClone.getTitle());
+			entry.setSubtitle(blogEntryToClone.getSubtitle());
+			entry.setBody(blogEntryToClone.getBody());
+			entry.setExcerpt(blogEntryToClone.getExcerpt());
+			entry.setTimeZoneId(blogEntryToClone.getTimeZoneId());
+			entry.setCommentsEnabled(blogEntryToClone.isCommentsEnabled());
+			entry.setTrackBacksEnabled(blogEntryToClone.isTrackBacksEnabled());
+
+			// copy the categories
+			Iterator<Category> it = blogEntryToClone.getCategories().iterator();
+			while (it.hasNext()) {
+				entry.addCategory(it.next());
+			}
+
+			entry.setTags(blogEntryToClone.getTags());
+		} else {
+			entry.setTitle("Title");
+			entry.setBody("<p>\n\n</p>");
+		}
+
+		entry.setAuthor(SecurityUtils.getUsername());
+
+		setAttribute(Constants.BLOG_ENTRY_KEY, entry);
+
+		return new BlogEntryFormView();
+	}
+
+	/**
 	 * Views blog entries page by page. The page size is the same as the "number of blog entries shown on the home page".
 	 */
 	@GET
-	@Path("/entries/{page}")
+	@Path("/entries/page/{page}")
 	public View entriesByPage(@PathParam("page") @DefaultValue("1") int page) {
 		AbstractBlog abstractBlog = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
 
