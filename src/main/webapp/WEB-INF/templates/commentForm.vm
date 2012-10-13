@@ -35,12 +35,12 @@
   </tr>
 #end
 
-#if ($validationContext.errors)
+#if ($validationContext.Errors && !$validationContext.Errors.isEmpty())
   <tr>
     <td colspan="2" class="validationError">
       <b>${validationContext.NumberOfErrors}" error(s)</b>
       <ul>
-  #foreach ($error in $validationContext.errors)
+  #foreach ($error in $validationContext.Errors)
         <li>$error.Message</li>
   #end
       </ul><br />

@@ -53,6 +53,7 @@ import net.sourceforge.pebble.web.view.impl.BlogPropertiesView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.StaticPageView;
+import net.sourceforge.pebble.web.view.impl.UserView;
 import net.sourceforge.pebble.web.view.impl.UsersView;
 
 @Path("/")
@@ -403,5 +404,16 @@ public class Blogs {
 		Collection<PebbleUserDetails> users = PebbleContext.getInstance().getConfiguration().getSecurityRealm().getUsers();
 		setAttribute("users", users);
 		return new UsersView();
+	}
+
+	/**
+	 * Displays information about a single user.
+	 */
+	@GET
+	@Path("/users/{name}")
+	public View user(@PathParam("name") String username) throws SecurityRealmException {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE);
+		setAttribute("user", PebbleContext.getInstance().getConfiguration().getSecurityRealm().getUser(username));
+		return new UserView();
 	}
 }

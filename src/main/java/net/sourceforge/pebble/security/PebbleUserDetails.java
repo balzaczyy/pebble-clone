@@ -264,7 +264,8 @@ public class PebbleUserDetails {
   }
 
   public String getPreference(String key) {
-    return preferences.get(key);
+		String ans = preferences.get(key);
+		return ans == null ? "" : ans;
   }
 
 	/**

@@ -38,7 +38,7 @@
         <td valign="top" class="small">
           <input type="checkbox" name="user" value="${user.Username}" />
         </td>
-        <td><a href="viewUser.secureaction?user=${user.Username}">${user.Username}</a></td>
+        <td><a href="p/users/${user.Username}">${user.Username}</a></td>
         <td>${user.Name}</td>
         <td align="center">#if ($user.isBlogAdmin()) X #end</td>
         <td align="center">#if ($user.isBlogOwner()) X #end</td>
