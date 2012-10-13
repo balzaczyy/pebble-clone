@@ -86,14 +86,14 @@ public class PebbleContextListener implements ServletContextListener {
           log.info("Creating 'welcome note' blog entry for " + blog.getId());
           BlogEntry blogEntry = new BlogEntry(blog);
           blogEntry.setTitle("Welcome");
-          blogEntry.setBody(
+					blogEntry.setBody(//@formatter:off
               "<p>\n" +
               "Welcome to your new Pebble powered blog. Here are a few suggestions for getting started.\n" +
               "</p>\n" +
               "\n" +
               "<ul>\n" +
               "<li>Login to see the admin features of your blog. The default username is <code>username</code> and the password is <code>password</code>.</li>\n" +
-              "<li>Modify your <a href=\"viewBlogProperties.secureaction\">blog properties</a></li>\n" +
+              "<li>Modify your <a href=\"p/customizations\">blog properties</a></li>\n" +
               "<li><a href=\"addBlogEntry.secureaction\">Create a new blog entry</a>.</li>\n" +
               "<li>Give out a link to your <a href=\"./rss.xml\">RSS</a> feed.</li>\n" +
               "<li>Remove the default user and create your own user on the <a href=\"viewUsers.secureaction\">users page</a>.</li>\n" +
@@ -103,7 +103,7 @@ public class PebbleContextListener implements ServletContextListener {
               "\n" +
               "<p>\n" +
               "Have fun!\n" +
-              "</p>");
+              "</p>");//@formatter:on
           blogEntry.setAuthor("username");
           blogEntry.setPublished(true);
           BlogService service = new BlogService();

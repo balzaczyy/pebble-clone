@@ -309,13 +309,13 @@ public class DefaultSecurityRealm implements SecurityRealm {
     }
   }
 
-  protected File getFileForRealm() throws SecurityRealmException {
+	protected File getFileForRealm() {
     // find the directory and file corresponding to the user, of the form
     // ${pebbleContext.dataDirectory}/realm/${username}.properties
     return new File(configuration.getDataDirectory(), DefaultSecurityRealm.REALM_DIRECTORY_NAME);
   }
 
-  protected File getFileForUser(String username) throws SecurityRealmException {
+	protected File getFileForUser(String username) {
     // find the directory and file corresponding to the user, of the form
     // ${pebbleContext.dataDirectory}/realm/${username}.properties
     return new File(getFileForRealm(), username + ".properties");

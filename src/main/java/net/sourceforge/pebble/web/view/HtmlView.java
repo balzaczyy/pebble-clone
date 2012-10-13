@@ -149,7 +149,7 @@ public abstract class HtmlView extends JspView {
     if (!(getModel().get(Constants.BLOG_KEY) instanceof Blog)) {
       return "template";
     }
-    if (!getModel().contains(Constants.STATIC_PAGE_KEY)) {
+		if (getModel().get(Constants.STATIC_PAGE_KEY) == null) {
  return "page";
     }
     StaticPage staticPage = (StaticPage) getModel().get(Constants.STATIC_PAGE_KEY);

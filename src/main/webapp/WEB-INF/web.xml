@@ -188,19 +188,19 @@
   	<servlet-class>cn.zhouyiyan.pebble.VelocityTemplateServlet</servlet-class>
   </servlet>
   
-  <servlet-mapping>
+  <!-- <servlet-mapping>
     <servlet-name>pebbleController</servlet-name>
     <url-pattern>*.action</url-pattern>
-  </servlet-mapping>
+  </servlet-mapping> -->
 
-  <servlet-mapping>
+  <!-- <servlet-mapping>
     <servlet-name>pebbleController</servlet-name>
     <url-pattern>*.secureaction</url-pattern>
-  </servlet-mapping>
+  </servlet-mapping> -->
 
   <servlet-mapping>
     <servlet-name>pebbleService</servlet-name>
-    <url-pattern>/api/*</url-pattern>
+    <url-pattern>/p/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

@@ -575,9 +575,9 @@ public class Blog extends AbstractBlog {
   @Override
 	public String getRelativeUrl() {
     if (BlogManager.getInstance().isMultiBlog()) {
-      return "/" + getId() + "/";
+			return "/" + getId() + "/p";
     } else {
-      return "/";
+			return "/p";
     }
   }
 

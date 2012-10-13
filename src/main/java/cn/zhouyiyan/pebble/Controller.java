@@ -63,6 +63,7 @@ public class Controller {
 		process();
 	}
 
+	@SuppressWarnings("deprecation")
 	@GET
 	// @Path("{actionName}.action")
 	public void process(/* @PathParam("actionName") String actionName */) throws IOException, ServletException {

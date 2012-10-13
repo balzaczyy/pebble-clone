@@ -41,7 +41,7 @@ import java.util.Set;
  */
 public class Model {
 
-  private HashMap<String, Object> data = new HashMap<String, Object>();
+  private final HashMap<String, Object> data = new HashMap<String, Object>();
 
   /**
    * Puts data into the model.
@@ -64,22 +64,11 @@ public class Model {
   }
 
   /**
-   * Gets the set of all keys.
-   *
-   * @return a Set of String instances
-   */
-  public Set keySet() {
+	 * @deprecated Gets the set of all keys.
+	 * @return a Set of String instances
+	 */
+	@Deprecated
+	public Set<String> keySet() {
     return data.keySet();
   }
-
-  /**
-   * Determines whether the model contains an element with the specified key.
-   *
-   * @param   key   a String
-   * @return  true if an element with the key exists, false otherwise
-   */
-  public boolean contains(String key) {
-    return data.containsKey(key);
-  }
-
 }
