@@ -31,22 +31,27 @@
  */
 package net.sourceforge.pebble.web.view.impl;
 
-import com.sun.syndication.feed.synd.*;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.SyndFeedOutput;
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
-import net.sourceforge.pebble.decorator.ContentDecoratorChain;
-import net.sourceforge.pebble.domain.*;
-import net.sourceforge.pebble.web.view.View;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
+import net.sourceforge.pebble.decorator.ContentDecoratorChain;
+import net.sourceforge.pebble.domain.AbstractBlog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.web.view.View;
+
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.io.FeedException;
+import com.sun.syndication.io.SyndFeedOutput;
 
 /**
  * Abstract view from which all ROME feeds are rendered.
@@ -67,7 +72,8 @@ public abstract class AbstractRomeFeedView extends View {
   /**
    * Prepares the view for presentation.
    */
-  @SuppressWarnings("unchecked")
+  @Override
+	@SuppressWarnings("unchecked")
   public void prepare() {
     ContentDecoratorContext context = new ContentDecoratorContext();
     context.setView(ContentDecoratorContext.SUMMARY_VIEW);
@@ -83,7 +89,8 @@ public abstract class AbstractRomeFeedView extends View {
    *
    * @return the content type as a String
    */
-  public String getContentType() {
+  @Override
+	public String getContentType() {
     AbstractBlog blog = (AbstractBlog) getModel().get(Constants.BLOG_KEY);
     return feedType.getContentType() + "; charset=" + blog.getCharacterEncoding();
   }
@@ -96,13 +103,14 @@ public abstract class AbstractRomeFeedView extends View {
    * @param context  the the servlet context
    * @throws ServletException
    */
-  public void dispatch(HttpServletRequest request, HttpServletResponse response, ServletContext context) throws ServletException {
+  @Override
+	public void dispatch(HttpServletRequest request, HttpServletResponse response, ServletContext context) throws ServletException {
     SyndFeed syndFeed = getFeed();
     syndFeed.setFeedType(getFeedType().getFeedType());
 
     SyndFeedOutput output = new SyndFeedOutput();
 
-    try {
+		try { // FIXME rewritten using MessageBodyWriter
       output.output(syndFeed, response.getWriter());
     } catch (IOException e) {
       throw new ServletException("Error generating feed", e);
