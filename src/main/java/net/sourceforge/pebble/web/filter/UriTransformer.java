@@ -31,9 +31,16 @@
  */
 package net.sourceforge.pebble.web.filter;
 
-import net.sourceforge.pebble.domain.*;
-import net.sourceforge.pebble.permalink.DefaultPermalinkProvider;
 import net.sourceforge.pebble.api.permalink.PermalinkProvider;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.Day;
+import net.sourceforge.pebble.domain.FileMetaData;
+import net.sourceforge.pebble.domain.Month;
+import net.sourceforge.pebble.domain.MultiBlog;
+import net.sourceforge.pebble.domain.Tag;
+import net.sourceforge.pebble.permalink.DefaultPermalinkProvider;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -198,12 +205,8 @@ public class UriTransformer {
       } else if (uri.startsWith("/responses/rss.xml?entry=")) {
         // url is for a response feed
         result = "/responseFeed.action?flavor=rss20&" + uri.substring("/responses/rss.xml?".length());
-      } else if (uri.startsWith("/rss.xml")) {
-        // url matches rss.xml
-        result = "/feed.action?flavor=rss20";
-      } else if (uri.startsWith("/feed.xml")) {
-        // url matches feed.xml
-        result = "/feed.action?flavor=rss20";
+			} else if (uri.startsWith("/rss.xml") || uri.startsWith("/feed.xml")) {
+				result = "/p/feeds?flavor=rss20";
       } else if (uri.startsWith("/rdf.xml")) {
         // url matches rdf.xml
         result = "/feed.action?flavor=rdf";

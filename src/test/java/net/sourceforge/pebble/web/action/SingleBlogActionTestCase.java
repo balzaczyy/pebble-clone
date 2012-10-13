@@ -49,7 +49,8 @@ public abstract class SingleBlogActionTestCase extends SingleBlogTestCase {
   protected MockHttpServletResponse response;
   protected Model model;
 
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
 
     request = new MockHttpServletRequest();
@@ -57,7 +58,11 @@ public abstract class SingleBlogActionTestCase extends SingleBlogTestCase {
 
     model = new Model();
     model.put(Constants.BLOG_KEY, blog);
-    action.setModel(model);
+		if (action != null) {
+			action.setModel(model);
+		} else {
+			request.setAttribute(Constants.BLOG_KEY, blog);
+		}
   }
 
 }

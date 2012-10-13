@@ -12,16 +12,19 @@ import java.util.Locale;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response.Status;
 
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
+import net.sourceforge.pebble.comparator.BlogEntryComparator;
 import net.sourceforge.pebble.domain.AbstractBlog;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;
@@ -30,24 +33,36 @@ import net.sourceforge.pebble.domain.BlogService;
 import net.sourceforge.pebble.domain.BlogServiceException;
 import net.sourceforge.pebble.domain.Category;
 import net.sourceforge.pebble.domain.StaticPage;
+import net.sourceforge.pebble.domain.Tag;
 import net.sourceforge.pebble.security.PebbleUserDetails;
 import net.sourceforge.pebble.security.SecurityRealmException;
+import net.sourceforge.pebble.service.DefaultLastModifiedService;
+import net.sourceforge.pebble.service.LastModifiedService;
 import net.sourceforge.pebble.service.StaticPageService;
 import net.sourceforge.pebble.service.StaticPageServiceException;
 import net.sourceforge.pebble.util.Pageable;
 import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.web.view.NotFoundView;
+import net.sourceforge.pebble.web.view.NotModifiedView;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.impl.AbstractRomeFeedView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
 import net.sourceforge.pebble.web.view.impl.BlogPropertiesView;
+import net.sourceforge.pebble.web.view.impl.FeedView;
+import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.StaticPageView;
 
 @Path("/")
 public class Blogs {
 	@Context
 	HttpServletRequest request;
+
+	@Context
+	HttpServletResponse response;
+
+	LastModifiedService lastModifiedService = new DefaultLastModifiedService();
 
 	@GET
 	public View home() throws StaticPageServiceException {
@@ -270,5 +285,110 @@ public class Blogs {
 		setAttribute("displayMode", "detail");
 
 		return new StaticPageView();
+	}
+
+	/**
+	 * Gets the RSS for a blog.
+	 */
+	@GET
+	@Path("/feeds")
+	public View feeds(@QueryParam("flavor") String flavor) {
+		AbstractBlog blog = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
+
+		if (lastModifiedService.checkAndProcessLastModified(request, response, blog.getLastModified(), null)) { return new NotModifiedView(); }
+
+		List<BlogEntry> blogEntries;
+		String s = request.getParameter("includeAggregatedContent");
+		boolean includeAggregatedContent = (s == null || s.equalsIgnoreCase("true"));
+
+		if (blog instanceof Blog) {
+			Tag tag = getTag((Blog) blog, request);
+			Category category = getCategory((Blog) blog, request);
+			String author = getAuthor(request);
+
+			if (tag != null) {
+				blogEntries = ((Blog) blog).getRecentPublishedBlogEntries(tag);
+				setAttribute("tag", tag);
+			} else if (category != null) {
+				blogEntries = ((Blog) blog).getRecentPublishedBlogEntries(category);
+				setAttribute("category", category);
+			} else if (author != null) {
+				blogEntries = ((Blog) blog).getRecentPublishedBlogEntries(author);
+				setAttribute("author", author);
+			} else {
+				blogEntries = ((Blog) blog).getRecentPublishedBlogEntries();
+			}
+		} else {
+			blogEntries = blog.getRecentBlogEntries();
+		}
+
+		List<BlogEntry> blogEntriesForFeed = new ArrayList<BlogEntry>();
+		for (BlogEntry entry : blogEntries) {
+			if (includeAggregatedContent || !entry.isAggregated()) {
+				blogEntriesForFeed.add(entry);
+			}
+		}
+
+		Collections.sort(blogEntriesForFeed, new BlogEntryComparator());
+
+		setAttribute(Constants.BLOG_ENTRIES, blogEntriesForFeed);
+
+		// set the locale of this feed request to be English
+		javax.servlet.jsp.jstl.core.Config.set(request, javax.servlet.jsp.jstl.core.Config.FMT_LOCALE, Locale.ENGLISH);
+
+		if (flavor != null && flavor.equalsIgnoreCase("atom")) {
+			return new FeedView(AbstractRomeFeedView.FeedType.ATOM);
+		} else if (flavor != null && flavor.equalsIgnoreCase("rdf")) {
+			return new RdfView();
+		} else {
+			return new FeedView(AbstractRomeFeedView.FeedType.RSS);
+		}
+	}
+
+	/**
+	 * Helper method to find a named tag from a request parameter.
+	 * 
+	 * @param blog
+	 *          the blog for which the feed is for
+	 * @param request
+	 *          the HTTP request containing the tag parameter
+	 * @return a Tag instance, or null if the tag isn't specified or can't be found
+	 */
+	private Tag getTag(Blog blog, HttpServletRequest request) {
+		String tag = request.getParameter("tag");
+		if (tag != null) {
+			return new Tag(tag, blog);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Helper method to find a named category from a request parameter.
+	 * 
+	 * @param blog
+	 *          the blog for which the feed is for
+	 * @param request
+	 *          the HTTP request containing the category parameter
+	 * @return a Category instance, or null if the category isn't specified or can't be found
+	 */
+	private Category getCategory(Blog blog, HttpServletRequest request) {
+		String categoryId = request.getParameter("category");
+		if (categoryId != null) {
+			return blog.getCategory(categoryId);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Helper method to find a named author from a request parameter.
+	 * 
+	 * @param request
+	 *          the HTTP request containing the tag parameter
+	 * @return a String username, or null if the author isn't specified
+	 */
+	private String getAuthor(HttpServletRequest request) {
+		return request.getParameter("author");
 	}
 }

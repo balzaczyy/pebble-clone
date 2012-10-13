@@ -29,18 +29,20 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.*;
-import net.sourceforge.pebble.mock.MockHttpServletRequest;
-import net.sourceforge.pebble.mock.MockHttpServletResponse;
-import net.sourceforge.pebble.service.LastModifiedService;
-import net.sourceforge.pebble.web.model.Model;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collection;
 
-import static org.mockito.Mockito.*;
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.Category;
+import net.sourceforge.pebble.domain.MultiBlogTestCase;
+import net.sourceforge.pebble.mock.MockHttpServletRequest;
+import net.sourceforge.pebble.mock.MockHttpServletResponse;
+import net.sourceforge.pebble.service.LastModifiedService;
 
 /**
  * Tests for the FeedAction class.
@@ -49,22 +51,24 @@ import static org.mockito.Mockito.*;
  */
 public class MultiBlogFeedActionTest extends MultiBlogTestCase {
 
-  private FeedAction action;
+	private Blogs blogs;
   private MockHttpServletRequest request;
   private MockHttpServletResponse response;
   private LastModifiedService lastModifiedService;
 
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
 
-    action = new FeedAction();
     request = new MockHttpServletRequest();
+		request.setAttribute(Constants.BLOG_KEY, blog1);
     response = new MockHttpServletResponse();
-    Model model = new Model();
-    model.put(Constants.BLOG_KEY, blog1);
-    action.setModel(model);
     lastModifiedService = mock(LastModifiedService.class);
-    action.setLastModifiedService(lastModifiedService);
+
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.response = response;
+		blogs.lastModifiedService = lastModifiedService;
   }
 
   public void testCategoriesExcludedFromFeedInMultiUserMode() throws Exception {
@@ -86,9 +90,9 @@ public class MultiBlogFeedActionTest extends MultiBlogTestCase {
     service.putBlogEntry(entry2);
 
     request.setParameter("category", "/cat2");
-    action.process(request, response);
-    Category category = (Category)action.getModel().get("category");
-    Collection entries = (Collection)action.getModel().get("blogEntries");
+		blogs.feeds(null);
+		Category category = (Category) request.getAttribute("category");
+		Collection<?> entries = (Collection<?>) request.getAttribute("blogEntries");
 
     assertEquals(cat2, category);
     assertFalse(entries.contains(entry1));

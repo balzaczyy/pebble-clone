@@ -29,13 +29,14 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import net.sourceforge.pebble.service.LastModifiedService;
+import net.sourceforge.pebble.web.action.SingleBlogActionTestCase;
 import net.sourceforge.pebble.web.view.NotModifiedView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
-
-import static org.mockito.Mockito.*;
 
 /**
  * Tests for the FeedAction class.
@@ -45,22 +46,25 @@ import static org.mockito.Mockito.*;
 public class SingleBlogFeedActionTest extends SingleBlogActionTestCase {
 
   private LastModifiedService lastModifiedService;
+	private Blogs blogs;
 
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     lastModifiedService = mock(LastModifiedService.class);
-    action = new FeedAction();
-    ((FeedAction) action).setLastModifiedService(lastModifiedService);
-
-    super.setUp();
+		super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.response = response;
+		blogs.lastModifiedService = lastModifiedService;
   }
 
   public void testStatusIsOkay() throws Exception {
-    assertTrue(action.process(request, response) instanceof FeedView);
+		assertTrue(blogs.feeds(null) instanceof FeedView);
   }
 
   public void testStatusIsNotModifiedWhenBlogNotChanged() throws Exception {
     when(lastModifiedService.checkAndProcessLastModified(request, response, blog.getLastModified(), null)).thenReturn(true);
-    assertTrue(action.process(request, response) instanceof NotModifiedView);
+		assertTrue(blogs.feeds(null) instanceof NotModifiedView);
   }
 
 }
