@@ -1,5 +1,7 @@
 package cn.zhouyiyan.pebble;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DefaultValue;
@@ -24,6 +27,7 @@ import javax.ws.rs.core.Response.Status;
 
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
+import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.comparator.BlogEntryComparator;
 import net.sourceforge.pebble.domain.AbstractBlog;
 import net.sourceforge.pebble.domain.Blog;
@@ -32,6 +36,7 @@ import net.sourceforge.pebble.domain.BlogManager;
 import net.sourceforge.pebble.domain.BlogService;
 import net.sourceforge.pebble.domain.BlogServiceException;
 import net.sourceforge.pebble.domain.Category;
+import net.sourceforge.pebble.domain.Comment;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.domain.Tag;
 import net.sourceforge.pebble.security.PebbleUserDetails;
@@ -40,6 +45,7 @@ import net.sourceforge.pebble.service.DefaultLastModifiedService;
 import net.sourceforge.pebble.service.LastModifiedService;
 import net.sourceforge.pebble.service.StaticPageService;
 import net.sourceforge.pebble.service.StaticPageServiceException;
+import net.sourceforge.pebble.util.CookieUtils;
 import net.sourceforge.pebble.util.Pageable;
 import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.web.view.NotFoundView;
@@ -49,6 +55,7 @@ import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.AbstractRomeFeedView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
+import net.sourceforge.pebble.web.view.impl.BlogEntryView;
 import net.sourceforge.pebble.web.view.impl.BlogPropertiesView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
@@ -56,8 +63,12 @@ import net.sourceforge.pebble.web.view.impl.StaticPageView;
 import net.sourceforge.pebble.web.view.impl.UserView;
 import net.sourceforge.pebble.web.view.impl.UsersView;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Path("/")
 public class Blogs {
+	private static final Logger LOG = LoggerFactory.getLogger(Blogs.class);
 	@Context
 	HttpServletRequest request;
 
@@ -220,6 +231,107 @@ public class Blogs {
 		setAttribute(Constants.BLOG_ENTRY_KEY, entry);
 
 		return new BlogEntryFormView();
+	}
+
+	/**
+	 * Finds a particular blog entry, ready to be displayed.
+	 */
+	@GET
+	@Path("/entries/date/{year}/{month}/{day}/{name:\\d+\\.html}")
+	public View getEntry(@PathParam("year") int year, @PathParam("month") int month,//
+			@PathParam("day") int day, @PathParam("name") String name) throws BlogServiceException {
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		BlogEntry blogEntry = new BlogService().getBlogEntry(blog, name.substring(0, name.lastIndexOf(".")));
+
+		if (blogEntry == null) {
+			// the entry cannot be found - it may have been removed or the
+			// requesting URL was wrong
+
+			return new NotFoundView();
+		} else if (!blogEntry.isPublished() && !(SecurityUtils.isUserAuthorisedForBlog(blog))) {
+			// the entry exists, but isn't yet published
+			return new NotFoundView();
+		} else {
+			setAttribute(Constants.BLOG_ENTRY_KEY, blogEntry);
+			setAttribute(Constants.MONTHLY_BLOG, blog.getBlogForDay(blogEntry.getDate()).getMonth());
+			setAttribute("displayMode", "detail");
+
+			// is "remember me" set?
+			Cookie rememberMe = CookieUtils.getCookie(request.getCookies(), "rememberMe");
+			if (rememberMe != null) {
+				setAttribute("rememberMe", "true");
+			}
+
+			ContentDecoratorContext decoratorContext = new ContentDecoratorContext();
+			decoratorContext.setView(ContentDecoratorContext.DETAIL_VIEW);
+			decoratorContext.setMedia(ContentDecoratorContext.HTML_PAGE);
+			Comment comment = createBlankComment(blog, blogEntry, request);
+			Comment decoratedComment = (Comment) comment.clone();
+			blog.getContentDecoratorChain().decorate(decoratorContext, decoratedComment);
+			setAttribute("decoratedComment", decoratedComment);
+			setAttribute("undecoratedComment", comment);
+
+			return new BlogEntryView();
+		}
+	}
+
+	private Comment createBlankComment(Blog blog, BlogEntry blogEntry, HttpServletRequest request) {
+		Comment comment = blogEntry.createComment("", "", "", "", "", "", request.getRemoteAddr());
+
+		// populate the author, email and website from one of :
+		// - the logged in user details
+		// - the "remember me" cookie
+		if (SecurityUtils.isUserAuthenticated()) {
+			PebbleUserDetails user = SecurityUtils.getUserDetails();
+			if (user != null) {
+				comment.setAuthor(user.getName());
+				comment.setEmail(user.getEmailAddress());
+				if (user.getWebsite() != null && !user.getWebsite().equals("")) {
+					comment.setWebsite(user.getWebsite());
+				} else {
+					comment.setWebsite(blogEntry.getBlog().getUrl() + "authors/" + user.getUsername() + "/");
+				}
+				comment.setAuthenticated(true);
+			}
+		} else {
+			try {
+				// is "remember me" set?
+				Cookie rememberMe = CookieUtils.getCookie(request.getCookies(), "rememberMe");
+				if (rememberMe != null) {
+					// remember me has been checked and we're not already previewing a comment
+					// so create a new comment as this will populate the author/email/website
+					Cookie author = CookieUtils.getCookie(request.getCookies(), "rememberMe.author");
+					if (author != null) {
+						comment.setAuthor(URLDecoder.decode(author.getValue(), blog.getCharacterEncoding()));
+					}
+
+					Cookie email = CookieUtils.getCookie(request.getCookies(), "rememberMe.email");
+					if (email != null) {
+						comment.setEmail(URLDecoder.decode(email.getValue(), blog.getCharacterEncoding()));
+					}
+
+					Cookie website = CookieUtils.getCookie(request.getCookies(), "rememberMe.website");
+					if (website != null) {
+						comment.setWebsite(URLDecoder.decode(website.getValue(), blog.getCharacterEncoding()));
+					}
+				}
+			} catch (UnsupportedEncodingException e) {
+				LOG.error("Exception encountered", e);
+			}
+		}
+
+		// are we replying to an existing comment?
+		String parentCommentId = request.getParameter("comment");
+		if (parentCommentId != null && parentCommentId.length() > 0) {
+			long parent = Long.parseLong(parentCommentId);
+			Comment parentComment = blogEntry.getComment(parent);
+			if (parentComment != null) {
+				comment.setParent(parentComment);
+				comment.setTitle(parentComment.getTitle());
+			}
+		}
+
+		return comment;
 	}
 
 	/**

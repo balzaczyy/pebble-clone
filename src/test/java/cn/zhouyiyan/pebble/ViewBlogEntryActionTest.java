@@ -30,15 +30,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
-import net.sourceforge.pebble.web.view.View;
-import net.sourceforge.pebble.web.view.NotFoundView;
-import net.sourceforge.pebble.web.view.impl.BlogEntryView;
 import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.util.SecurityUtils;
+import net.sourceforge.pebble.web.action.SingleBlogActionTestCase;
+import net.sourceforge.pebble.web.view.NotFoundView;
+import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.impl.BlogEntryView;
+
+import org.junit.Ignore;
 
 /**
  * Tests for the ViewBlogEntryAction class.
@@ -46,22 +49,25 @@ import net.sourceforge.pebble.domain.BlogService;
  * @author    Simon Brown
  */
 public class ViewBlogEntryActionTest extends SingleBlogActionTestCase {
+	private Blogs blogs;
 
-  protected void setUp() throws Exception {
-    action = new ViewBlogEntryAction();
-
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		// blogs.response = response;
   }
 
+	@Ignore("impossible")
   public void testViewBlogEntryWithNullId() throws Exception {
-    View view = action.process(request, response);
-
-    assertTrue(view instanceof NotFoundView);
+		// View view = blogs.getEntry(0, 0, 0, null);
+		// assertTrue(view instanceof NotFoundView);
   }
 
   public void testViewNonExistentBlogEntry() throws Exception {
-    request.setParameter("entry", "1234567890123");
-    View view = action.process(request, response);
+		// request.setParameter("entry", "1234567890123");
+		View view = blogs.getEntry(0, 0, 0, "1234567890123.html");
 
     assertTrue(view instanceof NotFoundView);
   }
@@ -73,10 +79,9 @@ public class ViewBlogEntryActionTest extends SingleBlogActionTestCase {
     service.putBlogEntry(blogEntry1);
 
     SecurityUtils.runAsUnauthenticated();
-    request.setParameter("entry", blogEntry1.getId());
-    View view = action.process(request, response);
+		View view = blogs.getEntry(0, 0, 0, blogEntry1.getId() + ".html");
 
-    BlogEntry blogEntry2 = (BlogEntry)action.getModel().get(Constants.BLOG_ENTRY_KEY);
+		BlogEntry blogEntry2 = (BlogEntry) request.getAttribute(Constants.BLOG_ENTRY_KEY);
     assertEquals(blogEntry1.getId(), blogEntry2.getId());
     assertTrue(view instanceof BlogEntryView);
   }
@@ -88,10 +93,9 @@ public class ViewBlogEntryActionTest extends SingleBlogActionTestCase {
     service.putBlogEntry(blogEntry1);
 
     SecurityUtils.runAsAnonymous();
-    request.setParameter("entry", blogEntry1.getId());
-    View view = action.process(request, response);
+		View view = blogs.getEntry(0, 0, 0, blogEntry1.getId() + ".html");
 
-    BlogEntry blogEntry2 = (BlogEntry)action.getModel().get(Constants.BLOG_ENTRY_KEY);
+		BlogEntry blogEntry2 = (BlogEntry) request.getAttribute(Constants.BLOG_ENTRY_KEY);
     assertNull(blogEntry2);
     assertTrue(view instanceof NotFoundView);
   }
@@ -103,10 +107,9 @@ public class ViewBlogEntryActionTest extends SingleBlogActionTestCase {
     service.putBlogEntry(blogEntry1);
 
     SecurityUtils.runAsBlogContributor();
-    request.setParameter("entry", blogEntry1.getId());
-    View view = action.process(request, response);
+		View view = blogs.getEntry(0, 0, 0, blogEntry1.getId() + ".html");
 
-    BlogEntry blogEntry2 = (BlogEntry)action.getModel().get(Constants.BLOG_ENTRY_KEY);
+		BlogEntry blogEntry2 = (BlogEntry) request.getAttribute(Constants.BLOG_ENTRY_KEY);
     assertEquals(blogEntry1.getId(), blogEntry2.getId());
     assertTrue(view instanceof BlogEntryView);
   }

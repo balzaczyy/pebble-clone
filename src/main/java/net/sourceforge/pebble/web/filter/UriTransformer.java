@@ -302,7 +302,8 @@ public class UriTransformer {
     if (permalinkProvider.isBlogEntryPermalink(uri)) {
       BlogEntry blogEntry = permalinkProvider.getBlogEntry(uri);
       if (blogEntry != null) {
-        result = "/viewBlogEntry.action?entry=" + blogEntry.getId();
+				// result = "/viewBlogEntry.action?entry=" + blogEntry.getId();
+				result = "/p/entries/date/" + uri;
       }
     } else if (permalinkProvider.isDayPermalink(uri)) {
       Day day = permalinkProvider.getDay(uri);

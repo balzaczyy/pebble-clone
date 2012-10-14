@@ -32,12 +32,16 @@
 
 package net.sourceforge.pebble.dao.mock;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import net.sourceforge.pebble.dao.BlogEntryDAO;
 import net.sourceforge.pebble.dao.PersistenceException;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;
-
-import java.util.*;
 
 /**
  * This is a mock implementation of BlogEntryDAO that is used when performing
@@ -47,7 +51,7 @@ import java.util.*;
  */
 public class MockBlogEntryDAO implements BlogEntryDAO {
 
-  private Map blogEntries = new HashMap();
+	private final Map<String, BlogEntry> blogEntries = new HashMap<String, BlogEntry>();
 
   /**
    * Loads a specific blog entry.
@@ -58,7 +62,7 @@ public class MockBlogEntryDAO implements BlogEntryDAO {
    *          if the specified blog entry cannot be loaded
    */
   public BlogEntry loadBlogEntry(Blog blog, String blogEntryId) throws PersistenceException {
-    return (BlogEntry)blogEntries.get(blogEntryId);
+    return blogEntries.get(blogEntryId);
   }
 
   /**
