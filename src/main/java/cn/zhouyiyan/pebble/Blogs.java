@@ -33,6 +33,7 @@ import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.api.confirmation.CommentConfirmationStrategy;
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.comparator.BlogEntryComparator;
+import net.sourceforge.pebble.comparator.PageBasedContentByTitleComparator;
 import net.sourceforge.pebble.domain.AbstractBlog;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;
@@ -72,6 +73,7 @@ import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.ResponsesView;
 import net.sourceforge.pebble.web.view.impl.StaticPageView;
+import net.sourceforge.pebble.web.view.impl.UnpublishedBlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.UserView;
 import net.sourceforge.pebble.web.view.impl.UsersView;
 
@@ -99,7 +101,7 @@ public class Blogs {
 				return pages(homePage);
 			}
 		}
-		return entriesByPage(1);
+		return recentEntries(1);
 	}
 
 	/**
@@ -355,8 +357,8 @@ public class Blogs {
 	 * Views blog entries page by page. The page size is the same as the "number of blog entries shown on the home page".
 	 */
 	@GET
-	@Path("/entries")
-	public View entriesByPage(@QueryParam("page") @DefaultValue("1") int page) {
+	@Path("/entries/recent")
+	public View recentEntries(@QueryParam("page") @DefaultValue("1") int page) {
 		AbstractBlog abstractBlog = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
 
 		if (abstractBlog instanceof Blog) {
@@ -393,6 +395,20 @@ public class Blogs {
 				return new BlogEntriesView();
 			}
 		}
+	}
+
+	/**
+	 * Allows the user to view the unpublised blog entries associated with the current blog.
+	 */
+	@GET
+	@Path("/entries/unpublished")
+	public View unpublishedEntries() {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		List<BlogEntry> blogEntries = blog.getUnpublishedBlogEntries();
+		Collections.sort(blogEntries, new PageBasedContentByTitleComparator());
+		setAttribute("unpublishedBlogEntries", blogEntries);
+		return new UnpublishedBlogEntriesView();
 	}
 
 	/**

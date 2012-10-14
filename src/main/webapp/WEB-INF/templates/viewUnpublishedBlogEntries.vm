@@ -1,16 +1,18 @@
 <div class="contentItem">
 
   <div class="contentItemLinks">
-    <a href="./help/staticPages.html" target="_blank"><fmt:message key="common.help"/></a>
+    <a href="./help/staticPages.html" target="_blank">$fmt.message("common.help")</a>
   </div>
 
-  <h1><fmt:message key="view.unpublishedBlogEntries"/></h1>
+  <h1>$fmt.message("view.unpublishedBlogEntries")</h1>
   <h2>&nbsp;</h2>
 
   <div class="contentItemBody">
     <form name="unpublishedBlogEntriesForm" method="post" action="manageBlogEntries.secureaction">
-      <pebble:token/>
-      <input type="hidden" name="redirectUrl" value="${blogUrl}viewUnpublishedBlogEntries.secureaction" />
+#if ($token)
+      <input type="hidden" name="pebbleSecurityToken" value="$token" />
+#end
+      <input type="hidden" name="redirectUrl" value="${blogUrl}p/entries/unpublished" />
     <table width="99%" cellspacing="0" cellpadding="4">
       <thead>
       <tr>
@@ -19,23 +21,21 @@
       </tr>
       </thead>
       <tbody>
-      <c:forEach var="blogEntry" items="${unpublishedBlogEntries}" varStatus="status">
-        <c:choose>
-          <c:when test="${status.count % 2 == 0}">
-            <tr class="even small">
-          </c:when>
-          <c:otherwise>
-              <tr class="odd small">
-          </c:otherwise>
-        </c:choose>
+#set ($count = 0)
+#foreach ($blogEntry in $unpublishedBlogEntries)
+  #if ($count % 2 == 0)
+      <tr class="even small">
+  #else
+      <tr class="odd small">
+  #end
         <td width="2%">
-          <input type="checkbox" name="entry" value="${blogEntry.id}" />
+          <input type="checkbox" name="entry" value="${blogEntry.Id}" />
         </td>
         <td>
-          <a href="editBlogEntry.secureaction?entry=${blogEntry.id}#form">${blogEntry.title}</a>
+          <a href="editBlogEntry.secureaction?entry=${blogEntry.Id}#form">${blogEntry.Title}</a>
         </td>
       </tr>
-      </c:forEach>
+#end
       </tbody>
     </table>
 

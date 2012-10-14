@@ -50,7 +50,7 @@
       <a href="p/entries/add#form" title="$fmt.message('admin.tooltip.addNewEntry')">
         $fmt.message("admin.newBlogEntry")
       </a> (${blog.NumberOfBlogEntries}) |
-      <a href="viewUnpublishedBlogEntries.secureaction" title="$fmt.message('admin.tooltip.viewUnpublishedBlogEntries')">
+      <a href="p/entries/unpublished" title="$fmt.message('admin.tooltip.viewUnpublishedBlogEntries')">
         $fmt.message("admin.unpublishedBlogEntries")
       </a> (${blog.NumberOfUnpublishedBlogEntries}) |
       <a href="addStaticPage.secureaction#form" title="$fmt.message('admin.tooltip.addNewStaticPage')">
