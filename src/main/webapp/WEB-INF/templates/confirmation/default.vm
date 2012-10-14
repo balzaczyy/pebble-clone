@@ -1,0 +1,23 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("confirmation.confirm")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    <form action="${confirmationAction}" method="post" accept-charset="${blog.CharacterEncoding}">
+#if ($token)
+      <input type="hidden" name="pebbleSecurityToken" value="$token" />
+#end      
+      <p>$fmt.message("confirmation.defaultMessage")</p>
+
+      <table width="99%">
+        <tr>
+          <td colspan="2" align="right">
+            <input name="submit" type="submit" value="${fmt.message('confirmation.confirm')}" />
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
+
+</div>

@@ -45,7 +45,8 @@ public class CommentConfirmationView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return null;
   }
 
@@ -54,8 +55,9 @@ public class CommentConfirmationView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/commentConfirmation.jsp";
+  @Override
+	public String getUri() {
+		return "commentConfirmation.vm";
   }
 
 }

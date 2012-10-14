@@ -6,12 +6,12 @@ import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
@@ -94,24 +94,6 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		ctx.put("content", request.getAttribute("content"));
 
 
-		// Blog entries
-		ctx.put("blogEntries", request.getAttribute(Constants.BLOG_ENTRIES));
-		// Blog entry
-		ctx.put("blogEntry", request.getAttribute(Constants.BLOG_ENTRY_KEY));
-		ctx.put("previewBlogEntry", request.getAttribute("previewBlogEntry"));
-		ctx.put("displayMode", request.getAttribute("displayMode"));
-		// Blog list
-		ctx.put("blogs", request.getAttribute(Constants.BLOGS));
-		// MultiBlog
-		ctx.put("multiBlog", request.getAttribute(Constants.MULTI_BLOG_KEY));
-		// comment
-		ctx.put("validationContext", request.getAttribute("validationContext"));
-		ctx.put("decoratedComment", request.getAttribute("decoratedComment"));
-		ctx.put("undecoratedComment", request.getAttribute("undecoratedComment"));
-
-		ctx.put(Constants.MONTHLY_BLOG, request.getAttribute(Constants.MONTHLY_BLOG));
-		ctx.put("pageable", request.getAttribute("pageable"));
-
 		Locale blogLocale = blog.getLocale();
 		// General utilities
 		ctx.put("fmt", new Formatter(blogLocale, blog.getTimeZone()));
@@ -137,10 +119,17 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		ctx.put("calendarTool", new CalendarTag());
 		ctx.put("yearNow", Calendar.getInstance().get(Calendar.YEAR));
 
-		Enumeration<?> atts = request.getAttributeNames();
-		while (atts.hasMoreElements()) {
-			String key = (String) atts.nextElement();
-			ctx.put(key, request.getAttribute(key));
+		// Enumeration<?> atts = request.getAttributeNames();
+		// while (atts.hasMoreElements()) {
+		// String key = (String) atts.nextElement();
+		// ctx.put(key, request.getAttribute(key));
+		// }
+		@SuppressWarnings("unchecked")
+		Set<String> vmKeys = (Set<String>) request.getAttribute("vmkeys");
+		if (vmKeys != null) {
+			for (String key : vmKeys) {
+				ctx.put(key, request.getAttribute(key));
+			}
 		}
 
 		String name = FilenameUtils.getName(request.getRequestURI());

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -161,6 +162,13 @@ public class Blogs {
 	}
 
 	private void setAttribute(String name, Object o) {
+		@SuppressWarnings("unchecked")
+		Set<String> vmKeys = (Set<String>) request.getAttribute("vmkeys");
+		if (vmKeys == null) {
+			vmKeys = new HashSet<String>();
+			request.setAttribute("vmkeys", vmKeys);
+		}
+		vmKeys.add(name);
 		request.setAttribute(name, o);
 	}
 
@@ -246,7 +254,7 @@ public class Blogs {
 	 * Finds a particular blog entry, ready to be displayed.
 	 */
 	@GET
-	@Path("/entries/{entryId:\\d+\\.html}")
+	@Path("/entries/{entryId:\\d+}")
 	public View getEntry(@PathParam("entryId") String entryId) throws BlogServiceException {
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
 		BlogEntry blogEntry = new BlogService().getBlogEntry(blog, entryId);
@@ -541,6 +549,53 @@ public class Blogs {
 		}
 		setAttribute("validationContext", context);
 		return context;
+	}
+
+	/**
+	 * Confirms a comment.
+	 */
+	@POST
+	@Path("/comments/confirm")
+	public View confirmComment() throws BlogServiceException {
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		BlogEntry blogEntry = null;
+		Comment comment = null;
+
+		comment = (Comment) request.getSession().getAttribute(Constants.COMMENT_KEY);
+		String entry = comment.getBlogEntry().getId();
+
+		BlogService service = new BlogService();
+		blogEntry = service.getBlogEntry(blog, entry);
+		if (blogEntry == null) {
+			// just send back a 404 - this is probably somebody looking for a way
+			// to send comment spam ;-)
+			return new NotFoundView();
+		} else if (!blogEntry.isCommentsEnabled()) { return new CommentConfirmationView(); }
+
+		ContentDecoratorContext decoratorContext = new ContentDecoratorContext();
+		decoratorContext.setView(ContentDecoratorContext.DETAIL_VIEW);
+		decoratorContext.setMedia(ContentDecoratorContext.HTML_PAGE);
+
+		Comment decoratedComment = (Comment) comment.clone();
+		blog.getContentDecoratorChain().decorate(decoratorContext, decoratedComment);
+		setAttribute("decoratedComment", decoratedComment);
+		setAttribute("undecoratedComment", comment);
+		setAttribute(Constants.BLOG_ENTRY_KEY, blogEntry);
+		setAttribute(Constants.COMMENT_KEY, comment);
+
+		CommentConfirmationStrategy strategy = blog.getCommentConfirmationStrategy();
+
+		/* Comment clonedComment = (Comment) */comment.clone();
+
+		if (strategy.isConfirmed(request)) {
+			saveComment(request, response, blogEntry, comment);
+			request.getSession().removeAttribute(Constants.COMMENT_KEY);
+			return new CommentConfirmationView();
+		} else {
+			// try again!
+			strategy.setupConfirmation(request);
+			return new ConfirmCommentView();
+		}
 	}
 
 	/**

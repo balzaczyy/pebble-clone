@@ -54,7 +54,7 @@ public class DefaultConfirmationStrategy extends AbstractConfirmationStrategy {
    * @return a URI, relative to the web application root.
    */
   public String getUri() {
-    return "/WEB-INF/jsp/confirmation/default.jsp";
+		return "confirmation/default.vm";
   }
 
   /**

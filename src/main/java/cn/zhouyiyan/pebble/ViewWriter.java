@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -53,6 +55,19 @@ public class ViewWriter implements MessageBodyWriter<View> {
 				@Override
 				public Object get(String name) {
 					return thisRequest.getAttribute(name);
+				}
+
+				@Override
+				public void put(String name, Object value) {
+					// TODO merge with Blogs.setAttribute
+					@SuppressWarnings("unchecked")
+					Set<String> vmKeys = (Set<String>) request.getAttribute("vmkeys");
+					if (vmKeys == null) {
+						vmKeys = new HashSet<String>();
+						request.setAttribute("vmkeys", vmKeys);
+					}
+					vmKeys.add(name);
+					request.setAttribute(name, value);
 				}
 			});
 			t.setServletContext(servletContext);

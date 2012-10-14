@@ -1,0 +1,21 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("comment.addComment")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+#if (!$blogEntry.isCommentsEnabled())
+    $fmt.message("comment.commentsDisabled")
+#elseif ($comment.isApproved())
+    $fmt.message("comment.commentPosted")
+#elseif ($comment.isRejected())
+    $fmt.message("comment.commentRejected")
+#else
+    $fmt.message("comment.commentPending")
+#end
+    <p>
+    $fmt.message("common.backTo") <a href="${url.rewrite($blogEntry.Permalink)}">${blogEntry.Title}</a>.
+    </p>
+  </div>
+
+</div>
