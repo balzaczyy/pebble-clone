@@ -67,7 +67,7 @@ public class ViewBlogEntryActionTest extends SingleBlogActionTestCase {
 
   public void testViewNonExistentBlogEntry() throws Exception {
 		// request.setParameter("entry", "1234567890123");
-		View view = blogs.getEntry(0, 0, 0, "1234567890123.html");
+		View view = blogs.getEntry("1234567890123");
 
     assertTrue(view instanceof NotFoundView);
   }
@@ -79,7 +79,7 @@ public class ViewBlogEntryActionTest extends SingleBlogActionTestCase {
     service.putBlogEntry(blogEntry1);
 
     SecurityUtils.runAsUnauthenticated();
-		View view = blogs.getEntry(0, 0, 0, blogEntry1.getId() + ".html");
+		View view = blogs.getEntry(blogEntry1.getId());
 
 		BlogEntry blogEntry2 = (BlogEntry) request.getAttribute(Constants.BLOG_ENTRY_KEY);
     assertEquals(blogEntry1.getId(), blogEntry2.getId());
@@ -93,7 +93,7 @@ public class ViewBlogEntryActionTest extends SingleBlogActionTestCase {
     service.putBlogEntry(blogEntry1);
 
     SecurityUtils.runAsAnonymous();
-		View view = blogs.getEntry(0, 0, 0, blogEntry1.getId() + ".html");
+		View view = blogs.getEntry(blogEntry1.getId());
 
 		BlogEntry blogEntry2 = (BlogEntry) request.getAttribute(Constants.BLOG_ENTRY_KEY);
     assertNull(blogEntry2);
@@ -107,7 +107,7 @@ public class ViewBlogEntryActionTest extends SingleBlogActionTestCase {
     service.putBlogEntry(blogEntry1);
 
     SecurityUtils.runAsBlogContributor();
-		View view = blogs.getEntry(0, 0, 0, blogEntry1.getId() + ".html");
+		View view = blogs.getEntry(blogEntry1.getId());
 
 		BlogEntry blogEntry2 = (BlogEntry) request.getAttribute(Constants.BLOG_ENTRY_KEY);
     assertEquals(blogEntry1.getId(), blogEntry2.getId());

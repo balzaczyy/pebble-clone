@@ -1,0 +1,155 @@
+#if ($blog.isRichTextEditorForCommentsEnabled())
+  <script type="text/javascript" src="${contextPath}/FCKeditor/fckeditor.js"></script>
+  <script type="text/javascript">
+  window.onload = function() {
+    var oFCKeditor = new FCKeditor( 'commentBody' ) ;
+    oFCKeditor.BasePath = '${contextPath}/FCKeditor/' ;
+    oFCKeditor.Config["CustomConfigurationsPath"] = '${contextPath}/fckconfig_pebble.js';
+    oFCKeditor.ToolbarSet = 'Comment' ;
+    oFCKeditor.ReplaceTextarea() ;
+  }
+  </script>
+#end
+
+<form id="commentForm" name="commentForm" action="saveComment.action" method="post" accept-charset="${blog.CharacterEncoding}">
+#if ($token)
+  <input type="hidden" name="pebbleSecurityToken" value="$token" />
+#end
+  <input type="hidden" name="blogId" value="${blogEntry.Blog.Id}" />
+  <input type="hidden" name="entry" value="${blogEntry.Id}" />
+  <input type="hidden" name="comment" value="${undecoratedComment.Parent.Id}" />
+  <input type="hidden" name="avatar" value="${undecoratedComment.Avatar}"/>
+
+<table width="99%">
+#if ($parentComment)
+  <tr>
+    <td colspan="2">
+  #set ($comment = $parentComment)
+  #set ($displayMode = "preview")
+      <div id="parentComment">
+  #set ($commentIdentifier = "parentComment")
+  #parse ("comment.vm")
+      </div><br />
+    </td>
+  </tr>
+#end
+
+#if ($validationContext.Errors && !$validationContext.Errors.isEmpty())
+  <tr>
+    <td colspan="2" class="validationError">
+      <b>${validationContext.NumberOfErrors}" error(s)</b>
+      <ul>
+  #foreach ($error in $validationContext.Errors)
+        <li>$error.Message</li>
+  #end
+      </ul><br />
+    </td>
+  </tr>
+#end
+
+  <tr>
+    <td colspan="2">
+#set ($comment = $decoratedComment)
+#set ($displayMode = "preview")
+#set ($commentIdentifier = "previewComment")
+#parse ("comment.vm")
+      <br />
+    </td>
+  </tr>
+
+#set ($comment = $undecoratedComment)
+
+  <tr>
+    <td valign="top"><b>$fmt.message("comment.title")</b></td>
+    <td><input type="text" name="title" size="40" value="${comment.Title}"/></td>
+  </tr>
+
+  <tr>
+    <td valign="top"><b>$fmt.message("comment.body")</b></td>
+    <td>
+      <textarea id="commentBody" name="commentBody" rows="8" cols="40">$comment.Body</textarea>
+      <div class="small"><b>HTML</b> : b, strong, i, em, blockquote, br, p, pre, a href="", ul, ol, li, sub, sup</div>
+    </td>
+  </tr>
+
+#if (!$isAuthenticated)
+  <tr>
+    <td valign="top"><b>$fmt.message("comment.openid.login")</b></td>
+    <td>
+      <div id="openIdCommentAuthorProviders">
+## TODO
+## <pebble:pluginrenderer plugin="openidcommentauthorprovider"/>
+      </div>
+      <div id="openIdCommentAuthor" style="display:none">
+        <div id="openIdCommentAuthorDetails"> </div>
+        (<a href="javascript:logoutOpenIdCommentAuthor()">$fmt.message("comment.openid.notme")</a>)
+      </div>
+    </td>
+  </tr>
+
+  <tbody id="commentAuthorDetails">
+    <tr>
+      <td valign="top"><b>$fmt.message("comment.name")</b></td>
+      <td><input type="text" id="author" name="author" size="40" value="${comment.Author}"/></td>
+    </tr>
+
+    <tr>
+      <td valign="top"><b>$fmt.message("comment.emailAddress")</b></td>
+      <td>
+        <input type="text" name="email" size="40" value="${comment.Email}"/>
+      </td>
+    </tr>
+
+    <tr>
+      <td valign="top"><b>$fmt.message("comment.website")</b></td>
+      <td><input type="text" name="website" size="40" value="${comment.Website}"/></td>
+    </tr>
+  </tbody>
+#else
+    <tr>
+      <td valign="top"><b>$fmt.message("comment.name")</b></td>
+      <td><input type="text" id="author" name="author" size="40" value="${comment.Author}" disabled="true" /></td>
+    </tr>
+
+    <tr>
+      <td valign="top"><b>$fmt.message("comment.emailAddress")</b></td>
+      <td>
+        <input type="text" name="email" size="40" value="${comment.Email}" disabled="true" />
+      </td>
+    </tr>
+
+    <tr>
+      <td valign="top"><b>$fmt.message("comment.website")</b></td>
+      <td><input type="text" name="website" size="40" value="${comment.Website}" disabled="true" /></td>
+    </tr>
+#end
+
+  <tr>
+    <td valign="top"><b>$fmt.message("comment.rememberMe")</b></td>
+    <td>
+      $fmt.message("common.yes")&nbsp;
+      <input type="radio" name="rememberMe" value="true"
+#if ($rememberMe) checked="checked" #end
+      />
+      $fmt.message("common.no")&nbsp;
+      <input type="radio" name="rememberMe" value="false"
+#if (!$rememberMe) checked="checked" #end
+      />
+    </td>
+  </tr>
+
+  <tr>
+    <td colspan="2">
+      <p>$fmt.message("comment.emailDisclaimer")</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td colspan="2" align="right">
+      <input name="submit" type="button" value="$fmt.message('comment.previewButton')" onclick="previewComment();"/>
+      <input name="submit" type="submit" value="$fmt.message('comment.addCommentButton')" />
+    </td>
+  </tr>
+
+</table>
+</form>

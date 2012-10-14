@@ -104,7 +104,7 @@
   </div>
 
   <div id="commentFormDiv" style="display:none;">
-  #parse ("commentForm.vm")
+  #parse ("WEB-INF/fragments/commentForm.vm")
   </div>
 #end
 

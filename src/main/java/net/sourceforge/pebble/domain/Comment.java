@@ -101,7 +101,7 @@ public class Comment extends Response {
    * @return    the body of this comment as a String
    */
   public String getBody() {
-    return body;
+		return body == null ? "" : body;
   }
 
   /**
@@ -193,7 +193,7 @@ public class Comment extends Response {
    * @return    the author's e-mail address as a String
    */
   public String getEmail() {
-    return email;
+		return email == null ? "" : email;
   }
 
   /**
@@ -215,7 +215,7 @@ public class Comment extends Response {
    * @return    the author's website as a String
    */
   public String getWebsite() {
-    return website;
+		return website == null ? "" : website;
   }
 
   /**

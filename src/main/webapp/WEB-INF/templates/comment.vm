@@ -20,7 +20,7 @@
 
 #if ($displayMode != "preview")
   #if ($blogEntry.isCommentsEnabled())
-  <a href="replyToBlogEntry.action?entry=${blogEntry.Id}&amp;comment=${comment.Id}">
+  <a href="p/comments/reply/${blogEntry.Id}?comment=${comment.Id}">
     $fmg.message("comment.reply")
   </a>
   #end
@@ -36,12 +36,12 @@
 
   <div class="metadata">
 #if ($comment.Website)
-  #set ($commentAuthor = "<a href='${comment.Website}' target='_blank' title='${comment.Website}"/>' rel="nofollow">$comment.Author</a>";
+  #set ($commentAuthor = "<a href='${comment.Website}' target='_blank' title='${comment.Website}' rel='nofollow'>$comment.Author</a>")
 #else
   #set ($commentAuthor = $comment.Author)
 #end
 #if ($isAuthorisedForBlog)
-  #set ($commentAuthor = "${commentAuthor} ${comment.Email}/${comment.ipAddress}"
+  #set ($commentAuthor = "${commentAuthor} ${comment.Email}/${comment.ipAddress}")
 #end
 #set ($commentDate = $fmt.longDate($comment.Date, $blogEntry.TimeZone))
 
@@ -50,7 +50,7 @@
 #else
   #set ($clazz = "unauthenticated")
 #end
-    $fmt.message("comment.from", "span id='${commentIdentifier}.author' class='${clazz}'>${commentAuthor}</span>", $commentDate)
+    $fmt.message("comment.from", "<span id='${commentIdentifier}.author' class='${clazz}'>${commentAuthor}</span>", $commentDate)
     <a href="${url.rewrite($comment.Permalink)}" title="${comment.Permalink}">#</a>
   </div>
 

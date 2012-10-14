@@ -52,7 +52,8 @@ public class UrlFunctions {
 	}
 
 	public static String escape(String url) {
-		return StringUtils.transformHTML(url); 
+		String ans = StringUtils.transformHTML(url);
+		return ans == null ? "" : ans;
 	}
 
 	public String createGravatar(String email) {

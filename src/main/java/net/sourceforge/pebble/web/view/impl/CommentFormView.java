@@ -45,7 +45,8 @@ public class CommentFormView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
 	return getLocalizedString("view.commentForm");
   }
 
@@ -54,8 +55,9 @@ public class CommentFormView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/commentForm.jsp";
+  @Override
+	public String getUri() {
+		return "commentForm.vm";
   }
 
 }

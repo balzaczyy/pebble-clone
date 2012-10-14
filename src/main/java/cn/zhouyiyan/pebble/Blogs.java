@@ -57,6 +57,8 @@ import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
 import net.sourceforge.pebble.web.view.impl.BlogEntryView;
 import net.sourceforge.pebble.web.view.impl.BlogPropertiesView;
+import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
+import net.sourceforge.pebble.web.view.impl.CommentFormView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.StaticPageView;
@@ -237,11 +239,10 @@ public class Blogs {
 	 * Finds a particular blog entry, ready to be displayed.
 	 */
 	@GET
-	@Path("/entries/date/{year}/{month}/{day}/{name:\\d+\\.html}")
-	public View getEntry(@PathParam("year") int year, @PathParam("month") int month,//
-			@PathParam("day") int day, @PathParam("name") String name) throws BlogServiceException {
+	@Path("/entries/{entryId:\\d+\\.html}")
+	public View getEntry(@PathParam("entryId") String entryId) throws BlogServiceException {
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
-		BlogEntry blogEntry = new BlogService().getBlogEntry(blog, name.substring(0, name.lastIndexOf(".")));
+		BlogEntry blogEntry = new BlogService().getBlogEntry(blog, entryId);
 
 		if (blogEntry == null) {
 			// the entry cannot be found - it may have been removed or the
@@ -338,8 +339,8 @@ public class Blogs {
 	 * Views blog entries page by page. The page size is the same as the "number of blog entries shown on the home page".
 	 */
 	@GET
-	@Path("/entries/page/{page}")
-	public View entriesByPage(@PathParam("page") @DefaultValue("1") int page) {
+	@Path("/entries")
+	public View entriesByPage(@QueryParam("page") @DefaultValue("1") int page) {
 		AbstractBlog abstractBlog = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
 
 		if (abstractBlog instanceof Blog) {
@@ -375,6 +376,61 @@ public class Blogs {
 				setAttribute(Constants.BLOG_ENTRIES, abstractBlog.getRecentBlogEntries());
 				return new BlogEntriesView();
 			}
+		}
+	}
+
+	/**
+	 * Allows the user to reply to a specific blog entry.
+	 */
+	@GET
+	@Path("/comments/reply/{entryId}")
+	public View replyTo(@PathParam("entryId") String entryId, //
+			@QueryParam("comment") String parentCommentId) throws BlogServiceException {
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		BlogService service = new BlogService();
+		BlogEntry blogEntry = null;
+		if (entryId != null) {
+			blogEntry = service.getBlogEntry(blog, entryId);
+		}
+
+		if (blogEntry == null) {
+			// the entry cannot be found - it may have been removed or the
+			// requesting URL was wrong
+
+			return new NotFoundView();
+		} else if (!blogEntry.isPublished() && !(SecurityUtils.isUserAuthorisedForBlog(blog))) {
+			// the entry exists, but isn't yet published
+			return new NotFoundView();
+		} else if (!blogEntry.isCommentsEnabled()) {
+			setAttribute(Constants.BLOG_ENTRY_KEY, blogEntry);
+			return new CommentConfirmationView();
+		} else {
+			setAttribute(Constants.BLOG_ENTRY_KEY, blogEntry);
+
+			// is "remember me" set?
+			Cookie rememberMe = CookieUtils.getCookie(request.getCookies(), "rememberMe");
+			if (rememberMe != null) {
+				setAttribute("rememberMe", "true");
+			}
+
+			ContentDecoratorContext decoratorContext = new ContentDecoratorContext();
+			decoratorContext.setView(ContentDecoratorContext.DETAIL_VIEW);
+			decoratorContext.setMedia(ContentDecoratorContext.HTML_PAGE);
+			Comment comment = createBlankComment(blog, blogEntry, request);
+			Comment decoratedComment = (Comment) comment.clone();
+			blog.getContentDecoratorChain().decorate(decoratorContext, decoratedComment);
+			setAttribute("decoratedComment", decoratedComment);
+			setAttribute("undecoratedComment", comment);
+
+			// are we replying to an existing comment?
+			if (parentCommentId != null && parentCommentId.length() > 0) {
+				Comment parentComment = blogEntry.getComment(Long.parseLong(parentCommentId));
+				blog.getContentDecoratorChain().decorate(decoratorContext, parentComment);
+				setAttribute("parentComment", parentComment);
+			}
+
+			return new CommentFormView();
 		}
 	}
 

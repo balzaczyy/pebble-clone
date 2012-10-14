@@ -106,7 +106,8 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		ctx.put("multiBlog", request.getAttribute(Constants.MULTI_BLOG_KEY));
 		// comment
 		ctx.put("validationContext", request.getAttribute("validationContext"));
-		// decoratedComment, undecoratedComment
+		ctx.put("undecoratedComment", request.getAttribute("undecoratedComment"));
+		// decoratedComment
 		ctx.put(Constants.MONTHLY_BLOG, request.getAttribute(Constants.MONTHLY_BLOG));
 		ctx.put("pageable", request.getAttribute("pageable"));
 
