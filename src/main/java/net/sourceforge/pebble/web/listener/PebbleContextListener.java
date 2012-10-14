@@ -94,7 +94,7 @@ public class PebbleContextListener implements ServletContextListener {
               "<ul>\n" +
               "<li>Login to see the admin features of your blog. The default username is <code>username</code> and the password is <code>password</code>.</li>\n" +
               "<li>Modify your <a href=\"p/customizations\">blog properties</a></li>\n" +
-              "<li><a href=\"addBlogEntry.secureaction\">Create a new blog entry</a>.</li>\n" +
+              "<li><a href=\"p/entries/add\">Create a new blog entry</a>.</li>\n" +
               "<li>Give out a link to your <a href=\"./rss.xml\">RSS</a> feed.</li>\n" +
               "<li>Remove the default user and create your own user on the <a href=\"p/users\">users page</a>.</li>\n" +
               "<li>Take a look at the <a href=\"./help/index.html\">online help</a>.</li>\n" +

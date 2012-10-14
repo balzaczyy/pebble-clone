@@ -31,21 +31,22 @@
  */
 package net.sourceforge.pebble.web.action;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.*;
-import net.sourceforge.pebble.util.StringUtils;
-import net.sourceforge.pebble.web.security.RequireSecurityToken;
-import net.sourceforge.pebble.web.view.ForwardView;
-import net.sourceforge.pebble.web.view.RedirectView;
-import net.sourceforge.pebble.web.view.View;
-import net.sourceforge.pebble.web.view.NotFoundView;
-import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.BlogServiceException;
+import net.sourceforge.pebble.util.StringUtils;
+import net.sourceforge.pebble.web.security.RequireSecurityToken;
+import net.sourceforge.pebble.web.view.ForwardView;
+import net.sourceforge.pebble.web.view.NotFoundView;
+import net.sourceforge.pebble.web.view.RedirectView;
+import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 
 /**
  * Allows the user to manage (edit, remove, etc) a blog entry.
@@ -54,10 +55,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 @RequireSecurityToken
 public class ManageBlogEntryAction extends SecureAction {
-
-  /** the log used by this class */
-  private static final Log log = LogFactory.getLog(ManageBlogEntryAction.class);
-
   /**
    * Peforms the processing associated with this action.
    *
@@ -65,7 +62,8 @@ public class ManageBlogEntryAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
     String id = request.getParameter("entry");
     String confirm = request.getParameter("confirm");
@@ -89,7 +87,7 @@ public class ManageBlogEntryAction extends SecureAction {
       getModel().put(Constants.BLOG_ENTRY_KEY, blogEntry);
       return new PublishBlogEntryView();
     } else if (submit.equals("Clone")) {
-      return new ForwardView("/addBlogEntry.secureaction?entryToClone=" + blogEntry.getId());
+			return new ForwardView("/p/entries/add?entryToClone=" + blogEntry.getId());
     } else if (confirm != null && confirm.equals("true")) {
       if (submit.equalsIgnoreCase("Remove")) {
         try {
@@ -112,7 +110,8 @@ public class ManageBlogEntryAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     String submit = request.getParameter("submit");
 
     if (submit != null) {

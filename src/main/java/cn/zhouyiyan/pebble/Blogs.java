@@ -212,12 +212,11 @@ public class Blogs {
 	 */
 	@GET
 	@Path("/entries/add")
-	public View addEntry() throws BlogServiceException {
+	public View addEntry(@QueryParam("entryToClone") String entryToClone) throws BlogServiceException {
 		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
 		BlogEntry blogEntryToClone = null;
 
-		String entryToClone = request.getParameter("entryToClone");
 		if (entryToClone != null && entryToClone.length() > 0) {
 			BlogService service = new BlogService();
 			blogEntryToClone = service.getBlogEntry(blog, entryToClone);

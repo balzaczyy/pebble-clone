@@ -54,7 +54,7 @@ public class AddBlogEntryActionTest extends SecureActionTestCase {
   }
 
   public void testProcess() throws Exception {
-		View view = blogs.addEntry();
+		View view = blogs.addEntry(null);
 
 		BlogEntry blogEntry = (BlogEntry) request.getAttribute(Constants.BLOG_ENTRY_KEY);
     assertNotNull("No blog entry was created", blogEntry);
