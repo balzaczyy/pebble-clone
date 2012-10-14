@@ -31,13 +31,10 @@
  */
 package net.sourceforge.pebble.web.dwr;
 
-import net.sourceforge.pebble.domain.Comment;
+import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogManager;
-import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import net.sourceforge.pebble.domain.Comment;
 
 /**
  * Service interface for DWR.
@@ -45,9 +42,6 @@ import org.apache.commons.logging.LogFactory;
  * @author    Simon Brown
  */
 public class Comments {
-
-  private static final Log log = LogFactory.getLog(Comments.class);
-
   public Comment previewComment(String blogId, Comment comment) {
     Blog blog = BlogManager.getInstance().getBlog(blogId);
 

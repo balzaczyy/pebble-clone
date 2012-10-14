@@ -32,20 +32,25 @@
 
 package net.sourceforge.pebble.web.action;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.api.confirmation.CommentConfirmationStrategy;
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
-import net.sourceforge.pebble.domain.*;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.BlogServiceException;
+import net.sourceforge.pebble.domain.Comment;
 import net.sourceforge.pebble.web.view.NotFoundView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Confirms a comment.
@@ -64,7 +69,8 @@ public class ConfirmCommentAction extends AbstractCommentAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
     BlogEntry blogEntry = null;
     Comment comment = null;
@@ -99,7 +105,7 @@ public class ConfirmCommentAction extends AbstractCommentAction {
 
     CommentConfirmationStrategy strategy = blog.getCommentConfirmationStrategy();
 
-    Comment clonedComment = (Comment)comment.clone();
+		/* Comment clonedComment = (Comment) */comment.clone();
 
     if (strategy.isConfirmed(request)) {
       try {

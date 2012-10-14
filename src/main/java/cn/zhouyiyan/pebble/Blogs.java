@@ -2,6 +2,7 @@ package cn.zhouyiyan.pebble;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -27,6 +29,7 @@ import javax.ws.rs.core.Response.Status;
 
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
+import net.sourceforge.pebble.api.confirmation.CommentConfirmationStrategy;
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.comparator.BlogEntryComparator;
 import net.sourceforge.pebble.domain.AbstractBlog;
@@ -46,8 +49,11 @@ import net.sourceforge.pebble.service.LastModifiedService;
 import net.sourceforge.pebble.service.StaticPageService;
 import net.sourceforge.pebble.service.StaticPageServiceException;
 import net.sourceforge.pebble.util.CookieUtils;
+import net.sourceforge.pebble.util.I18n;
+import net.sourceforge.pebble.util.MailUtils;
 import net.sourceforge.pebble.util.Pageable;
 import net.sourceforge.pebble.util.SecurityUtils;
+import net.sourceforge.pebble.web.validation.ValidationContext;
 import net.sourceforge.pebble.web.view.NotFoundView;
 import net.sourceforge.pebble.web.view.NotModifiedView;
 import net.sourceforge.pebble.web.view.RedirectView;
@@ -59,6 +65,7 @@ import net.sourceforge.pebble.web.view.impl.BlogEntryView;
 import net.sourceforge.pebble.web.view.impl.BlogPropertiesView;
 import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
+import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.StaticPageView;
@@ -395,8 +402,7 @@ public class Blogs {
 		}
 
 		if (blogEntry == null) {
-			// the entry cannot be found - it may have been removed or the
-			// requesting URL was wrong
+			// the entry cannot be found - it may have been removed or the requesting URL was wrong
 
 			return new NotFoundView();
 		} else if (!blogEntry.isPublished() && !(SecurityUtils.isUserAuthorisedForBlog(blog))) {
@@ -432,6 +438,109 @@ public class Blogs {
 
 			return new CommentFormView();
 		}
+	}
+
+	/**
+	 * Adds a comment to an existing blog entry.
+	 */
+	@POST
+	@Path("/comments")
+	public View addComment(Comment comment) throws BlogServiceException {
+		if (comment == null) { // comment is disabled?
+			return new CommentConfirmationView();
+		}
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		String rememberMe = request.getParameter("rememberMe");
+		String submitType = request.getParameter("submit");
+
+		ValidationContext context = validateComment(comment);
+
+		// are we previewing or adding the comment?
+		String previewButton = I18n.getMessage(blog, "comment.previewButton");
+
+		ContentDecoratorContext decoratorContext = new ContentDecoratorContext();
+		decoratorContext.setView(ContentDecoratorContext.DETAIL_VIEW);
+		decoratorContext.setMedia(ContentDecoratorContext.HTML_PAGE);
+
+		Comment decoratedComment = (Comment) comment.clone();
+		blog.getContentDecoratorChain().decorate(decoratorContext, decoratedComment);
+		setAttribute("decoratedComment", decoratedComment);
+		setAttribute("undecoratedComment", comment);
+		setAttribute("rememberMe", rememberMe);
+		setAttribute(Constants.BLOG_ENTRY_KEY, comment.getBlogEntry());
+		setAttribute(Constants.COMMENT_KEY, comment);
+		request.getSession().setAttribute("rememberMe", request.getParameter("rememberMe"));
+
+		if (submitType == null || submitType.equalsIgnoreCase(previewButton) || context.hasErrors()) {
+			return new CommentFormView();
+		} else {
+			CommentConfirmationStrategy strategy = blog.getCommentConfirmationStrategy();
+
+			Comment clonedComment = (Comment) comment.clone();
+			request.getSession().setAttribute(Constants.COMMENT_KEY, comment);
+
+			if (strategy.confirmationRequired(clonedComment, request)) {
+				strategy.setupConfirmation(request);
+				return new ConfirmCommentView();
+			} else {
+				saveComment(request, response, comment.getBlogEntry(), comment);
+				request.getSession().removeAttribute(Constants.COMMENT_KEY);
+				return new CommentConfirmationView();
+			}
+		}
+	}
+
+	private void saveComment(HttpServletRequest request, HttpServletResponse response, BlogEntry blogEntry,
+			Comment comment) throws BlogServiceException {
+		Blog blog = blogEntry.getBlog();
+		blogEntry.addComment(comment);
+
+		BlogService service = new BlogService();
+		service.putBlogEntry(blogEntry);
+
+		// remember me functionality
+		String rememberMe = (String) request.getSession().getAttribute("rememberMe");
+		if (rememberMe != null && rememberMe.equals("true")) {
+			CookieUtils.addCookie(response, "rememberMe", "true", CookieUtils.ONE_MONTH);
+			CookieUtils.addCookie(response, "rememberMe.author", encode(comment.getAuthor(), blog.getCharacterEncoding()),
+					CookieUtils.ONE_MONTH);
+			CookieUtils.addCookie(response, "rememberMe.email", encode(comment.getEmail(), blog.getCharacterEncoding()),
+					CookieUtils.ONE_MONTH);
+			CookieUtils.addCookie(response, "rememberMe.website", encode(comment.getWebsite(), blog.getCharacterEncoding()),
+					CookieUtils.ONE_MONTH);
+		} else {
+			CookieUtils.removeCookie(response, "rememberMe");
+			CookieUtils.removeCookie(response, "rememberMe.author");
+			CookieUtils.removeCookie(response, "rememberMe.email");
+			CookieUtils.removeCookie(response, "rememberMe.website");
+		}
+	}
+
+	private String encode(String s, String characterEncoding) {
+		if (s == null) {
+			return "";
+		} else {
+			try {
+				return URLEncoder.encode(s, characterEncoding);
+			} catch (UnsupportedEncodingException e) {
+				LOG.error("Exception encountered", e);
+				return "";
+			}
+		}
+	}
+
+	private ValidationContext validateComment(Comment comment) {
+		ValidationContext context = new ValidationContext();
+		try {
+			MailUtils.validate(comment.getEmail(), context);
+		} catch (NoClassDefFoundError e) {
+			// most likely: JavaMail is not in classpath
+			// ignore, when we can not send email we must not validate address
+			// this might lead to problems when mail is activated later without this
+			// address being validated... Discussion started on mailing list, Oct-25 2008
+		}
+		setAttribute("validationContext", context);
+		return context;
 	}
 
 	/**

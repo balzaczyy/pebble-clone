@@ -11,14 +11,20 @@
   </script>
 #end
 
-<form id="commentForm" name="commentForm" action="saveComment.action" method="post" accept-charset="${blog.CharacterEncoding}">
+<form id="commentForm" name="commentForm" action="p/comments" method="post" accept-charset="${blog.CharacterEncoding}">
 #if ($token)
   <input type="hidden" name="pebbleSecurityToken" value="$token" />
 #end
   <input type="hidden" name="blogId" value="${blogEntry.Blog.Id}" />
   <input type="hidden" name="entry" value="${blogEntry.Id}" />
+#if ($undecoratedComment)
+  #if ($undecoratedComment.Parent)
   <input type="hidden" name="comment" value="${undecoratedComment.Parent.Id}" />
+  #end
+  #if ($undecoratedComment.Avatar)
   <input type="hidden" name="avatar" value="${undecoratedComment.Avatar}"/>
+  #end
+#end
 
 <table width="99%">
 #if ($parentComment)

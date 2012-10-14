@@ -29,15 +29,16 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
 import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.domain.Comment;
 import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.domain.Comment;
+import net.sourceforge.pebble.util.SecurityUtils;
+import net.sourceforge.pebble.web.action.SingleBlogActionTestCase;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
-import net.sourceforge.pebble.util.SecurityUtils;
 
 /**
  * Tests for the SaveCommentAction class.
@@ -45,11 +46,14 @@ import net.sourceforge.pebble.util.SecurityUtils;
  * @author    Simon Brown
  */
 public class SaveCommentActionTest extends SingleBlogActionTestCase {
+	private Blogs blogs;
 
-  protected void setUp() throws Exception {
-    action = new SaveCommentAction();
-
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.response = response;
   }
 
   public void testProcessAsBlogContributorWhenReplyingToBlogEntry() throws Exception {
@@ -68,7 +72,7 @@ public class SaveCommentActionTest extends SingleBlogActionTestCase {
 
     SecurityUtils.runAsBlogContributor();
 
-    View view = action.process(request, response);
+		View view = blogs.addComment(new CommentReader(request).readFrom(null, null, null, null, null, null));
     assertTrue(view instanceof CommentConfirmationView);
 
     blogEntry = service.getBlogEntry(blog, blogEntry.getId());
@@ -102,7 +106,7 @@ public class SaveCommentActionTest extends SingleBlogActionTestCase {
 
     SecurityUtils.runAsBlogContributor();
 
-    View view = action.process(request, response);
+		View view = blogs.addComment(new CommentReader(request).readFrom(null, null, null, null, null, null));
     assertTrue(view instanceof CommentConfirmationView);
 
     blogEntry = service.getBlogEntry(blog, blogEntry.getId());
@@ -133,7 +137,7 @@ public class SaveCommentActionTest extends SingleBlogActionTestCase {
 
     SecurityUtils.runAsBlogContributor();
 
-    View view = action.process(request, response);
+		View view = blogs.addComment(new CommentReader(request).readFrom(null, null, null, null, null, null));
     assertTrue(view instanceof CommentConfirmationView);
 
     blogEntry = service.getBlogEntry(blog, blogEntry.getId());
@@ -164,7 +168,7 @@ public class SaveCommentActionTest extends SingleBlogActionTestCase {
 
     SecurityUtils.runAsAnonymous();
 
-    View view = action.process(request, response);
+		View view = blogs.addComment(new CommentReader(request).readFrom(null, null, null, null, null, null));
     assertTrue(view instanceof ConfirmCommentView);
     assertEquals(0, blogEntry.getComments().size());
   }
@@ -184,7 +188,7 @@ public class SaveCommentActionTest extends SingleBlogActionTestCase {
     request.setParameter("avatar", "http://www.somedomain.com/avatar");
     request.setParameter("submit", "Add Comment");
 
-    View view = action.process(request, response);
+		View view = blogs.addComment(new CommentReader(request).readFrom(null, null, null, null, null, null));
     assertTrue(view instanceof CommentConfirmationView);
     assertEquals(0, blogEntry.getComments().size());
   }

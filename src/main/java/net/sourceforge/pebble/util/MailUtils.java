@@ -31,12 +31,13 @@
  */
 package net.sourceforge.pebble.util;
 
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.domain.State;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import net.sourceforge.pebble.web.validation.ValidationContext;
-import net.sourceforge.pebble.PebbleContext;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.mail.Message;
 import javax.mail.Session;
@@ -47,9 +48,14 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import net.sourceforge.pebble.PebbleContext;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.State;
+import net.sourceforge.pebble.web.validation.ValidationContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Utilities for e-mail related functions.
@@ -143,9 +149,9 @@ public class MailUtils {
    * @param message       the body of the e-mail
    */
   public static void sendMail(Session session, Blog blog, String to, String subject, String message) {
-    Collection set = new HashSet();
+		Collection<String> set = new HashSet<String>();
     set.add(to);
-    sendMail(session, blog, set, new HashSet(), new HashSet(), subject, message);
+		sendMail(session, blog, set, new HashSet<String>(), new HashSet<String>(), subject, message);
   }
 
   /**
@@ -156,8 +162,8 @@ public class MailUtils {
    * @param subject       the subject of the e-mail
    * @param message       the body of the e-mail
    */
-  public static void sendMail(Session session, Blog blog, Collection to, String subject, String message) {
-    sendMail(session, blog, to, new HashSet(), new HashSet(), subject, message);
+	public static void sendMail(Session session, Blog blog, Collection<String> to, String subject, String message) {
+		sendMail(session, blog, to, new HashSet<String>(), new HashSet<String>(), subject, message);
   }
 
   /**
@@ -169,8 +175,9 @@ public class MailUtils {
    * @param subject       the subject of the e-mail
    * @param message       the body of the e-mail
    */
-  public static void sendMail(Session session, Blog blog, Collection to, Collection cc, String subject, String message) {
-    sendMail(session, blog, to, cc, new HashSet(), subject, message);
+	public static void sendMail(Session session, Blog blog, Collection<String> to, Collection<String> cc, String subject,
+			String message) {
+		sendMail(session, blog, to, cc, new HashSet<String>(), subject, message);
   }
 
   /**
@@ -183,7 +190,8 @@ public class MailUtils {
    * @param subject       the subject of the e-mail
    * @param message       the body of the e-mail
    */
-  public static void sendMail(Session session, Blog blog, Collection to, Collection cc, Collection bcc, String subject, String message) {
+	public static void sendMail(Session session, Blog blog, Collection<String> to, Collection<String> cc,
+			Collection<String> bcc, String subject, String message) {
     Runnable r = new SendMailRunnable(session, blog, to, cc, bcc, subject, message);
     pool.execute(r);
   }
@@ -195,25 +203,25 @@ public class MailUtils {
   static class SendMailRunnable implements Runnable {
 
     /** the JavaMail session */
-    private Session session;
+    private final Session session;
 
     /** the notifying blog */
-    private Blog blog;
+    private final Blog blog;
 
     /** the e-mail addresses of the recipients in the TO field */
-    private Collection to;
+		private final Collection<String> to;
 
     /** the e-mail addresses of the recipients in the CC field */
-    private Collection cc;
+		private final Collection<String> cc;
 
     /** the e-mail addresses of the recipients in the BCC field */
-    private Collection bcc;
+		private final Collection<String> bcc;
 
     /** the subject of the e-mail */
-    private String subject;
+    private final String subject;
 
     /** the body of the e-mail */
-    private String message;
+    private final String message;
 
     /**
      * Creates a new thread to send a new e-mail.
@@ -226,7 +234,8 @@ public class MailUtils {
      * @param subject       the subject of the e-mail
      * @param message       the body of the e-mail
      */
-    public SendMailRunnable(Session session, Blog blog, Collection to, Collection cc, Collection bcc, String subject, String message) {
+		public SendMailRunnable(Session session, Blog blog, Collection<String> to, Collection<String> cc,
+				Collection<String> bcc, String subject, String message) {
       this.session = session;
       this.blog = blog;
       this.to = to;
@@ -244,26 +253,26 @@ public class MailUtils {
         // create a message and try to send it
         Message msg = new MimeMessage(session);
         msg.setFrom(new InternetAddress(blog.getFirstEmailAddress(), MimeUtility.encodeText(blog.getName(), ENCODING, "B")));
-        Collection internetAddresses = new HashSet();
-        Iterator it = to.iterator();
+				Collection<InternetAddress> internetAddresses = new HashSet<InternetAddress>();
+				Iterator<String> it = to.iterator();
         while (it.hasNext()) {
           internetAddresses.add(new InternetAddress(it.next().toString()));
         }
-        msg.addRecipients(Message.RecipientType.TO, (InternetAddress[])internetAddresses.toArray(new InternetAddress[]{}));
+        msg.addRecipients(Message.RecipientType.TO, internetAddresses.toArray(new InternetAddress[]{}));
 
-        internetAddresses = new HashSet();
+				internetAddresses = new HashSet<InternetAddress>();
         it = cc.iterator();
         while (it.hasNext()) {
           internetAddresses.add(new InternetAddress(it.next().toString()));
         }
-        msg.addRecipients(Message.RecipientType.CC, (InternetAddress[])internetAddresses.toArray(new InternetAddress[]{}));
+        msg.addRecipients(Message.RecipientType.CC, internetAddresses.toArray(new InternetAddress[]{}));
 
-        internetAddresses = new HashSet();
+				internetAddresses = new HashSet<InternetAddress>();
         it = bcc.iterator();
         while (it.hasNext()) {
           internetAddresses.add(new InternetAddress(it.next().toString()));
         }
-        msg.addRecipients(Message.RecipientType.BCC, (InternetAddress[])internetAddresses.toArray(new InternetAddress[]{}));
+        msg.addRecipients(Message.RecipientType.BCC, internetAddresses.toArray(new InternetAddress[]{}));
 
         msg.setSubject(MimeUtility.encodeText(subject, ENCODING, "B"));
         msg.setSentDate(new Date());
@@ -308,7 +317,7 @@ public class MailUtils {
    * @param context   the context in which to perform validation
    */
   public static void validate(String email, ValidationContext context) {
-    if (email != null) {
+		if (email != null && email.length() > 0) {
       try {
         InternetAddress ia = new InternetAddress(email, true);
         ia.validate();
