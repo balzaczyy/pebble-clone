@@ -254,6 +254,24 @@ public class Blogs {
 	}
 
 	/**
+	 * Edits an existing blog entry. This is called to populate a HTML form containing the contents of the blog entry.
+	 */
+	@GET
+	@Path("/entries/edit/{entryId:\\d+}")
+	public View editEntry(@PathParam("entryId") String entryId) throws BlogServiceException {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		BlogEntry blogEntry = new BlogService().getBlogEntry(blog, entryId);
+
+		if (blogEntry == null) {
+			return new NotFoundView();
+		} else {
+			setAttribute(Constants.BLOG_ENTRY_KEY, blogEntry);
+			return new BlogEntryFormView();
+		}
+	}
+
+	/**
 	 * Finds a particular blog entry, ready to be displayed.
 	 */
 	@GET

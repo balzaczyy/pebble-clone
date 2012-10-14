@@ -82,7 +82,7 @@ public class ManageBlogEntryAction extends SecureAction {
     }
 
     if (submit.equals("Edit")) {
-      return new ForwardView("/editBlogEntry.secureaction?entry=" + id);
+			return new ForwardView("/p/entries/edit/" + id);
     } else if (submit.equals("Publish") || submit.equals("Unpublish")) {
       getModel().put(Constants.BLOG_ENTRY_KEY, blogEntry);
       return new PublishBlogEntryView();

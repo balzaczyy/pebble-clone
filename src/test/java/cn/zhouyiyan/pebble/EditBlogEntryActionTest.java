@@ -29,62 +29,42 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
-import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.domain.BlogService;
-import net.sourceforge.pebble.domain.BlogServiceException;
-import net.sourceforge.pebble.web.view.View;
-import net.sourceforge.pebble.web.view.NotFoundView;
-import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
 import net.sourceforge.pebble.Constants;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.web.action.SecureActionTestCase;
+import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
 
 /**
- * Edits an existing blog entry. This is called to populate a HTML
- * form containing the contents of the blog entry.
+ * Tests for the EditBlogEntryAction class.
  *
  * @author    Simon Brown
  */
-public class EditBlogEntryAction extends SecureAction {
+public class EditBlogEntryActionTest extends SecureActionTestCase {
+	private Blogs blogs;
+  @Override
+	protected void setUp() throws Exception {
+    super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.isSecured = false;
+  }
 
-  /**
-   * Peforms the processing associated with this action.
-   *
-   * @param request  the HttpServletRequest instance
-   * @param response the HttpServletResponse instance
-   * @return the name of the next view
-   */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-    Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
+  public void testProcess() throws Exception {
+    // first of all add a blog entry to be edited
     BlogService service = new BlogService();
-    BlogEntry blogEntry = null;
-    try {
-      blogEntry = service.getBlogEntry(blog, request.getParameter("entry"));
-    } catch (BlogServiceException e) {
-      throw new ServletException(e);
-    }
+    BlogEntry newBlogEntry = new BlogEntry(blog);
+    service.putBlogEntry(newBlogEntry);
 
-    if (blogEntry == null) {
-      return new NotFoundView();
-    } else {
-      getModel().put(Constants.BLOG_ENTRY_KEY, blogEntry);
-      return new BlogEntryFormView();
-    }
+    // now execute the action
+		View view = blogs.editEntry(newBlogEntry.getId());
+
+		BlogEntry blogEntry = (BlogEntry) request.getAttribute(Constants.BLOG_ENTRY_KEY);
+    assertEquals(newBlogEntry, blogEntry);
+
+    assertTrue(view instanceof BlogEntryFormView);
   }
-
-  /**
-   * Gets a list of all roles that are allowed to access this action.
-   *
-   * @return  an array of Strings representing role names
-   * @param request
-   */
-  public String[] getRoles(HttpServletRequest request) {
-    return new String[]{Constants.BLOG_CONTRIBUTOR_ROLE};
-  }
-
 }

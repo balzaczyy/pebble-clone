@@ -32,7 +32,7 @@
           <input type="checkbox" name="entry" value="${blogEntry.Id}" />
         </td>
         <td>
-          <a href="editBlogEntry.secureaction?entry=${blogEntry.Id}#form">${blogEntry.Title}</a>
+          <a href="p/entries/edit/${blogEntry.Id}#form">${blogEntry.Title}</a>
         </td>
       </tr>
 #end
