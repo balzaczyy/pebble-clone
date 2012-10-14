@@ -45,7 +45,8 @@ public class ResponsesView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     String type = (String)getModel().get("type");
     if (type.equalsIgnoreCase("pending")) {
       return getLocalizedString("view.responses.pending");
@@ -61,8 +62,9 @@ public class ResponsesView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/viewResponses.jsp";
+  @Override
+	public String getUri() {
+		return "viewResponses.vm";
   }
 
 }

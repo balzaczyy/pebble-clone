@@ -56,6 +56,14 @@ public class UrlFunctions {
 		return ans == null ? "" : ans;
 	}
 
+	public String escapeOr(String url, String defaultValue) {
+		return url == null ? defaultValue : escape(url);
+	}
+
+	public String or(String value, String other) {
+		return value != null ? value : other;
+	}
+
 	public String createGravatar(String email) {
 		return Util.createGravatar(email);
 	}

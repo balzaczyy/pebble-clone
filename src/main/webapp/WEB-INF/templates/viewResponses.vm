@@ -1,0 +1,112 @@
+<div class="contentItem">
+  <div class="contentItemLinks">
+    <a href="./help/commentAndTrackbackSpam.html" target="_blank">$fmt.message("common.help")</a>
+  </div>
+
+  <h1>
+#if ($type == "pending") Pending responses
+#elseif ($type == "rejected") Rejected responses
+#else Approved responses #end
+  </h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    <div align="center">
+    <a href="p/responses?type=approved">Approved (${blog.NumberOfApprovedResponses})</a> |
+    <a href="p/responses?type=pending">Pending (${blog.NumberOfPendingResponses})</a> |
+    <a href="p/responses?type=rejected">Rejected (${blog.NumberOfRejectedResponses})</a>
+    </div>
+    <br />
+
+#set ($serviceUrl = "p/responses?type=${type}")
+#parse ("WEB-INF/fragments/pageable.vm")
+    <br />
+
+    <form name="manageResponsesForm" action="manageResponses.secureaction" method="post">
+#if ($token)
+    <input type="hidden" name="pebbleSecurityToken" value="$token" />
+#end
+#if ($type == "pending")
+    <input type="hidden" name="type" value="pending" />
+#elseif ($type == "rejected")
+    <input type="hidden" name="type" value="rejected" />
+#else
+    <input type="hidden" name="type" value="" />
+#end
+    <input type="hidden" name="page" value="${page}" />
+
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th><input type="checkbox" name="allResponses" onclick="toggleCheckAll(document.manageResponsesForm.allResponses, document.manageResponsesForm.response)"/></th>
+          <th>Source</th>
+          <th>Summary</th>
+          <th align="right">Date/time</th>
+        </tr>
+      </thead>
+      <tbody>
+#set ($count = 0)
+#foreach ($response in $pageable.ListForPage)
+  #if ($count % 2 == 0)
+      <tr class="even">
+  #else
+      <tr class="odd">
+  #end
+        <td valign="top" class="small">
+          <input type="checkbox" name="response" value="${response.Guid}" />
+        </td>
+        <td valign="top" class="small">
+  #if ($response.SourceLink)
+          <a href="{$url.escape($response.SourceLink)}" target="_blank" rel="nofollow">$url.escape($response.SourceName)</a>
+  #else
+          $url.escape($response.SourceName)
+  #end
+          <br />
+  #if ($response.Class.Name == "pebble.blog.Comment")
+          $url.escapeOr($response.Email, "-")
+          <br />
+  #end
+          $url.or($response.IpAddress, "-")
+        </td>
+        <td valign="top" class="small">
+          <a href="${url.rewrite($response.Permalink)}" title="Go to this response">${response.Title}</a>
+          <br />
+          $url.escape(${response.TruncatedContent})
+        </td>
+        <td align="right" valign="top" class="small">
+          $fmt.shortDate($response.Date)
+        </td>
+      </tr>
+  #set ($count = $count + 1)
+#end
+      </tbody>
+    </table>
+
+    <br />
+
+***
+    <table width="99%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="right">
+#if ($type == "pending")
+          <button name="submit" type="submit" Value="Approve">$fmt.message("admin.approve")</button>
+          <button name="submit" type="submit" Value="Reject">$fmt.message("admin.reject")</button>
+		  <button name="submit" type="submit" Value="Remove">$fmt.message("admin.remove")</button>
+#elseif ($type == "rejected")
+          <button name="submit" type="submit" Value="Approve">$fmt.message("admin.approve")</button>
+	      <button name="submit" type="submit" Value="Remove">$fmt.message("admin.remove")</button>
+#else
+	      <button name="submit" type="submit" Value="Reject">$fmt.message("admin.reject")</button>
+		  <button name="submit" type="submit" Value="Remove">$fmt.message("admin.remove")</button>
+#end
+        </td>
+      </tr>
+    </table>
+
+    </form>
+
+#set ($serviceUrl = "p/responses?type=${type}")
+#parse ("WEB-INF/fragments/pageable.vm")
+  </div>
+
+</div>

@@ -50,6 +50,12 @@ public class Formatter {
 		return df.format(date);
 	}
 
+	public String shortDate(Date date) {
+		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, loc);
+		df.setTimeZone(tz);
+		return df.format(date);
+	}
+
 	public String mediumDateShortTime(Date date) {
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, loc);
 		df.setTimeZone(tz);

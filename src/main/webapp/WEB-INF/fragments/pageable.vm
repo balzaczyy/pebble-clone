@@ -1,0 +1,19 @@
+#if ($pageable.MaxPages > 1)
+  <div align="center">
+  #if ($pageable.PreviousPage > 0)
+    <a href="${url.rewrite($serviceUrl)}&amp;page=${pageable.PreviousPage}">$fmt.message("common.previous")</a>
+  #end
+  #if ($pageable.MinPageRange != 1) ... #end
+  #foreach ($i in [$pageable.MinPageRange .. $pageable.MaxPageRange])
+    #if ($i != $pageable.Page)
+      <a href="${url.rewrite($serviceUrl)}&amp;page=${i}">${i}</a>
+    #else
+      ${i}
+    #end
+  #end
+  #if ($pageable.MaxPageRange != $pageable.MaxPages) ... #end
+  #if ($pageable.NextPage > 0)
+    <a href="${url.rewrite($serviceUrl)}&amp;page=${pageable.NextPage}">$fmt.message("common.next")</a>
+  #end
+  </div>
+#end

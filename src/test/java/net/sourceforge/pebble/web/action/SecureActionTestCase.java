@@ -58,7 +58,11 @@ public abstract class SecureActionTestCase extends SingleBlogTestCase {
 
     model = new Model();
     model.put(Constants.BLOG_KEY, blog);
-		if (action != null) action.setModel(model);
+		if (action != null) {
+			action.setModel(model);
+		} else {
+			request.setAttribute(Constants.BLOG_KEY, blog);
+		}
   }
 
 }

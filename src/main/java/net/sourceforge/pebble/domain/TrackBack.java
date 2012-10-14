@@ -31,9 +31,9 @@
  */
 package net.sourceforge.pebble.domain;
 
-import net.sourceforge.pebble.api.event.trackback.TrackBackEvent;
-
 import java.util.Date;
+
+import net.sourceforge.pebble.api.event.trackback.TrackBackEvent;
 
 /**
  * Represents a MovableType TrackBack - see
@@ -42,8 +42,9 @@ import java.util.Date;
  * @author    Simon Brown
  */
 public class TrackBack extends Response {
+	private static final long serialVersionUID = 1736481303891531018L;
 
-  /** the excerpt */
+	/** the excerpt */
   private String excerpt;
 
   /** the url */
@@ -77,7 +78,8 @@ public class TrackBack extends Response {
    *
    * @return  the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     if (title != null && title.length() > 0) {
       return title;
     } else {
@@ -112,7 +114,8 @@ public class TrackBack extends Response {
    *
    * @return a String
    */
-  public String getContent() {
+  @Override
+	public String getContent() {
     return getExcerpt();
   }
 
@@ -130,7 +133,8 @@ public class TrackBack extends Response {
    *
    * @return a String
    */
-  public String getSourceLink() {
+  @Override
+	public String getSourceLink() {
     return getUrl();
   }
 
@@ -157,7 +161,8 @@ public class TrackBack extends Response {
    *
    * @return a String
    */
-  public String getSourceName() {
+  @Override
+	public String getSourceName() {
     return getBlogName();
   }
 
@@ -193,7 +198,8 @@ public class TrackBack extends Response {
    * @return a clone of this instance.
    * @see Cloneable
    */
-  public Object clone() {
+  @Override
+	public Object clone() {
     TrackBack trackBack = new TrackBack(title, excerpt, url, blogName, ipAddress, date, getState(), blogEntry);
     return trackBack;
   }
@@ -201,7 +207,8 @@ public class TrackBack extends Response {
   /**
    * Sets the state of this TrackBack.
    */
-  void setState(State state) {
+  @Override
+	void setState(State state) {
     State previousState = getState();
     super.setState(state);
 

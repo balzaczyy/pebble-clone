@@ -41,6 +41,7 @@ import net.sourceforge.pebble.domain.BlogService;
 import net.sourceforge.pebble.domain.BlogServiceException;
 import net.sourceforge.pebble.domain.Category;
 import net.sourceforge.pebble.domain.Comment;
+import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.domain.Tag;
 import net.sourceforge.pebble.security.PebbleUserDetails;
@@ -69,6 +70,7 @@ import net.sourceforge.pebble.web.view.impl.CommentFormView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
+import net.sourceforge.pebble.web.view.impl.ResponsesView;
 import net.sourceforge.pebble.web.view.impl.StaticPageView;
 import net.sourceforge.pebble.web.view.impl.UserView;
 import net.sourceforge.pebble.web.view.impl.UsersView;
@@ -596,6 +598,56 @@ public class Blogs {
 			strategy.setupConfirmation(request);
 			return new ConfirmCommentView();
 		}
+	}
+
+	/** the number of responses to show per page */
+	static final int PAGE_SIZE = 20;
+
+	/**
+	 * Allows the user to view all recently added responses.
+	 */
+	@GET
+	@Path("/responses")
+	public View responses(@QueryParam("page") @DefaultValue("1") int page,//
+			@QueryParam("type") @DefaultValue("approved") String type) {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+
+		final Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		List<String> responses = null;
+		if ("pending".equalsIgnoreCase(type)) {
+			responses = new ArrayList<String>(blog.getPendingResponses());
+		} else if ("rejected".equalsIgnoreCase(type)) {
+			responses = new ArrayList<String>(blog.getRejectedResponses());
+		} else {
+			responses = new ArrayList<String>(blog.getApprovedResponses());
+		}
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		Pageable pageable = new Pageable(responses) {
+			@Override
+			public List getListForPage() {
+				List<Response> responses = new ArrayList<Response>();
+				BlogService service = new BlogService();
+				Iterator<String> it = super.getListForPage().iterator();
+				while (it.hasNext()) {
+					try {
+						responses.add(service.getResponse(blog, it.next()));
+					} catch (BlogServiceException e) {
+						// do nothing - some responses just won't get shown,
+						// but a message will be sent to the blog
+					}
+				}
+				return responses;
+			}
+		};
+		pageable.setPageSize(PAGE_SIZE);
+		pageable.setPage(page);
+		setAttribute("pageable", pageable);
+		setAttribute("page", page);
+		setAttribute("type", type);
+
+		return new ResponsesView();
 	}
 
 	/**

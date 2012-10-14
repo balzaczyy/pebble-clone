@@ -46,7 +46,7 @@ public class Pageable<T> {
   private static final int PAGE_WINDOW = 10;
 
   /** the list over which this class is paging */
-  private List<T> list;
+  private final List<T> list;
 
   /** the page size */
   private int pageSize = DEFAULT_PAGE_SIZE;
@@ -92,7 +92,7 @@ public class Pageable<T> {
    *
    * @return  a List
    */
-  public List<T> getList() {
+	public List<T> getList() {
     return this.list;
   }
 
@@ -110,7 +110,7 @@ public class Pageable<T> {
    *
    * @return  the page size as an int
    */
-  public int getPageSize() {
+	int getPageSize() {
     return this.pageSize;
   }
 

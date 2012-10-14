@@ -74,13 +74,13 @@
     <span id="admin-responses">
 #if ($isBlogContributor)
       <pebble:isBlogContributor>
-      <a href="viewResponses.secureaction" title="$fmt.message('admin.tooltip.manageApprovedResponses')">
+      <a href="p/responses" title="$fmt.message('admin.tooltip.manageApprovedResponses')">
         $fmt.message("admin.approved") (${blog.NumberOfApprovedResponses})
       </a> |
-      <a href="viewResponses.secureaction?type=pending" title="$fmt.message('admin.tooltip.managePendingResponses')">
+      <a href="p/responses?type=pending" title="$fmt.message('admin.tooltip.managePendingResponses')">
         $fmt.message("admin.pending") (${blog.NumberOfPendingResponses})
       </a> |
-      <a href="viewResponses.secureaction?type=rejected" title="$fmt.message('admin.tooltip.manageRejectedResponses')">
+      <a href="p/responses?type=rejected" title="$fmt.message('admin.tooltip.manageRejectedResponses')">
         $fmt.message("admin.rejected") (${blog.NumberOfRejectedResponses})
       </a>
 #end
