@@ -62,6 +62,12 @@ public class Formatter {
 		return df.format(date);
 	}
 
+	public String mediumDateLongTime(Date date) {
+		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG, loc);
+		df.setTimeZone(tz);
+		return df.format(date);
+	}
+
 	public String formatDayOfMonth(Calendar cal) {
 		String ans = NumberFormat.getIntegerInstance(loc).format(cal.get(Calendar.DAY_OF_MONTH));
 		if (ans.length() == 1) ans = "&nbsp;" + ans;

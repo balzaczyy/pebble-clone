@@ -8,7 +8,7 @@
   <h2>&nbsp;</h2>
 
   <div class="contentItemBody">
-    <form name="unpublishedBlogEntriesForm" method="post" action="manageBlogEntries.secureaction">
+    <form name="unpublishedBlogEntriesForm" method="post" action="p/entries/manage">
 #if ($token)
       <input type="hidden" name="pebbleSecurityToken" value="$token" />
 #end

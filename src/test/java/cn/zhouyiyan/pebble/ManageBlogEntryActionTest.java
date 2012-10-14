@@ -29,11 +29,11 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
-import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.BlogService;
+import net.sourceforge.pebble.web.action.SecureActionTestCase;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 
@@ -43,11 +43,14 @@ import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
  * @author    Simon Brown
  */
 public class ManageBlogEntryActionTest extends SecureActionTestCase {
+	private Blogs blogs;
 
-  protected void setUp() throws Exception {
-    action = new ManageBlogEntryAction();
-
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.isSecured = false;
   }
 
   public void testPublishBlogEntry() throws Exception {
@@ -57,9 +60,7 @@ public class ManageBlogEntryActionTest extends SecureActionTestCase {
     service.putBlogEntry(blogEntry);
 
     // now execute the action
-    request.setParameter("entry", blogEntry.getId());
-    request.setParameter("submit", "Publish");
-    View view = action.process(request, response);
+		View view = blogs.manageEntry(blogEntry.getId(), "Publish", null);
 
     assertTrue(blogEntry.isUnpublished());
     assertTrue(view instanceof PublishBlogEntryView);
@@ -72,31 +73,9 @@ public class ManageBlogEntryActionTest extends SecureActionTestCase {
     service.putBlogEntry(blogEntry);
 
     // now execute the action
-    request.setParameter("entry", blogEntry.getId());
-    request.setParameter("submit", "Unpublish");
-    View view = action.process(request, response);
+		View view = blogs.manageEntry(blogEntry.getId(), "Unpublish", null);
 
     assertTrue(blogEntry.isPublished());
     assertTrue(view instanceof PublishBlogEntryView);
   }
-
-  /**
-   * Test that only blog owners can approve comments.
-   */
-  public void testDefaultRoleIsBlogOwner() {
-    String roles[] = action.getRoles(request);
-    assertEquals(1, roles.length);
-    assertEquals(Constants.BLOG_OWNER_ROLE, roles[0]);
-  }
-
-  /**
-   * Test that only blog owners can approve comments.
-   */
-  public void testOnlyBlogOwnersHaveAccessToApprove() {
-    request.setParameter("submit", "Approve");
-    String roles[] = action.getRoles(request);
-    assertEquals(1, roles.length);
-    assertEquals(Constants.BLOG_OWNER_ROLE, roles[0]);
-  }
-
 }

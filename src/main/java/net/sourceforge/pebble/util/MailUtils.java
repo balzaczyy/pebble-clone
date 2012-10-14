@@ -48,6 +48,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.domain.Blog;
@@ -296,7 +297,7 @@ public class MailUtils {
    * @return  a Session instance
    * @throws Exception    if something goes wrong creating a session
    */
-  public static Session createSession() throws Exception {
+	public static Session createSession() throws NamingException {
     String ref = PebbleContext.getInstance().getConfiguration().getSmtpHost();
     if (ref.startsWith("java:comp/env")) {
       // this is a JNDI based mail session

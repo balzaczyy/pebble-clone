@@ -31,14 +31,14 @@
  */
 package net.sourceforge.pebble.event.blogentry;
 
-import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
-import net.sourceforge.pebble.api.event.blogentry.BlogEntryEvent;
-import net.sourceforge.pebble.util.MailUtils;
-
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
+
+import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
+import net.sourceforge.pebble.api.event.blogentry.BlogEntryEvent;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
+import net.sourceforge.pebble.util.MailUtils;
 
 /**
  * Sends an e-mail notification when new blog entries are added.
@@ -52,7 +52,8 @@ public class EmailNotificationListener extends BlogEntryListenerSupport {
    *
    * @param event   a BlogEntryEvent instance
    */
-  public void blogEntryAdded(BlogEntryEvent event) {
+  @Override
+	public void blogEntryAdded(BlogEntryEvent event) {
     BlogEntry blogEntry = event.getBlogEntry();
     sendNotification((BlogEntry)blogEntry.clone());
   }
@@ -62,7 +63,8 @@ public class EmailNotificationListener extends BlogEntryListenerSupport {
    *
    * @param event a BlogEntryEvent instance
    */
-  public void blogEntryChanged(BlogEntryEvent event) {
+  @Override
+	public void blogEntryChanged(BlogEntryEvent event) {
     BlogEntry blogEntry = event.getBlogEntry();
     sendNotification((BlogEntry)blogEntry.clone());
   }
@@ -72,7 +74,8 @@ public class EmailNotificationListener extends BlogEntryListenerSupport {
    *
    * @param event a BlogEntryEvent instance
    */
-  public void blogEntryPublished(BlogEntryEvent event) {
+  @Override
+	public void blogEntryPublished(BlogEntryEvent event) {
     BlogEntry blogEntry = event.getBlogEntry();
     sendNotification((BlogEntry)blogEntry.clone());
   }
@@ -100,12 +103,14 @@ public class EmailNotificationListener extends BlogEntryListenerSupport {
 
     if (blogEntry.isUnpublished()) {
       message += " | ";
-      message += "<a href=\"" + blog.getUrl() + "manageBlogEntry.secureaction?entry=" + blogEntry.getId() + "&submit=Publish&confirm=true\">Publish</a>";
+			message += "<a href=\"" + blog.getUrl() + "p/entries/manage/" + blogEntry.getId()
+					+ "?submit=Publish&confirm=true\">Publish</a>";
     }
 
     // and send the e-mail
     try {
-      MailUtils.sendMail(MailUtils.createSession(), blog, blog.getEmailAddresses(), new HashSet(), subject, message);
+			MailUtils.sendMail(MailUtils.createSession(), blog, blog.getEmailAddresses(), new HashSet<String>(), subject,
+					message);
     } catch (Exception e) {
       e.printStackTrace();
     }

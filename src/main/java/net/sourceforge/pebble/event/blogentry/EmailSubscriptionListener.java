@@ -31,15 +31,17 @@
  */
 package net.sourceforge.pebble.event.blogentry;
 
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import javax.mail.Session;
+import javax.naming.NamingException;
+
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.api.event.blogentry.BlogEntryEvent;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.util.MailUtils;
-
-import javax.mail.Session;
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 /**
  * Sends an e-mail notification to e-mail subscribers when new blog entries
@@ -57,7 +59,8 @@ public class EmailSubscriptionListener extends BlogEntryListenerSupport {
    *
    * @param event a BlogEntryEvent instance
    */
-  public void blogEntryPublished(BlogEntryEvent event) {
+  @Override
+	public void blogEntryPublished(BlogEntryEvent event) {
     BlogEntry blogEntry = event.getBlogEntry();
     sendNotification((BlogEntry)blogEntry.clone());
   }
@@ -101,7 +104,7 @@ public class EmailSubscriptionListener extends BlogEntryListenerSupport {
         MailUtils.sendMail(session, blog, emailAddress, subject,
             message.replaceAll(EMAIL_ADDRESS_TOKEN, emailAddress));
       }
-    } catch (Exception e) {
+		} catch (NamingException e) {
         e.printStackTrace();
     } catch (NoClassDefFoundError e) {
         // most likely: JavaMail is not in classpath

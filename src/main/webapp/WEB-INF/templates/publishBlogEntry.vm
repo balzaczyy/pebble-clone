@@ -1,0 +1,62 @@
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/blogEntries.html" target="_blank">Help</a>
+  </div>
+
+  <h1>
+#if ($blogEntry.isUnpublished())
+    Publish blog entry
+#elseif ($blogEntry.isPublished())
+    Unpublish blog entry
+#end
+  </h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    <form name="publishBlogEntryForm" action="publishBlogEntry.secureaction" method="POST" accept-charset="${blog.CharacterEncoding}">
+#if ($token)
+      <input type="hidden" name="pebbleSecurityToken" value="$token" />
+#end
+      <input type="hidden" name="entry" value="${blogEntry.Id}" />
+
+#if ($blogEntry.isUnpublished())
+	<table width="99%" cellspacing="0" cellpadding="4">
+	  <tr>
+	    <td valign="top"><b>Date/time</b></td>
+	    <td>
+	      <input type="radio" name="publishDate" value="as-is" checked="checked" />
+	      &nbsp;As-is ($fmt.mediumDateLongTime(${blogEntry.Date}))<br />
+	      <input type="radio" name="publishDate" value="now" />
+	      &nbsp;Now<br />
+	      <input type="radio" name="publishDate" value="custom" />
+	      &nbsp;
+	      <input type="text" name="date" size="30" value="${fmt.mediumDateShortTime($now)}" onfocus="publishBlogEntryForm.publishDate[2].checked=true" />
+	      &nbsp;(can't be in the future)
+	    </td>
+	  </tr>
+	
+	  <tr>
+	    <td colspan="2" align="right">
+	      <button name="submit" type="submit" Value="Publish" >$fmt.message("common.publish")</button>
+	    </td>
+	  </tr>
+	</table>
+
+#elseif ($blogEntry.isPublished())
+    Are you sure?
+
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <tr>
+        <td colspan="2" align="right">
+          <button name="submit" type="submit" Value="Unpublish">$fmt.message("common.unpublish")</button>
+        </td>
+      </tr>
+    </table>
+
+#end
+
+    </form>
+  </div>
+
+</div>

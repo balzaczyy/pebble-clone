@@ -2,7 +2,7 @@
 #if ($displayMode != "preview")
   #if ($isAuthorisedForBlog)
   <div class="inlineAdminLinks">
-    <form name="blogEntryForm" action="manageBlogEntry.secureaction" method="post">
+    <form name="blogEntryForm" action="p/entries/manage/${blogEntry.Id}" method="post">
     #if ($token)
       <input type="hidden" name="pebbleSecurityToken" value="$token" />
     #end

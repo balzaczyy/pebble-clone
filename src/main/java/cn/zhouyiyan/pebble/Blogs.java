@@ -19,6 +19,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -56,7 +57,9 @@ import net.sourceforge.pebble.util.I18n;
 import net.sourceforge.pebble.util.MailUtils;
 import net.sourceforge.pebble.util.Pageable;
 import net.sourceforge.pebble.util.SecurityUtils;
+import net.sourceforge.pebble.util.StringUtils;
 import net.sourceforge.pebble.web.validation.ValidationContext;
+import net.sourceforge.pebble.web.view.ForwardView;
 import net.sourceforge.pebble.web.view.NotFoundView;
 import net.sourceforge.pebble.web.view.NotModifiedView;
 import net.sourceforge.pebble.web.view.RedirectView;
@@ -70,6 +73,7 @@ import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
+import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.ResponsesView;
 import net.sourceforge.pebble.web.view.impl.StaticPageView;
@@ -427,6 +431,92 @@ public class Blogs {
 		Collections.sort(blogEntries, new PageBasedContentByTitleComparator());
 		setAttribute("unpublishedBlogEntries", blogEntries);
 		return new UnpublishedBlogEntriesView();
+	}
+
+	/**
+	 * Allows the user to manage (currently only remove) one or more blog entries.
+	 */
+	@POST
+	@Path("/entries/manage")
+	public View manageEntries(@FormParam("submit") String submit, //
+			@FormParam("entry") String[] ids, //
+			@FormParam("redirectUrl") String redirectUrl) throws BlogServiceException {
+		if ("Remove".equalsIgnoreCase(submit)) {
+			checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		} else if ("Publish".equalsIgnoreCase(submit)) {
+			checkUserInRoles(Constants.BLOG_PUBLISHER_ROLE);
+		} else {
+			checkUserInRoles(Constants.BLOG_OWNER_ROLE);
+		}
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		if (ids != null) {
+			for (String id : ids) {
+				BlogService service = new BlogService();
+				BlogEntry blogEntry = service.getBlogEntry(blog, id);
+
+				if (blogEntry != null) {
+					if ("Remove".equalsIgnoreCase(submit)) {
+						service.removeBlogEntry(blogEntry);
+						blog.info("Blog entry \"" + StringUtils.transformHTML(blogEntry.getTitle()) + "\" removed.");
+					} else if ("Publish".equals(submit)) {
+						// this publishes the entry as-is (i.e. with the same
+						// date/time it already has)
+						blogEntry.setPublished(true);
+						service.putBlogEntry(blogEntry);
+						blog.info("Blog entry <a href=\"" + blogEntry.getLocalPermalink() + "\">" + blogEntry.getTitle()
+								+ "</a> published.");
+					}
+				}
+			}
+		}
+
+		if (redirectUrl != null && redirectUrl.trim().length() > 0) {
+			return new RedirectView(redirectUrl);
+		} else {
+			return new RedirectView(blog.getUrl());
+		}
+	}
+
+	/**
+	 * Allows the user to manage (edit, remove, etc) a blog entry.
+	 */
+	@POST
+	@Path("/entries/manage/{entryId}")
+	public View manageEntry(@PathParam("entryId") String id, //
+			@FormParam("submit") String submit, //
+			@FormParam("confirm") String confirm) throws BlogServiceException {
+		if ("Publish".equalsIgnoreCase(submit) || "Unpublish".equalsIgnoreCase(submit)) {
+			checkUserInRoles(Constants.BLOG_PUBLISHER_ROLE);
+		} else if ("Remove".equalsIgnoreCase(submit) || "Edit".equalsIgnoreCase(submit)) {
+			checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		} else {
+			checkUserInRoles(Constants.BLOG_OWNER_ROLE);
+		}
+
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		BlogService service = new BlogService();
+		BlogEntry blogEntry = service.getBlogEntry(blog, id);
+
+		if (blogEntry == null) {
+			return new NotFoundView();
+		} else if ("Edit".equals(submit)) {
+			return new ForwardView("/p/entries/edit/" + id);
+		} else if ("Publish".equals(submit) || "Unpublish".equals(submit)) {
+			setAttribute(Constants.BLOG_ENTRY_KEY, blogEntry);
+			return new PublishBlogEntryView();
+		} else if ("Clone".equals(submit)) {
+			return new ForwardView("/p/entries/add?entryToClone=" + blogEntry.getId());
+		} else if ("true".equals(confirm)) {
+			if (submit.equalsIgnoreCase("Remove")) {
+				service.removeBlogEntry(blogEntry);
+				blog.info("Blog entry \"" + StringUtils.transformHTML(blogEntry.getTitle()) + "\" removed.");
+				return new ForwardView("/p"); // home
+			}
+		}
+
+		return new RedirectView(blogEntry.getLocalPermalink());
 	}
 
 	/**
