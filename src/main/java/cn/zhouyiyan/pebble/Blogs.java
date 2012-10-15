@@ -1,5 +1,6 @@
 package cn.zhouyiyan.pebble;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -39,6 +40,7 @@ import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.comparator.BlogEntryComparator;
 import net.sourceforge.pebble.comparator.PageBasedContentByTitleComparator;
 import net.sourceforge.pebble.domain.AbstractBlog;
+import net.sourceforge.pebble.domain.Attachment;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.BlogManager;
@@ -83,6 +85,9 @@ import net.sourceforge.pebble.web.view.impl.UnpublishedBlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.UserView;
 import net.sourceforge.pebble.web.view.impl.UsersView;
 
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.HeadMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -215,8 +220,8 @@ public class Blogs {
 	}
 
 	/**
-	 * Adds a new blog entry. This is called to create a blank blog entry to populate a HTML form containing the contents
-	 * of that entry.
+	 * Adds a new blog entry. This is called to create a blank blog entry to
+	 * populate a HTML form containing the contents of that entry.
 	 */
 	@GET
 	@Path("/entries/add")
@@ -264,7 +269,8 @@ public class Blogs {
 	}
 
 	/**
-	 * Edits an existing blog entry. This is called to populate a HTML form containing the contents of the blog entry.
+	 * Edits an existing blog entry. This is called to populate a HTML form
+	 * containing the contents of the blog entry.
 	 */
 	@GET
 	@Path("/entries/edit/{entryId:\\d+}")
@@ -345,8 +351,10 @@ public class Blogs {
 				// is "remember me" set?
 				Cookie rememberMe = CookieUtils.getCookie(request.getCookies(), "rememberMe");
 				if (rememberMe != null) {
-					// remember me has been checked and we're not already previewing a comment
-					// so create a new comment as this will populate the author/email/website
+					// remember me has been checked and we're not already previewing a
+					// comment
+					// so create a new comment as this will populate the
+					// author/email/website
 					Cookie author = CookieUtils.getCookie(request.getCookies(), "rememberMe.author");
 					if (author != null) {
 						comment.setAuthor(URLDecoder.decode(author.getValue(), blog.getCharacterEncoding()));
@@ -382,7 +390,8 @@ public class Blogs {
 	}
 
 	/**
-	 * Views blog entries page by page. The page size is the same as the "number of blog entries shown on the home page".
+	 * Views blog entries page by page. The page size is the same as the
+	 * "number of blog entries shown on the home page".
 	 */
 	@GET
 	@Path("/entries/recent")
@@ -426,7 +435,8 @@ public class Blogs {
 	}
 
 	/**
-	 * Allows the user to view the unpublised blog entries associated with the current blog.
+	 * Allows the user to view the unpublised blog entries associated with the
+	 * current blog.
 	 */
 	@GET
 	@Path("/entries/unpublished")
@@ -610,6 +620,188 @@ public class Blogs {
 		return new RedirectView(blogEntry.getLocalPermalink());
 	}
 
+	/** the value used if the blog entry is being previewed rather than added */
+	private static final String PREVIEW = "Preview";
+
+	/**
+	 * Saves a blog entry.
+	 */
+	@POST
+	@Path("entries/save/{entryId:\\d+}")
+	public View saveEntry(@PathParam("entryId") String id, //
+			@FormParam("submit") String submitType, @FormParam("persistent") String persistent) throws BlogServiceException {
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		if (submitType != null && submitType.equalsIgnoreCase(PREVIEW)) {
+			return previewBlogEntry(blog, id, persistent);
+		} else {
+			return saveBlogEntry(blog, id, persistent);
+		}
+	}
+
+	private View previewBlogEntry(Blog blog, String id, String persistent) throws BlogServiceException {
+		BlogEntry blogEntry = getBlogEntry(blog, id, persistent);
+
+		populateBlogEntry(blogEntry, request);
+
+		ValidationContext validationContext = new ValidationContext();
+		blogEntry.validate(validationContext);
+		setAttribute("validationContext", validationContext);
+		setAttribute(Constants.BLOG_ENTRY_KEY, blogEntry);
+
+		return new BlogEntryFormView();
+	}
+
+	private View saveBlogEntry(Blog blog, String id, String persistent) throws BlogServiceException {
+		BlogEntry blogEntry = getBlogEntry(blog, id, persistent);
+
+		populateBlogEntry(blogEntry, request);
+
+		ValidationContext context = new ValidationContext();
+		blogEntry.validate(context);
+
+		setAttribute("validationContext", context);
+		setAttribute(Constants.BLOG_ENTRY_KEY, blogEntry);
+
+		if (context.hasErrors()) {
+			return new BlogEntryFormView();
+		} else {
+			BlogService service = new BlogService();
+			try {
+				service.putBlogEntry(blogEntry);
+				blog.info("Blog entry <a href=\"" + blogEntry.getLocalPermalink() + "\">" + blogEntry.getTitle()
+						+ "</a> saved.");
+				setAttribute(Constants.BLOG_ENTRY_KEY, blogEntry);
+				return new RedirectView(blogEntry.getLocalPermalink());
+			} catch (BlogServiceException be) {
+				LOG.error(be.getMessage(), be);
+				context.addError(be.getMessage());
+				be.printStackTrace();
+				return new BlogEntryFormView();
+			}
+		}
+	}
+
+	private BlogEntry getBlogEntry(Blog blog, String id, String persistent) throws BlogServiceException {
+		if ("true".equalsIgnoreCase(persistent)) {
+			return new BlogService().getBlogEntry(blog, id);
+		} else {
+			BlogEntry blogEntry = new BlogEntry(blog);
+			blogEntry.setAuthor(SecurityUtils.getUsername());
+			return blogEntry;
+		}
+	}
+
+	private void populateBlogEntry(BlogEntry blogEntry, HttpServletRequest request) {
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		String title = StringUtils.stripScriptTags(request.getParameter("title"));
+		String subtitle = StringUtils.stripScriptTags(request.getParameter("subtitle"));
+		String body = StringUtils.filterNewlines(request.getParameter("body"));
+		String excerpt = StringUtils.filterNewlines(request.getParameter("excerpt"));
+		String originalPermalink = request.getParameter("originalPermalink");
+		String tags = request.getParameter("tags");
+		String commentsEnabled = request.getParameter("commentsEnabled");
+		String trackBacksEnabled = request.getParameter("trackBacksEnabled");
+		String category[] = request.getParameterValues("category");
+		String timeZone = request.getParameter("timeZone");
+
+		// the date can only set on those entries that have not yet been persisted
+		if (!blogEntry.isPersistent()) {
+			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, blog.getLocale());
+			dateFormat.setTimeZone(blog.getTimeZone());
+			dateFormat.setLenient(false);
+
+			Date now = new Date();
+			String dateAsString = request.getParameter("date");
+			if (dateAsString != null && dateAsString.length() > 0) {
+				try {
+					Date date = dateFormat.parse(dateAsString);
+					if (date.after(now)) {
+						date = now;
+					}
+					blogEntry.setDate(date);
+				} catch (ParseException pe) {
+					LOG.warn("", pe);
+					blogEntry.setDate(now);
+				}
+			} else {
+				// the date has been blanked out, so reset to "now"
+				blogEntry.setDate(now);
+			}
+		}
+
+		blogEntry.setTimeZoneId(timeZone);
+		blogEntry.setTitle(title);
+		blogEntry.setSubtitle(subtitle);
+		blogEntry.setBody(body);
+		blogEntry.setExcerpt(excerpt);
+		Set<Category> categories = new HashSet<Category>();
+		if (category != null) {
+			for (int i = 0; i < category.length; i++) {
+				categories.add(blog.getCategory(category[i]));
+			}
+		}
+		blogEntry.setCategories(categories);
+		blogEntry.setTags(tags);
+		blogEntry.setOriginalPermalink(originalPermalink);
+		if (commentsEnabled != null && commentsEnabled.equalsIgnoreCase("true")) {
+			blogEntry.setCommentsEnabled(true);
+		} else {
+			blogEntry.setCommentsEnabled(false);
+		}
+		if (trackBacksEnabled != null && trackBacksEnabled.equalsIgnoreCase("true")) {
+			blogEntry.setTrackBacksEnabled(true);
+		} else {
+			blogEntry.setTrackBacksEnabled(false);
+		}
+
+		String attachmentUrl = request.getParameter("attachmentUrl");
+		String attachmentSize = request.getParameter("attachmentSize");
+		String attachmentType = request.getParameter("attachmentType");
+		if (attachmentUrl != null && attachmentUrl.length() > 0) {
+			Attachment attachment = populateAttachment(blogEntry, attachmentUrl, attachmentSize, attachmentType);
+			blogEntry.setAttachment(attachment);
+		} else {
+			blogEntry.setAttachment(null);
+		}
+	}
+
+	private Attachment populateAttachment(BlogEntry blogEntry, String attachmentUrl, String attachmentSize,
+			String attachmentType) {
+		if (attachmentSize == null || attachmentSize.length() == 0) {
+			String absoluteAttachmentUrl = attachmentUrl;
+			try {
+				HttpClient httpClient = new HttpClient();
+				if (absoluteAttachmentUrl.startsWith("./")) {
+					absoluteAttachmentUrl = blogEntry.getBlog().getUrl() + absoluteAttachmentUrl.substring(2);
+				}
+
+				HeadMethod headMethod = new HeadMethod(absoluteAttachmentUrl);
+				int status = httpClient.executeMethod(headMethod);
+				if (status == 200) {
+					Header attachmentSizeHeader = headMethod.getResponseHeader("Content-Length");
+					if (attachmentSizeHeader != null) {
+						attachmentSize = attachmentSizeHeader.getValue();
+					}
+					Header attachmentTypeHeader = headMethod.getResponseHeader("Content-Type");
+					if (attachmentTypeHeader != null) {
+						attachmentType = attachmentTypeHeader.getValue();
+					}
+				}
+			} catch (IOException e) {
+				LOG.warn("Could not get details for attachment located at " + absoluteAttachmentUrl + " : " + e.getMessage());
+			}
+		}
+
+		Attachment attachment = new Attachment();
+		attachment.setUrl(attachmentUrl);
+		if (attachmentSize != null && attachmentSize.length() > 0) {
+			attachment.setSize(Long.parseLong(attachmentSize));
+		}
+		attachment.setType(attachmentType);
+
+		return attachment;
+	}
+
 	/**
 	 * Allows the user to reply to a specific blog entry.
 	 */
@@ -626,7 +818,8 @@ public class Blogs {
 		}
 
 		if (blogEntry == null) {
-			// the entry cannot be found - it may have been removed or the requesting URL was wrong
+			// the entry cannot be found - it may have been removed or the requesting
+			// URL was wrong
 
 			return new NotFoundView();
 		} else if (!blogEntry.isPublished() && !(SecurityUtils.isUserAuthorisedForBlog(blog))) {
@@ -761,7 +954,8 @@ public class Blogs {
 			// most likely: JavaMail is not in classpath
 			// ignore, when we can not send email we must not validate address
 			// this might lead to problems when mail is activated later without this
-			// address being validated... Discussion started on mailing list, Oct-25 2008
+			// address being validated... Discussion started on mailing list, Oct-25
+			// 2008
 		}
 		setAttribute("validationContext", context);
 		return context;
@@ -952,7 +1146,8 @@ public class Blogs {
 	 *          the blog for which the feed is for
 	 * @param request
 	 *          the HTTP request containing the tag parameter
-	 * @return a Tag instance, or null if the tag isn't specified or can't be found
+	 * @return a Tag instance, or null if the tag isn't specified or can't be
+	 *         found
 	 */
 	private Tag getTag(Blog blog, HttpServletRequest request) {
 		String tag = request.getParameter("tag");
@@ -970,7 +1165,8 @@ public class Blogs {
 	 *          the blog for which the feed is for
 	 * @param request
 	 *          the HTTP request containing the category parameter
-	 * @return a Category instance, or null if the category isn't specified or can't be found
+	 * @return a Category instance, or null if the category isn't specified or
+	 *         can't be found
 	 */
 	private Category getCategory(Blog blog, HttpServletRequest request) {
 		String categoryId = request.getParameter("category");

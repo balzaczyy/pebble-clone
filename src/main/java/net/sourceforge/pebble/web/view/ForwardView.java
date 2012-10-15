@@ -31,21 +31,24 @@
  */
 package net.sourceforge.pebble.web.view;
 
+import java.io.IOException;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
- * Represents a JSP forward to another resource.
- *
- * @author    Simon Brown
+ * @deprecated use JAX-RS resource function call instead Represents a JSP
+ *             forward to another resource.
+ * 
+ * @author Simon Brown
  */
+@Deprecated
 public class ForwardView extends View {
 
-  private String uri;
+  private final String uri;
 
   /**
    * Creates a new instance with the specified URI.
@@ -70,7 +73,8 @@ public class ForwardView extends View {
    *
    * @return the title as a String
    */
-  public String getContentType() {
+  @Override
+	public String getContentType() {
     return null;
   }
 
@@ -81,7 +85,8 @@ public class ForwardView extends View {
    * @param response the HttpServletResponse instance
    * @param context
    */
-  public void dispatch(HttpServletRequest request, HttpServletResponse response, ServletContext context) throws ServletException {
+  @Override
+	public void dispatch(HttpServletRequest request, HttpServletResponse response, ServletContext context) throws ServletException {
     try {
       RequestDispatcher dispatcher = context.getRequestDispatcher(uri);
       dispatcher.forward(request, response);
