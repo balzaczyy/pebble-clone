@@ -62,7 +62,6 @@ import net.sourceforge.pebble.util.Pageable;
 import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.util.StringUtils;
 import net.sourceforge.pebble.web.validation.ValidationContext;
-import net.sourceforge.pebble.web.view.ForwardView;
 import net.sourceforge.pebble.web.view.NotFoundView;
 import net.sourceforge.pebble.web.view.NotModifiedView;
 import net.sourceforge.pebble.web.view.RedirectView;
@@ -258,6 +257,10 @@ public class Blogs {
 		setAttribute(Constants.BLOG_ENTRY_KEY, entry);
 
 		return new BlogEntryFormView();
+	}
+
+	public View cloneEntry(String entryToClone) throws BlogServiceException {
+		return addEntry(entryToClone);
 	}
 
 	/**
@@ -488,7 +491,7 @@ public class Blogs {
 	@Path("/entries/manage/{entryId:\\d+}")
 	public View manageEntry(@PathParam("entryId") String id, //
 			@FormParam("submit") String submit, //
-			@FormParam("confirm") String confirm) throws BlogServiceException {
+			@FormParam("confirm") String confirm) throws BlogServiceException, StaticPageServiceException {
 		if ("Publish".equalsIgnoreCase(submit) || "Unpublish".equalsIgnoreCase(submit)) {
 			checkUserInRoles(Constants.BLOG_PUBLISHER_ROLE);
 		} else if ("Remove".equalsIgnoreCase(submit) || "Edit".equalsIgnoreCase(submit)) {
@@ -511,12 +514,15 @@ public class Blogs {
 			setAttribute(Constants.BLOG_ENTRY_KEY, blogEntry);
 			return new PublishBlogEntryView();
 		} else if ("Clone".equals(submit)) {
-			return new ForwardView("/p/entries/add?entryToClone=" + blogEntry.getId());
+			// return new ForwardView("/p/entries/add?entryToClone=" +
+			// blogEntry.getId());
+			return cloneEntry(blogEntry.getId());
 		} else if ("true".equals(confirm)) {
 			if (submit.equalsIgnoreCase("Remove")) {
 				service.removeBlogEntry(blogEntry);
 				blog.info("Blog entry \"" + StringUtils.transformHTML(blogEntry.getTitle()) + "\" removed.");
-				return new ForwardView("/p"); // home
+				// return new ForwardView("/p"); // home
+				return home();
 			}
 		}
 
