@@ -1,1 +1,1 @@
-<jsp:forward page="/viewHomePage.action"/>
+<jsp:forward page="/p"/>

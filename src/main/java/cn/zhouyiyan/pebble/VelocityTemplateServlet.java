@@ -119,7 +119,7 @@ public class VelocityTemplateServlet extends VelocityServlet {
 		ctx.put("days", days.get(blogLocale));
 		ctx.put("calendarTool", new CalendarTag());
 		ctx.put("yearNow", Calendar.getInstance().get(Calendar.YEAR));
-		ctx.put("now", new Date());
+		ctx.put("dateNow", new Date());
 
 		// Enumeration<?> atts = request.getAttributeNames();
 		// while (atts.hasMoreElements()) {

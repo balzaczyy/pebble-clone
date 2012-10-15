@@ -14,7 +14,7 @@
   <h2>&nbsp;</h2>
 
   <div class="contentItemBody">
-    <form name="publishBlogEntryForm" action="publishBlogEntry.secureaction" method="POST" accept-charset="${blog.CharacterEncoding}">
+    <form name="publishBlogEntryForm" action="p/entries/publish/${blogEntry.Id}" method="POST" accept-charset="${blog.CharacterEncoding}">
 #if ($token)
       <input type="hidden" name="pebbleSecurityToken" value="$token" />
 #end
@@ -31,7 +31,8 @@
 	      &nbsp;Now<br />
 	      <input type="radio" name="publishDate" value="custom" />
 	      &nbsp;
-	      <input type="text" name="date" size="30" value="${fmt.mediumDateShortTime($now)}" onfocus="publishBlogEntryForm.publishDate[2].checked=true" />
+  #set ($value = $fmt.mediumDateShortTime(${dateNow}))
+	      <input type="text" name="date" size="30" value="$value" onfocus="publishBlogEntryForm.publishDate[2].checked=true" />
 	      &nbsp;(can't be in the future)
 	    </td>
 	  </tr>

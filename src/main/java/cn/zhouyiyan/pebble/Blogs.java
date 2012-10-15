@@ -4,10 +4,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -482,7 +485,7 @@ public class Blogs {
 	 * Allows the user to manage (edit, remove, etc) a blog entry.
 	 */
 	@POST
-	@Path("/entries/manage/{entryId}")
+	@Path("/entries/manage/{entryId:\\d+}")
 	public View manageEntry(@PathParam("entryId") String id, //
 			@FormParam("submit") String submit, //
 			@FormParam("confirm") String confirm) throws BlogServiceException {
@@ -502,7 +505,8 @@ public class Blogs {
 		if (blogEntry == null) {
 			return new NotFoundView();
 		} else if ("Edit".equals(submit)) {
-			return new ForwardView("/p/entries/edit/" + id);
+			// return new ForwardView("/p/entries/edit/" + id);
+			return editEntry(id);
 		} else if ("Publish".equals(submit) || "Unpublish".equals(submit)) {
 			setAttribute(Constants.BLOG_ENTRY_KEY, blogEntry);
 			return new PublishBlogEntryView();
@@ -513,6 +517,87 @@ public class Blogs {
 				service.removeBlogEntry(blogEntry);
 				blog.info("Blog entry \"" + StringUtils.transformHTML(blogEntry.getTitle()) + "\" removed.");
 				return new ForwardView("/p"); // home
+			}
+		}
+
+		return new RedirectView(blogEntry.getLocalPermalink());
+	}
+
+	/**
+	 * Allows the user to publish/unpublish a blog entry.
+	 */
+	@POST
+	@Path("/entries/publish/{entryId:\\d+}")
+	public View publishEntry(@PathParam("entryId") String id, //
+			@FormParam("submit") String submit, //
+			@FormParam("publishDate") String publishDate) throws BlogServiceException {
+		checkUserInRoles(Constants.BLOG_PUBLISHER_ROLE);
+
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		BlogService service = new BlogService();
+		BlogEntry blogEntry = service.getBlogEntry(blog, id);
+
+		if (blogEntry == null) {
+			return new NotFoundView();
+		} else if ("Publish".equals(submit)) {
+			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, blog.getLocale());
+			dateFormat.setTimeZone(blog.getTimeZone());
+			dateFormat.setLenient(false);
+
+			if ("as-is".equalsIgnoreCase(publishDate)) {
+				// this is the easiest scenario - just set the blog entry to published
+				// TODO: localization
+				try {
+					blogEntry.setPublished(true);
+					service.putBlogEntry(blogEntry);
+					blog.info("Blog entry <a href=\"" + blogEntry.getLocalPermalink() + "\">" + blogEntry.getTitle()
+							+ "</a> published.");
+				} catch (BlogServiceException be) {
+					// give feedback to the user that something bad has happened
+					blog.error("Error publishing blog entry " + StringUtils.transformHTML(blogEntry.getTitle()) + ": "
+							+ be.getClass().getName() + " " + StringUtils.transformHTML(be.getMessage()));
+					LOG.error("", be);
+				}
+			} else {
+				Date date = new Date();
+				if ("custom".equalsIgnoreCase(publishDate)) {
+					Date now = new Date();
+					String dateAsString = request.getParameter("date");
+					if (dateAsString != null && dateAsString.length() > 0) {
+						try {
+							date = dateFormat.parse(dateAsString);
+							if (date.after(now)) {
+								date = now;
+							}
+						} catch (ParseException pe) {
+							LOG.warn("", pe);
+						}
+					}
+				}
+
+				// now save the published entry and remove the unpublished version
+				try {
+					LOG.info("Removing blog entry dated {}", blogEntry.getDate());
+					service.removeBlogEntry(blogEntry);
+
+					blogEntry.setDate(date);
+					blogEntry.setPublished(true);
+					LOG.info("Putting blog entry dated {}", blogEntry.getDate());
+					service.putBlogEntry(blogEntry);
+					blog.info("Blog entry <a href=\"" + blogEntry.getLocalPermalink() + "\">" + blogEntry.getTitle()
+							+ "</a> published.");
+				} catch (BlogServiceException be) {
+					LOG.error("", be);
+				}
+			}
+		} else if ("Unpublish".equals(submit)) {
+			blogEntry.setPublished(false);
+			try {
+				service.putBlogEntry(blogEntry);
+				blog.info("Blog entry <a href=\"" + blogEntry.getLocalPermalink() + "\">" + blogEntry.getTitle()
+						+ "</a> unpublished.");
+			} catch (BlogServiceException be) {
+				LOG.error("", be);
 			}
 		}
 

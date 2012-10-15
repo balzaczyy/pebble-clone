@@ -29,17 +29,17 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.event.response.IpAddressListener;
-import net.sourceforge.pebble.web.view.View;
-import net.sourceforge.pebble.web.view.RedirectView;
+import java.util.Date;
+
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.BlogService;
 import net.sourceforge.pebble.domain.Comment;
-
-import java.util.Date;
+import net.sourceforge.pebble.event.response.IpAddressListener;
+import net.sourceforge.pebble.web.action.SecureActionTestCase;
+import net.sourceforge.pebble.web.view.RedirectView;
+import net.sourceforge.pebble.web.view.View;
 
 /**
  * Tests for the PublishBlogEntryAction class.
@@ -47,11 +47,14 @@ import java.util.Date;
  * @author    Simon Brown
  */
 public class PublishBlogEntryActionTest extends SecureActionTestCase {
+	private Blogs blogs;
 
-  protected void setUp() throws Exception {
-    action = new PublishBlogEntryAction();
-
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.isSecured = false;
   }
 
   public void testPublishBlogEntryNow() throws Exception {
@@ -62,12 +65,9 @@ public class PublishBlogEntryActionTest extends SecureActionTestCase {
     service.putBlogEntry(blogEntry);
 
     // now execute the action
-    request.setParameter("entry", blogEntry.getId());
-    request.setParameter("publishDate", "now");
-    request.setParameter("submit", "Publish");
-    View view = action.process(request, response);
+		View view = blogs.publishEntry(blogEntry.getId(), "Publish", "now");
 
-    blogEntry = (BlogEntry)blog.getRecentBlogEntries(1).get(0);
+    blogEntry = blog.getRecentBlogEntries(1).get(0);
     assertTrue(blogEntry.isPublished());
     assertEquals(new Date().getTime(), blogEntry.getDate().getTime(), 1000);
     assertTrue(view instanceof RedirectView);
@@ -89,10 +89,7 @@ public class PublishBlogEntryActionTest extends SecureActionTestCase {
     assertTrue(blog.getResponseIndex().getApprovedResponses().contains(commentId));
 
     // now execute the action
-    request.setParameter("entry", blogEntry.getId());
-    request.setParameter("publishDate", "as-is");
-    request.setParameter("submit", "Publish");
-    View view = action.process(request, response);
+		/* View view = */blogs.publishEntry(blogEntry.getId(), "Publish", "as-is");
 
     blogEntry = service.getBlogEntry(blog, blogEntry.getId());
     assertTrue(blogEntry.isPublished());
@@ -118,12 +115,9 @@ public class PublishBlogEntryActionTest extends SecureActionTestCase {
     assertTrue(blog.getResponseIndex().getApprovedResponses().contains(commentId));
 
     // now execute the action
-    request.setParameter("entry", blogEntry.getId());
-    request.setParameter("publishDate", "now");
-    request.setParameter("submit", "Publish");
-    View view = action.process(request, response);
+		/* View view = */blogs.publishEntry(blogEntry.getId(), "Publish", "now");
 
-    blogEntry = (BlogEntry)blog.getRecentBlogEntries(1).get(0);
+    blogEntry = blog.getRecentBlogEntries(1).get(0);
     assertTrue(blogEntry.isPublished());
     assertEquals(new Date().getTime(), blogEntry.getDate().getTime(), 1000);
 
@@ -139,22 +133,10 @@ public class PublishBlogEntryActionTest extends SecureActionTestCase {
     service.putBlogEntry(blogEntry);
 
     // now execute the action
-    request.setParameter("entry", blogEntry.getId());
-    request.setParameter("submit", "Unpublish");
-    View view = action.process(request, response);
+		View view = blogs.publishEntry(blogEntry.getId(), "Unpublish", null);
 
     blogEntry = service.getBlogEntry(blog, blogEntry.getId());
     assertTrue(blogEntry.isUnpublished());
     assertTrue(view instanceof RedirectView);
   }
-
-  /**
-   * Test that only blog owners can approve comments.
-   */
-  public void testDefaultRoleIsBlogPublisher() {
-    String roles[] = action.getRoles(request);
-    assertEquals(1, roles.length);
-    assertEquals(Constants.BLOG_PUBLISHER_ROLE, roles[0]);
-  }
-
 }
