@@ -73,6 +73,7 @@ import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
 import net.sourceforge.pebble.web.view.impl.BlogEntryView;
 import net.sourceforge.pebble.web.view.impl.BlogPropertiesView;
+import net.sourceforge.pebble.web.view.impl.BlogSecurityView;
 import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
@@ -218,7 +219,22 @@ public class Blogs {
 		}
 		throw new WebApplicationException(Status.FORBIDDEN);
 	}
-
+	
+	/**
+	 * Edits the security properties associated with the current Blog.
+	 */
+	@GET
+	@Path("/security")
+	public View security() throws SecurityRealmException {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE);
+		Collection<PebbleUserDetails> users = PebbleContext.getInstance().getConfiguration().getSecurityRealm().getUsers();
+		setAttribute("blogOwnerUsers", filterUsersByRole(users, Constants.BLOG_OWNER_ROLE));
+		setAttribute("blogPublisherUsers", filterUsersByRole(users, Constants.BLOG_PUBLISHER_ROLE));
+		setAttribute("blogContributorUsers", filterUsersByRole(users, Constants.BLOG_CONTRIBUTOR_ROLE));
+		setAttribute("allUsers", users);
+    return new BlogSecurityView();
+	}
+	
 	/**
 	 * Adds a new blog entry. This is called to create a blank blog entry to
 	 * populate a HTML form containing the contents of that entry.

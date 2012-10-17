@@ -45,7 +45,8 @@ public class BlogSecurityView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
 	return getLocalizedString("view.blogSecurity");
   }
 
@@ -54,8 +55,9 @@ public class BlogSecurityView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/viewBlogSecurity.jsp";
+  @Override
+	public String getUri() {
+		return "viewBlogSecurity.vm";
   }
 
 }
