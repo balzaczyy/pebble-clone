@@ -178,6 +178,10 @@ public class Blogs {
 	}
 
 	private void setAttribute(String name, Object o) {
+		setAttribute(request, name, o);
+	}
+
+	static void setAttribute(HttpServletRequest request, String name, Object o) {
 		@SuppressWarnings("unchecked")
 		Set<String> vmKeys = (Set<String>) request.getAttribute("vmkeys");
 		if (vmKeys == null) {

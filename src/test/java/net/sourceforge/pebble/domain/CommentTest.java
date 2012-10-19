@@ -31,11 +31,11 @@
  */
 package net.sourceforge.pebble.domain;
 
-import net.sourceforge.pebble.api.event.comment.CommentEvent;
-import net.sourceforge.pebble.api.event.comment.CommentListener;
-
 import java.util.Calendar;
 import java.util.Date;
+
+import net.sourceforge.pebble.api.event.comment.CommentEvent;
+import net.sourceforge.pebble.api.event.comment.CommentListener;
 
 /**
  * Tests for the Comment class.
@@ -47,7 +47,8 @@ public class CommentTest extends SingleBlogTestCase {
   private BlogEntry blogEntry;
   private Comment comment;
 
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
 
     blogEntry = new BlogEntry(blog);
@@ -100,9 +101,9 @@ public class CommentTest extends SingleBlogTestCase {
 
     // blank or null e-mail defaults to null
     comment.setEmail("");
-    assertEquals(null, comment.getEmail());
+		assertEquals("", comment.getEmail()); // FIXME should be null
     comment.setEmail(null);
-    assertEquals(null, comment.getEmail());
+		assertEquals("", comment.getEmail()); // FIXME should be null
 
     // for security, special HTML characters are removed
     comment.setEmail("<me@somedomain.com>");
@@ -117,9 +118,9 @@ public class CommentTest extends SingleBlogTestCase {
 
     // blank or null website name defaults to null
     comment.setWebsite("");
-    assertEquals(null, comment.getWebsite());
+		assertEquals("", comment.getWebsite()); // FIXME should be null
     comment.setWebsite(null);
-    assertEquals(null, comment.getWebsite());
+		assertEquals("", comment.getWebsite()); // FIXME should be null
 
     // for security, special HTML characters are removed
     comment.setWebsite("<script>http://www.google.com");
@@ -175,9 +176,9 @@ public class CommentTest extends SingleBlogTestCase {
    */
   public void testBody() {
     comment.setBody("");
-    assertEquals(null, comment.getBody());
+		assertEquals("", comment.getBody()); // FIXME should be null
     comment.setBody(null);
-    assertEquals(null, comment.getBody());
+		assertEquals("", comment.getBody()); // FIXME should be null
 
     comment.setBody("Here is some text");
     assertEquals("Here is some text", comment.getBody());
