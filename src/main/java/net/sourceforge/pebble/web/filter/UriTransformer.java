@@ -212,10 +212,10 @@ public class UriTransformer {
         result = "/feed.action?flavor=rdf";
       } else if (uri.startsWith("/responses/atom.xml")) {
         // url is for a response feed
-        result = "/responseFeed.action?flavor=atom";
+				result = "/responseFeed.action?flavor=atom";
       } else if (uri.startsWith("/atom.xml")) {
         // url matches atom.xml
-        result = "/feed.action?flavor=atom";
+				result = "/p/feeds?flavor=atom";
       } else if (uri.equals("/today.html")) {
         // URI of the form /today.html
         result = "/viewDay.action";
