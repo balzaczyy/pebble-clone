@@ -227,7 +227,7 @@ public class UriTransformer {
         String page = uri.substring(13, uri.length()-5);
         result = "/viewBlogEntriesByPage.action?page=" + page;
       } else if (uri.equals("/") || uri.equals("/index.jsp") || uri.equals("/index.html")) {
-          result = "/viewHomePage.action";
+				result = "/p";
       } else {
         result = uri;
       }
@@ -269,7 +269,7 @@ public class UriTransformer {
       // url matches atom.xml
       result = "/feed.action?flavor=atom";
     } else if (uri.equals("/") || uri.equals("/index.jsp") || uri.equals("/index.html")) {
-        result = "/viewHomePage.action";
+			result = "/p";
     } else if (uri.matches("\\/help\\/\\w*\\.html")) {
       // url matches /help/xyz.html
       String name = uri.substring(6, uri.length());

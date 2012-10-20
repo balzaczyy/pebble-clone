@@ -50,7 +50,8 @@ public class DispatchingFilterTest extends SingleBlogTestCase {
   private MockHttpServletRequest request;
   private MockHttpServletResponse response;
 
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
 
     filter = new DispatchingFilter();
@@ -63,17 +64,18 @@ public class DispatchingFilterTest extends SingleBlogTestCase {
     response = new MockHttpServletResponse();
   }
 
-  public void tearDown() throws Exception {
+  @Override
+	public void tearDown() throws Exception {
     super.tearDown();
 
     filter.destroy();
   }
 
   public void testRequestDispatched() throws Exception {
-    request.setAttribute(Constants.INTERNAL_URI, "/viewHomePage.action");
+		request.setAttribute(Constants.INTERNAL_URI, "/p");
     filter.doFilter(request, response, null);
     MockRequestDispatcher dispatcher = (MockRequestDispatcher)request.getRequestDispatcher();
-    assertEquals("/viewHomePage.action", dispatcher.getUri());
+		assertEquals("/p", dispatcher.getUri());
     assertTrue(dispatcher.wasForwarded());
   }
 

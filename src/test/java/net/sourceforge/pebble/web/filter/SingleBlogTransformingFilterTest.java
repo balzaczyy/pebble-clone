@@ -50,7 +50,8 @@ public class SingleBlogTransformingFilterTest extends SingleBlogTestCase {
   private MockHttpServletRequest request;
   private MockHttpServletResponse response;
 
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
 
     filter = new TransformingFilter();
@@ -63,7 +64,8 @@ public class SingleBlogTransformingFilterTest extends SingleBlogTestCase {
     response = new MockHttpServletResponse();
   }
 
-  public void tearDown() throws Exception {
+  @Override
+	public void tearDown() throws Exception {
     super.tearDown();
 
     filter.destroy();
@@ -72,7 +74,7 @@ public class SingleBlogTransformingFilterTest extends SingleBlogTestCase {
   public void testUrlTransformed() throws Exception {
     request.setAttribute(Constants.EXTERNAL_URI, "/");
     filter.doFilter(request, response, new MockFilterChain());
-    assertEquals("/viewHomePage.action", request.getAttribute(Constants.INTERNAL_URI));
+		assertEquals("/p", request.getAttribute(Constants.INTERNAL_URI));
   }
 
   /**

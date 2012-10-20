@@ -55,8 +55,8 @@ public class UriTransformerTest extends SingleBlogTestCase {
   }
 
   public void testSimpleUrlsForSingleUserBlog() throws Exception {
-    assertEquals("/viewHomePage.action", transformer.getUri("", blog));
-    assertEquals("/viewHomePage.action", transformer.getUri("/", blog));
+		assertEquals("/p", transformer.getUri("", blog));
+		assertEquals("/p", transformer.getUri("/", blog));
   }
 
   public void testRssUrlForSingleUserBlog() throws Exception {
