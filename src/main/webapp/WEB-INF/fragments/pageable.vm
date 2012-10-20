@@ -1,3 +1,7 @@
+##
+## $pageable
+## $serviceUrl
+##
 #if ($pageable.MaxPages > 1)
   <div align="center">
   #if ($pageable.PreviousPage > 0)

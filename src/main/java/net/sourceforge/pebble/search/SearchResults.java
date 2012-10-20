@@ -31,14 +31,14 @@
  */
 package net.sourceforge.pebble.search;
 
-import net.sourceforge.pebble.comparator.SearchHitByDateComparator;
-import net.sourceforge.pebble.comparator.SearchHitByScoreComparator;
-import net.sourceforge.pebble.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import net.sourceforge.pebble.comparator.SearchHitByDateComparator;
+import net.sourceforge.pebble.comparator.SearchHitByScoreComparator;
+import net.sourceforge.pebble.util.StringUtils;
 
 /**
  * A container for the results (hits) of a search.
@@ -54,7 +54,7 @@ public class SearchResults {
   private String message;
 
   /** the collection of search results */
-  private List hits = new ArrayList();
+	private final List<SearchHit> hits = new ArrayList<SearchHit>();
 
   /**
    * Gets the query that was used to generate these results.
@@ -117,7 +117,7 @@ public class SearchResults {
    *
    * @return  a Collection of SearchHit instances
    */
-  public List getHits() {
+	public List<SearchHit> getHits() {
     return this.hits;
   }
 
@@ -128,9 +128,9 @@ public class SearchResults {
     Collections.sort(hits, new SearchHitByScoreComparator());
 
     int number = 1;
-    Iterator it = hits.iterator();
+		Iterator<SearchHit> it = hits.iterator();
     while (it.hasNext()) {
-      SearchHit hit = (SearchHit)it.next();
+      SearchHit hit = it.next();
       hit.setNumber(number);
       number++;
     }
@@ -143,9 +143,9 @@ public class SearchResults {
     Collections.sort(hits, new SearchHitByDateComparator());
 
     int number = 1;
-    Iterator it = hits.iterator();
+		Iterator<SearchHit> it = hits.iterator();
     while (it.hasNext()) {
-      SearchHit hit = (SearchHit)it.next();
+      SearchHit hit = it.next();
       hit.setNumber(number);
       number++;
     }

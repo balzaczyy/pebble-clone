@@ -5,7 +5,7 @@
 <div class="sidebarItem">
   <div class="sidebarItemTitle"><span>$fmt.message("common.search")</span></div>
   <div class="sidebarItemBody">
-    <form name="searchForm" method="post" action="search.action" accept-charset="$blog.CharacterEncoding">
+    <form name="searchForm" method="post" action="p/search/do" accept-charset="$blog.CharacterEncoding">
       <input type="text" name="query" size="15" value="" />
       <input type="submit" value="$fmt.message('common.search')" />
     </form>
@@ -15,7 +15,7 @@
 #if ($tags)
     <a title="Tags" href="./tags/">$fmt.message("tag.tags")</a> |
 #end
-    <a title="Advanced search" href="search.action">$fmt.message("search.advancedSearch")</a>
+    <a title="Advanced search" href="p/search">$fmt.message("search.advancedSearch")</a>
   </div>
 </div>
 #end

@@ -1,0 +1,48 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("search.results")</h1>
+  <h2>${searchResults.Query}</h2>
+
+  <div class="contentItemBody">
+#if ($searchResults.NumberOfHits > 0)
+  #set ($serviceUrl = "p/search?query=${query}&amp;sort=${sort}")
+  #parse ("fragments/pageable.vm")
+    <br />
+
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th></th>
+          <th>$fmt.message("search.header.titleAndSummary")</th>
+          <th align="right">$fmt.message("search.header.dateTime")</th>
+        </tr>
+      </thead>
+      <tbody>
+  #set ($status = 0)
+  #foreach ($hit in $pageable.ListForPage)
+    #if ($status % 2 == 0)
+        <tr class="even small">
+    #else
+        <tr class="odd small">
+    #end
+          <td width="2%" valign="top">${hit.Number}<br /></td>
+          <td valign="top">
+            <a href="${url.rewrite($hit.Permalink)}" title="${hit.Score}">${hit.Title}</a><br />
+            ${hit.Excerpt}
+          </td>
+          <td align="right" valign="top" width="15%">
+            $fmt.mediumDate(${hit.Date})<br />
+            $fmt.mediumTime(${hit.date})
+          </td>
+        </tr>
+  #end
+      </tbody>
+    </table>
+    <br />
+  #set ($serviceUrl = "p/search?query=${query}&amp;sort=${sort}")
+  #parse ("fragments/pageable.vm")
+#else
+    $fmt.message("search.noResults")
+#end
+  </div>
+</div>

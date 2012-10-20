@@ -31,9 +31,9 @@
  */
 package net.sourceforge.pebble.comparator;
 
-import net.sourceforge.pebble.search.SearchHit;
-
 import java.util.Comparator;
+
+import net.sourceforge.pebble.search.SearchHit;
 
 /**
  * A comparator used to order SearchHit instances, in reverse order
@@ -41,7 +41,7 @@ import java.util.Comparator;
  *
  * @author    Simon Brown
  */
-public class SearchHitByScoreComparator implements Comparator {
+public class SearchHitByScoreComparator implements Comparator<SearchHit> {
 
   /**
    * Compares two objects.
@@ -51,10 +51,7 @@ public class SearchHitByScoreComparator implements Comparator {
    * @return  -n, 0 or +n if the score represented by the second hit is less than,
    *          the same as or greater than the first, respectively
    */
-  public int compare(Object o1, Object o2) {
-    SearchHit h1 = (SearchHit)o1;
-    SearchHit h2 = (SearchHit)o2;
-
+	public int compare(SearchHit h1, SearchHit h2) {
     int comparison = Float.compare(h2.getScore(), h1.getScore());
     if (comparison == 0) {
       return h2.getDate().compareTo(h1.getDate());

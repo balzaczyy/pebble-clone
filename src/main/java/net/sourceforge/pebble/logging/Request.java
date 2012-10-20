@@ -31,15 +31,15 @@
  */
 package net.sourceforge.pebble.logging;
 
+import java.text.SimpleDateFormat;
+import java.util.regex.Pattern;
+
 import net.sourceforge.pebble.api.permalink.PermalinkProvider;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;
-import net.sourceforge.pebble.domain.Month;
 import net.sourceforge.pebble.domain.Day;
+import net.sourceforge.pebble.domain.Month;
 import net.sourceforge.pebble.permalink.DefaultPermalinkProvider;
-
-import java.text.SimpleDateFormat;
-import java.util.regex.Pattern;
 
 
 /**
@@ -74,7 +74,8 @@ public class Request extends CountedUrl {
     super(url, blog);
   }
 
-  protected void setUrl(String url) {
+  @Override
+	protected void setUrl(String url) {
     super.setUrl(url);
 
     if (url == null || url.length() == 0) {
@@ -147,7 +148,7 @@ public class Request extends CountedUrl {
         String pageName = url.substring("/pages/".length());
         setName("Static Page : " + pageName);
         setPageView(true);
-      } else if (url.startsWith("/search.action")) {
+			} else if (url.startsWith("/p/search")) {
         setName("Search");
         setPageView(true);
       } else if (url.startsWith("/blogentries/")) {

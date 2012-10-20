@@ -40,6 +40,7 @@ import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.Category;
 import net.sourceforge.pebble.domain.Comment;
+import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.domain.Tag;
 import net.sourceforge.pebble.domain.TrackBack;
@@ -200,7 +201,7 @@ public class SearchIndex {
    * @throws Exception
    */
   private Analyzer getAnalyzer() throws Exception {
-    Class c = Class.forName(blog.getLuceneAnalyzer());
+		Class<?> c = Class.forName(blog.getLuceneAnalyzer());
     return (Analyzer)c.newInstance();
   }
 
@@ -297,7 +298,7 @@ public class SearchIndex {
       }
 
       searchableContent.append(" ");
-      Iterator it = blogEntry.getComments().iterator();
+			Iterator<? extends Response> it = blogEntry.getComments().iterator();
       while (it.hasNext()) {
         Comment comment = (Comment)it.next();
         if (comment.isApproved()) {

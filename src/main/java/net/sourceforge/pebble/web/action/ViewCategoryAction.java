@@ -31,16 +31,17 @@
  */
 package net.sourceforge.pebble.web.action;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.Blog;
-import net.sourceforge.pebble.web.view.ForwardView;
-import net.sourceforge.pebble.web.view.View;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.web.view.ForwardView;
+import net.sourceforge.pebble.web.view.View;
 
 /**
  * Allows the user to see blog entries for the specified category.
@@ -56,11 +57,13 @@ public class ViewCategoryAction extends Action {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)request.getAttribute(Constants.BLOG_KEY);
     String category = request.getParameter("category");
     try {
-      return new ForwardView("/search.action?query=category:" + URLEncoder.encode(category, blog.getCharacterEncoding()) + "&sort=date");
+			return new ForwardView("/p/search/do?query=category:" + URLEncoder.encode(category, blog.getCharacterEncoding())
+					+ "&sort=date");
     } catch (UnsupportedEncodingException uee) {
       throw new ServletException(uee);
     }

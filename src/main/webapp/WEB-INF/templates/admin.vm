@@ -198,7 +198,7 @@
           </a>
   #else
           <a href="viewMessages.secureaction">
-            $fmt.message("admin.someMessages", $blog.NumberOfMessages)
+            $fmt.message("admin.someMessages", "${blog.NumberOfMessages}")
           </a>
   #end
         </td>

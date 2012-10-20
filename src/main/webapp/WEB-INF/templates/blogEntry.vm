@@ -49,7 +49,7 @@
 #elseif ($blogEntry.User)
   #set ($author = "<a href='authors/${blogEntry.Author}/'>${blogEntry.User.Name}</a>")
 #else
-  #set ($author = "<a href='advancedSearch.action?author=${blogEntry.Author}'>${blogEntry.Author}</a>")
+  #set ($author = "<a href='p/search?author=${blogEntry.Author}'>${blogEntry.Author}</a>")
 #end
 #set ($blogEntryDate = $fmt.longDate($blogEntry.Date, $blogEntry.TimeZone))
       $fmt.message("blogentry.from", $author, $blogEntryDate)

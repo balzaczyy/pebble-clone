@@ -53,6 +53,9 @@ import net.sourceforge.pebble.domain.Month;
 import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.domain.Tag;
+import net.sourceforge.pebble.search.SearchException;
+import net.sourceforge.pebble.search.SearchHit;
+import net.sourceforge.pebble.search.SearchResults;
 import net.sourceforge.pebble.security.PebbleUserDetails;
 import net.sourceforge.pebble.security.SecurityRealmException;
 import net.sourceforge.pebble.service.DefaultLastModifiedService;
@@ -71,6 +74,7 @@ import net.sourceforge.pebble.web.view.NotModifiedView;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.AbstractRomeFeedView;
+import net.sourceforge.pebble.web.view.impl.AdvancedSearchView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesByDayView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesByMonthView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
@@ -85,6 +89,7 @@ import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.ResponsesView;
+import net.sourceforge.pebble.web.view.impl.SearchResultsView;
 import net.sourceforge.pebble.web.view.impl.StaticPageView;
 import net.sourceforge.pebble.web.view.impl.SubscribeView;
 import net.sourceforge.pebble.web.view.impl.SubscribedView;
@@ -1335,5 +1340,91 @@ public class Blogs {
 			return new SubscribedView();
 		}
 		return subscribe();
+	}
+
+	/**
+	 * Performs a search on the current blog.
+	 */
+	@GET
+	@Path("/search")
+	public View searchView(@QueryParam("query") String q,//
+			@QueryParam("title") String title, //
+			@QueryParam("body") String body, //
+			@QueryParam("category") String[] cateogries, //
+			@QueryParam("author") String author, //
+			@QueryParam("tags") String tags) throws SearchException, UnsupportedEncodingException {
+		StringBuilder query = new StringBuilder();
+		if (q != null) query.append(q.trim());
+		addTerm(query, "title", title);
+		addTerm(query, "body", body);
+		addTerms(query, "category", cateogries);
+		addTerm(query, "author", author);
+
+		if (tags != null) {
+			String s[] = tags.split(",");
+			for (int i = 0; i < s.length; i++) {
+				s[i] = Tag.encode(s[i].trim());
+			}
+			addTerms(query, "tag", s);
+		}
+
+		return query.length() == 0 ? new AdvancedSearchView() : search(query.toString(), 1);
+	}
+
+	private void addTerm(StringBuilder query, String key, String value) {
+		if (value != null && value.trim().length() > 0) {
+			if (query.length() > 0) {
+				query.append(" AND ");
+			}
+			query.append(key + ":" + value.trim());
+		}
+	}
+
+	private void addTerms(StringBuilder query, String key, String terms[]) {
+		if (terms != null) {
+			for (int i = 0; i < terms.length; i++) {
+				addTerm(query, key, terms[i]);
+			}
+		}
+	}
+
+	/**
+	 * Performs a search on the current blog.
+	 */
+	@POST
+	@Path("/search/do")
+	public View search(@FormParam("query") String query, @FormParam("page") @DefaultValue("1") int page)
+			throws SearchException {
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		SearchResults results = blog.getSearchIndex().search(query);
+
+		if (results.getNumberOfHits() == 1) {
+			// if there is only one hit, redirect the user to it without the
+			// search results page
+			SearchHit hit = results.getHits().get(0);
+			return new RedirectView(hit.getPermalink());
+		} else {
+			// show all results on the search results page
+			String sort = request.getParameter("sort");
+			if (sort != null && sort.equalsIgnoreCase("date")) {
+				results.sortByDateDescending();
+			} else {
+				results.sortByScoreDescending();
+			}
+
+			Pageable<SearchHit> pageable = new Pageable<SearchHit>(results.getHits());
+			pageable.setPageSize(PAGE_SIZE);
+			pageable.setPage(page);
+
+			try {
+				setAttribute("searchResults", results);
+				setAttribute("pageable", pageable);
+				setAttribute("query", java.net.URLEncoder.encode(query, blog.getCharacterEncoding()));
+			} catch (UnsupportedEncodingException uee) {
+				LOG.error("Encoding error", uee);
+			}
+
+			return new SearchResultsView();
+		}
 	}
 }

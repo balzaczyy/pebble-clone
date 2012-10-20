@@ -31,17 +31,18 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.Tag;
 import net.sourceforge.pebble.web.view.ForwardView;
 import net.sourceforge.pebble.web.view.View;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 /**
  * Allows the user to see blog entries for the specified tag.
@@ -57,11 +58,13 @@ public class ViewTagAction extends Action {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
     String tag = request.getParameter("tag");
     try {
-      return new ForwardView("/search.action?query=tag:\"" + URLEncoder.encode(Tag.encode(tag), blog.getCharacterEncoding()) + "\"&sort=date");
+			return new ForwardView("/p/search/do?query=tag:\""
+					+ URLEncoder.encode(Tag.encode(tag), blog.getCharacterEncoding()) + "\"&sort=date");
     } catch (UnsupportedEncodingException uee) {
       throw new ServletException(uee);
     }

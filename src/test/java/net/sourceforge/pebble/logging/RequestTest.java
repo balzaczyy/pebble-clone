@@ -32,10 +32,10 @@
 package net.sourceforge.pebble.logging;
 
 import net.sourceforge.pebble.PebbleContext;
-import net.sourceforge.pebble.permalink.TitlePermalinkProvider;
 import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.BlogService;
 import net.sourceforge.pebble.domain.SingleBlogTestCase;
+import net.sourceforge.pebble.permalink.TitlePermalinkProvider;
 
 /**
  * Tests for the Request class.
@@ -46,7 +46,8 @@ public class RequestTest extends SingleBlogTestCase {
 
   private Request url;
 
-  protected void setUp() throws Exception {
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
 
     url = new Request("http://www.somedomain.com");
@@ -267,9 +268,9 @@ public class RequestTest extends SingleBlogTestCase {
   }
 
   public void testFriendlyNamesForSearches() throws Exception {
-    url = new Request("/search.action", blog);
+		url = new Request("/p/search", blog);
     assertEquals("Search", url.getName());
-    url = new Request("/search.action?query=java", blog);
+		url = new Request("/p/search/do?query=java", blog);
     assertEquals("Search", url.getName());
   }
 

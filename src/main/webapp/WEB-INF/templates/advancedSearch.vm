@@ -1,0 +1,63 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("search.advancedSearch")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    <form method="get" action="p/search" accept-charset="${blog.CharacterEncoding}">
+    <table width="99%" cellpadding="4" cellspacing="0">
+
+      <tr>
+      <td valign="top"><b>$fmt.message("blogentry.title")</b></td>
+      <td><input type="text" name="title" size="60" /></td>
+      </tr>
+
+      <tr>
+      <td valign="top"><b>$fmt.message("blogentry.body")</b></td>
+      <td><input type="text" name="body" size="60" /></td>
+      </tr>
+
+      <tr>
+      <td valign="top"><b>$fmt.message("blogentry.author")</b></td>
+      <td><input type="text" name="author" size="30" /></td>
+      </tr>
+
+#if ($blog.RootCategory.SubCategories && !$blog.RootCategory.SubCategories.isEmpty())
+      <tr>
+        <td valign="top"><b>$fmt.message("blogentry.categories")</b></td>
+        <td>
+          <table width="99%" cellpadding="0" cellspacing="0">
+  #set ($status = 0)
+  #foreach ($category in $blog.Categories)
+    #if ($status % 2 == 1)
+            <tr>
+    #end
+              <td>
+              <input type="checkbox" name="category" value="${category.Id}" />&nbsp;$url.escape(${category.Name})
+              </td>
+   #if ($status % 2 == 0)
+            </tr>
+    #end
+    #set ($status = $status + 1)
+  #end
+          </table>
+        </td>
+      </tr>
+#end
+
+      <tr>
+      <td valign="top"><b>$fmt.message("blogentry.tags")</b></td>
+      <td>
+        <input type="text" name="tags" size="60" />
+      </td>
+      </tr>
+
+      <tr>
+      <td colspan="2" align="right">
+      <input type="submit" value="$fmt.message('common.search')" />
+      </td>
+      </tr>
+    </table>
+    </form>
+  </div>
+</div>
