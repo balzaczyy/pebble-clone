@@ -1,0 +1,9 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("newsfeed.subscribedTitle")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    $fmt.message("newsfeed.subscribed", "<a href='${blogUrl}'>${blog.name}</a>", "${email}")
+  </div>
+</div>

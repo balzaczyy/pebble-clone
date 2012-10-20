@@ -40,7 +40,7 @@ public class VelocityTemplateServlet extends VelocityServlet {
 	protected Properties loadConfiguration(ServletConfig config) throws IOException, FileNotFoundException {
 		Properties props = super.loadConfiguration(config);
 		props.setProperty("file.resource.loader.path",
-				"src/main/webapp/WEB-INF/templates,src/main/webapp/themes/default,src/main/webapp");
+				"src/main/webapp/WEB-INF/templates,src/main/webapp/themes/default,src/main/webapp,src/main/webapp/WEB-INF");
 		return props;
 	}
 

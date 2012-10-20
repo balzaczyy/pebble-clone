@@ -82,6 +82,8 @@ import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.ResponsesView;
 import net.sourceforge.pebble.web.view.impl.StaticPageView;
+import net.sourceforge.pebble.web.view.impl.SubscribeView;
+import net.sourceforge.pebble.web.view.impl.SubscribedView;
 import net.sourceforge.pebble.web.view.impl.UnpublishedBlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.UserView;
 import net.sourceforge.pebble.web.view.impl.UsersView;
@@ -1229,5 +1231,29 @@ public class Blogs {
 		checkUserInRoles(Constants.BLOG_ADMIN_ROLE);
 		setAttribute("user", PebbleContext.getInstance().getConfiguration().getSecurityRealm().getUser(username));
 		return new UserView();
+	}
+
+	/**
+	 * Allows the user to see all feeds for the current blog, and subscribe via e-mail updates.
+	 */
+	@GET
+	@Path("/subscribe")
+	public View subscribe() {
+		return new SubscribeView();
+	}
+
+	@POST
+	@Path("/api/subscribe")
+	public View subscribed(@FormParam("email") String email) {
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		email = StringUtils.filterHTML(email);
+		if (email != null && email.length() > 0) {
+			blog.getEmailSubscriptionList().addEmailAddress(email);
+			blog.info(email + " has subscribed to this blog.");
+
+			setAttribute("email", email);
+			return new SubscribedView();
+		}
+		return subscribe();
 	}
 }

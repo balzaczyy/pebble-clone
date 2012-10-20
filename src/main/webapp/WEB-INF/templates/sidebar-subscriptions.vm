@@ -10,7 +10,7 @@
   <div class="sidebarItemBody">
     <a title="Subscribe to blog via RSS feed" href="${rewrittenedUrl}rss.xml">$fmt.message("newsfeed.rss")</a> |
     <a title="Subscribe to blog via Atom feed" href="${rewrittenedUrl}atom.xml">$fmt.message("newsfeed.atom")</a> |
-    <a title="Subscribe to blog via email" href="${rewrittenedUrl}subscribe.action">$fmt.message("newsfeed.email")</a>
+    <a title="Subscribe to blog via email" href="${rewrittenedUrl}p/subscribe">$fmt.message("newsfeed.email")</a>
   </div>
 </div>
 #end

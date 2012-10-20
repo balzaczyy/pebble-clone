@@ -1,0 +1,3 @@
+#if ($token)
+<input type="hidden" name="pebbleSecurityToken" value="$token" />
+#end

@@ -45,7 +45,8 @@ public class SubscribeView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return getLocalizedString("newsfeed.subscribeTitle");
   }
 
@@ -54,8 +55,9 @@ public class SubscribeView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/subscribe.jsp";
+  @Override
+	public String getUri() {
+		return "subscribe.vm";
   }
 
 }
