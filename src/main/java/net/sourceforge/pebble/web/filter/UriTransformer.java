@@ -316,9 +316,9 @@ public class UriTransformer {
     } else if (permalinkProvider.isMonthPermalink(uri)) {
       Month month = permalinkProvider.getMonth(uri);
       if (month != null) {
-        result = "/viewMonth.action";
-        result += "?year=" + month.getYear().getYear();
-        result += "&month=" + month.getMonth();
+				result = "/p/entries";
+				result += "/" + month.getYear().getYear();
+				result += "/" + month.getMonth();
       }
     }
 

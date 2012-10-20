@@ -29,10 +29,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
 import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.web.model.Model;
+import net.sourceforge.pebble.web.action.SingleBlogActionTestCase;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesByMonthView;
 
@@ -42,11 +42,13 @@ import net.sourceforge.pebble.web.view.impl.BlogEntriesByMonthView;
  * @author    Simon Brown
  */
 public class ViewMonthActionTest extends SingleBlogActionTestCase {
+	private Blogs blogs;
 
-  protected void setUp() throws Exception {
-    action = new ViewMonthAction();
-
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
   }
 
   /**
@@ -55,13 +57,10 @@ public class ViewMonthActionTest extends SingleBlogActionTestCase {
    * @throws Exception
    */
   public void testViewMonth() throws Exception {
-    request.setParameter("year", "2006");
-    request.setParameter("month", "05");
-    View view = action.process(request, response);
+		View view = blogs.recentEntriesByMonth(2006, 5);
 
-    Model model = action.getModel();
-    assertEquals(blog.getBlogForMonth(2006, 5), model.get(Constants.MONTHLY_BLOG));
-    assertNotNull(model.get(Constants.BLOG_ENTRIES));
+		assertEquals(blog.getBlogForMonth(2006, 5), request.getAttribute(Constants.MONTHLY_BLOG));
+		assertNotNull(request.getAttribute(Constants.BLOG_ENTRIES));
     assertTrue(view instanceof BlogEntriesByMonthView);
   }
 

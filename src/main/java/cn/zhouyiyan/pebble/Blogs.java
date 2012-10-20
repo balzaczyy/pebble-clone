@@ -48,6 +48,7 @@ import net.sourceforge.pebble.domain.BlogService;
 import net.sourceforge.pebble.domain.BlogServiceException;
 import net.sourceforge.pebble.domain.Category;
 import net.sourceforge.pebble.domain.Comment;
+import net.sourceforge.pebble.domain.Month;
 import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.domain.Tag;
@@ -69,6 +70,7 @@ import net.sourceforge.pebble.web.view.NotModifiedView;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.AbstractRomeFeedView;
+import net.sourceforge.pebble.web.view.impl.BlogEntriesByMonthView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
 import net.sourceforge.pebble.web.view.impl.BlogEntryView;
@@ -822,6 +824,48 @@ public class Blogs {
 		attachment.setType(attachmentType);
 
 		return attachment;
+	}
+
+	/**
+	 * Finds all blog entries for a particular month, ready for them to be displayed.
+	 */
+	@GET
+	@Path("entries/{year:\\d+}/{month:\\d+}")
+	public View recentEntriesByMonth(@PathParam("year") int year, @PathParam("month") int month)
+			throws BlogServiceException {
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		Month monthly = blog.getBlogForMonth(year, month);
+		List<BlogEntry> blogEntries = new BlogService().getBlogEntries(blog, year, month);
+		setAttribute(Constants.BLOG_ENTRIES, filter(blog, blogEntries, request));
+		setAttribute("displayMode", "month");
+		setAttribute(Constants.MONTHLY_BLOG, monthly);
+
+		// put the previous and next months in the model for navigation purposes
+		Month firstMonth = blog.getBlogForFirstMonth();
+		Month previousMonth = monthly.getPreviousMonth();
+		Month nextMonth = monthly.getNextMonth();
+
+		if (!previousMonth.before(firstMonth)) {
+			setAttribute("previousMonth", previousMonth);
+		}
+
+		if (!nextMonth.getDate().after(blog.getCalendar().getTime()) || nextMonth.before(firstMonth)) {
+			setAttribute("nextMonth", nextMonth);
+		}
+
+		return new BlogEntriesByMonthView();
+	}
+
+	private List<BlogEntry> filter(Blog blog, List<BlogEntry> blogEntries, HttpServletRequest request) {
+		List<BlogEntry> filtered = new ArrayList<BlogEntry>();
+
+		for (BlogEntry blogEntry : blogEntries) {
+			if (blogEntry.isPublished() || ((SecurityUtils.isUserAuthorisedForBlog(blog) && blogEntry.isUnpublished()))) {
+				filtered.add(blogEntry);
+			}
+		}
+
+		return filtered;
 	}
 
 	/**
