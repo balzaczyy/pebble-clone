@@ -31,9 +31,13 @@
  */
 package net.sourceforge.pebble.domain;
 
-import net.sourceforge.pebble.comparator.ReverseBlogEntryIdComparator;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
-import java.util.*;
+import net.sourceforge.pebble.comparator.ReverseBlogEntryIdComparator;
 
 /**
  * Represents a blog at a daily level. This manages a collection of BlogEntry instances.
@@ -43,15 +47,15 @@ import java.util.*;
 public class Day extends TimePeriod implements Permalinkable {
 
   /** the parent, Month instance */
-  private Month month;
+  private final Month month;
 
   /** an integer representing the day that this Day is for */
-  private int day;
+  private final int day;
 
   /** the collection of blog entry keys */
-  private List<String> blogEntries = new ArrayList<String>();
-  private List<String> publishedBlogEntries = new ArrayList<String>();
-  private List<String> unpublishedBlogEntries = new ArrayList<String>();
+  private final List<String> blogEntries = new ArrayList<String>();
+  private final List<String> publishedBlogEntries = new ArrayList<String>();
+  private final List<String> unpublishedBlogEntries = new ArrayList<String>();
 
   /**
    * Creates a new Day for the specified month and day.
@@ -338,6 +342,7 @@ public class Day extends TimePeriod implements Permalinkable {
    * @return    a Day instance
    */
   public Day getPreviousDay() {
+		// TODO get previous day with real blog entry
     return month.getBlogForPreviousDay(this);
   }
 
@@ -347,6 +352,7 @@ public class Day extends TimePeriod implements Permalinkable {
    * @return    a Day instance
    */
   public Day getNextDay() {
+		// TODO get next day with real blog entry
     return month.getBlogForNextDay(this);
   }
 

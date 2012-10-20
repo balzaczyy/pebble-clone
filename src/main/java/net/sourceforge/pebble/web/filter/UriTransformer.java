@@ -218,7 +218,7 @@ public class UriTransformer {
 				result = "/p/feeds?flavor=atom";
       } else if (uri.equals("/today.html")) {
         // URI of the form /today.html
-        result = "/viewDay.action";
+				result = "/p/entries/0/0/0";
       } else if (uri.equals("/about.html")) {
         // URI of the form /about.html
         result = "/about.action";
@@ -308,10 +308,10 @@ public class UriTransformer {
     } else if (permalinkProvider.isDayPermalink(uri)) {
       Day day = permalinkProvider.getDay(uri);
       if (day != null) {
-        result = "/viewDay.action";
-        result += "?year=" + day.getMonth().getYear().getYear();
-        result += "&month=" + day.getMonth().getMonth();
-        result += "&day=" + day.getDay();
+				result = "/p/entries";
+				result += "/" + day.getMonth().getYear().getYear();
+				result += "/" + day.getMonth().getMonth();
+				result += "/" + day.getDay();
       }
     } else if (permalinkProvider.isMonthPermalink(uri)) {
       Month month = permalinkProvider.getMonth(uri);

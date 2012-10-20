@@ -48,6 +48,7 @@ import net.sourceforge.pebble.domain.BlogService;
 import net.sourceforge.pebble.domain.BlogServiceException;
 import net.sourceforge.pebble.domain.Category;
 import net.sourceforge.pebble.domain.Comment;
+import net.sourceforge.pebble.domain.Day;
 import net.sourceforge.pebble.domain.Month;
 import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.StaticPage;
@@ -70,6 +71,7 @@ import net.sourceforge.pebble.web.view.NotModifiedView;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.AbstractRomeFeedView;
+import net.sourceforge.pebble.web.view.impl.BlogEntriesByDayView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesByMonthView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
@@ -866,6 +868,40 @@ public class Blogs {
 		}
 
 		return filtered;
+	}
+
+	/**
+	 * Finds all blog entries for a particular day, ready for them to be displayed.
+	 */
+	@GET
+	@Path("/entries/{year:\\d+}/{month:\\d+}/{day:\\d+}")
+	public View recentEntriesByDay(@PathParam("year") int year, @PathParam("month") int month, @PathParam("day") int day)
+			throws BlogServiceException {
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		Day daily = year == 0 && month == 0 && day == 0 ? blog.getBlogForToday() : blog.getBlogForDay(year, month, day);
+
+		List<BlogEntry> blogEntries = new BlogService().getBlogEntries(blog, year, month, day);
+
+		setAttribute(Constants.MONTHLY_BLOG, daily.getMonth());
+		setAttribute(Constants.DAILY_BLOG, daily);
+		setAttribute(Constants.BLOG_ENTRIES, filter(blog, blogEntries, request));
+		setAttribute("displayMode", "day");
+
+		// put the previous and next days in the model for navigation purposes
+		Day firstDay = blog.getBlogForFirstMonth().getBlogForFirstDay();
+		Day previousDay = daily.getPreviousDay();
+		Day nextDay = daily.getNextDay();
+
+		if (!previousDay.before(firstDay)) {
+			setAttribute("previousDay", previousDay);
+		}
+
+		if (!nextDay.getDate().after(blog.getCalendar().getTime()) || nextDay.before(firstDay)) {
+			setAttribute("nextDay", nextDay);
+		}
+
+		return new BlogEntriesByDayView();
 	}
 
 	/**

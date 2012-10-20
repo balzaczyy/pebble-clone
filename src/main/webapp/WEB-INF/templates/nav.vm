@@ -41,7 +41,7 @@
   <a href="$blogUrl" title="$blogUrl">$home</a>
   #if ($nextDay)
     #set ($href = "${logAction}.secureaction?year=${nextDay.Month.Year.Year}&month=${nextDay.Month.Month}&day=${nextDay.Day}")
-    | <a href="$href" href="$href">fmt.longDate($nextDay.Date) &gt;&gt;</a>
+    | <a href="$href" href="$href">$fmt.longDate($nextDay.Date) &gt;&gt;</a>
   #end
 #elseif ($displayMode == "day")
   #if ($previousDay)

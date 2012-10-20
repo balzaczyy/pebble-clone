@@ -39,7 +39,7 @@ public class Formatter {
 	}
 
 	public String longDate(Date date) {
-		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, loc);
+		DateFormat df = DateFormat.getDateInstance(DateFormat.LONG, loc);
 		df.setTimeZone(tz);
 		return df.format(date);
 	}
