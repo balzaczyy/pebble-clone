@@ -1374,7 +1374,7 @@ public class Blogs {
 			addTerms(query, "tag", s);
 		}
 
-		return query.length() == 0 ? new AdvancedSearchView() : search(query.toString(), 1);
+		return query.length() == 0 ? new AdvancedSearchView() : search(query.toString());
 	}
 
 	private void addTerm(StringBuilder query, String key, String value) {
@@ -1394,13 +1394,18 @@ public class Blogs {
 		}
 	}
 
+	public View search(String query) throws SearchException {
+		return search(query, 1, null);
+	}
+
 	/**
 	 * Performs a search on the current blog.
 	 */
 	@POST
 	@Path("/search/do")
-	public View search(@FormParam("query") String query, @FormParam("page") @DefaultValue("1") int page)
-			throws SearchException {
+	public View search(@FormParam("query") String query, //
+			@FormParam("page") @DefaultValue("1") int page, //
+			@FormParam("sort") String sort) throws SearchException {
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
 		SearchResults results = blog.getSearchIndex().search(query);
 
@@ -1411,8 +1416,7 @@ public class Blogs {
 			return new RedirectView(hit.getPermalink());
 		} else {
 			// show all results on the search results page
-			String sort = request.getParameter("sort");
-			if (sort != null && sort.equalsIgnoreCase("date")) {
+			if ("date".equalsIgnoreCase(sort)) {
 				results.sortByDateDescending();
 			} else {
 				results.sortByScoreDescending();
@@ -1480,9 +1484,12 @@ public class Blogs {
 	 */
 	@GET
 	@Path("/categories/of/{id}")
-	public View editCategory(@PathParam("id") String id) {
-		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+	public View editCategory(@PathParam("id") String id) throws SearchException {
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		if (!User.isAuthenticated()) { //
+			return search("category:" + id, 1, "date");
+		}
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
 		if (id != null && id.length() > 0) {
 			Category category = blog.getCategory(id);
 			setAttribute(Constants.CATEGORY_KEY, category);
