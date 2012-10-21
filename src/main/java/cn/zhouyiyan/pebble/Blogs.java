@@ -1435,11 +1435,12 @@ public class Blogs {
 	}
 
 	/**
-	 * Allows the user to edit the categories associated with the current blog.
+	 * Allows the user to view/edit the categories associated with the current blog.
 	 */
 	@GET
 	@Path("/categories")
 	public View allCategories() {
+		if (!User.isAuthenticated()) return new CategoriesView(false);
 		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
 		setAttribute(Constants.CATEGORY_KEY, new Category());
