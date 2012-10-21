@@ -21,7 +21,7 @@
 #if ($displayMode != "preview")
   #if ($blogEntry.isCommentsEnabled())
   <a href="p/comments/reply/${blogEntry.Id}?comment=${comment.Id}">
-    $fmg.message("comment.reply")
+    $fmt.message("comment.reply")
   </a>
   #end
   #if ($isBlogContributor)

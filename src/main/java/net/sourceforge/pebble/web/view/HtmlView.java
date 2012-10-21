@@ -128,13 +128,14 @@ public abstract class HtmlView extends JspView {
     }
 		String uri = "/themes/" + theme + "/" + getTemplate() + ".vm";
     log.debug("Dispatching to " + uri);
+		request.setAttribute("template", uri);
 
     response.setHeader("Cache-Control","no-cache, no-store");
     response.setDateHeader("Expires", 0);
     response.setHeader("Pragma","no-cache");
 
     try {
-      RequestDispatcher dispatcher = context.getRequestDispatcher(uri);
+			RequestDispatcher dispatcher = context.getRequestDispatcher("/templates/page.vm");
       dispatcher.forward(request, response);
     } catch (IOException ioe) {
       ioe.printStackTrace();
@@ -147,18 +148,18 @@ public abstract class HtmlView extends JspView {
 
   private String getTemplate() {
     if (!(getModel().get(Constants.BLOG_KEY) instanceof Blog)) {
-      return "template";
+ return "template";
     }
 		if (getModel().get(Constants.STATIC_PAGE_KEY) == null) {
- return "page";
+ return "template";
     }
     StaticPage staticPage = (StaticPage) getModel().get(Constants.STATIC_PAGE_KEY);
     Blog blog = (Blog) getModel().get(Constants.BLOG_KEY);
-    String templateFile = blog.getThemeDirectory() + "/" + staticPage.getTemplate() + ".jsp";
+		String templateFile = blog.getThemeDirectory() + "/" + staticPage.getTemplate() + ".vm";
     if (new File(templateFile).canRead()) {
       return staticPage.getTemplate();
     }
-    return "template";
+		return "template";
   }
 
   private boolean hasThemeHeadUri(String headUri) {

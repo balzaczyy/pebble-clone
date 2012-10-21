@@ -56,7 +56,7 @@
       <a href="p/pages/add#form" title="$fmt.message('admin.tooltip.addNewStaticPage')">
         $fmt.message("admin.newStaticPage")
       </a> |
-      <a href="viewStaticPages.secureaction" title="$fmt.message('admin.tooltip.manageStaticPages')">
+      <a href="p/pages" title="$fmt.message('admin.tooltip.manageStaticPages')">
         $fmt.message("admin.staticPages")
       </a> |
       <a href="p/categories" title="$fmt.message('admin.tooltip.editCategories')">

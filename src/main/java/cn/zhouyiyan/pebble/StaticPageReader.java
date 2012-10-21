@@ -40,18 +40,20 @@ public class StaticPageReader implements MessageBodyReader<StaticPage> {
 		String id = request.getParameter("page");
 		String persistent = request.getParameter("persistent");
 
-		if ("true".equalsIgnoreCase(persistent)) {
-			StaticPageService service = new StaticPageService();
-			StaticPage staticPage = null;
-			try {
-				staticPage = service.getStaticPageById(blog, id);
-			} catch (StaticPageServiceException e) {
-				throw new WebApplicationException(e);
-			}
-			if (staticPage == null) throw new WebApplicationException(Status.NOT_FOUND);
-			return staticPage;
+		StaticPageService service = new StaticPageService();
+		StaticPage staticPage = null;
+		try {
+			staticPage = service.getStaticPageById(blog, id);
+		} catch (StaticPageServiceException e) {
+			throw new WebApplicationException(e);
 		}
-		return new StaticPage(blog);
+		if (staticPage != null) { //
+			return staticPage;
+		} else if ("true".equalsIgnoreCase(persistent)) { //
+			throw new WebApplicationException(Status.NOT_FOUND);
+		} else { //
+			return new StaticPage(blog);
+		}
 	}
 
 }
