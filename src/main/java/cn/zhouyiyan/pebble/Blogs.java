@@ -39,6 +39,9 @@ import net.sourceforge.pebble.api.confirmation.CommentConfirmationStrategy;
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.comparator.BlogEntryComparator;
 import net.sourceforge.pebble.comparator.PageBasedContentByTitleComparator;
+import net.sourceforge.pebble.dao.CategoryDAO;
+import net.sourceforge.pebble.dao.DAOFactory;
+import net.sourceforge.pebble.dao.PersistenceException;
 import net.sourceforge.pebble.domain.AbstractBlog;
 import net.sourceforge.pebble.domain.Attachment;
 import net.sourceforge.pebble.domain.Blog;
@@ -82,6 +85,7 @@ import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
 import net.sourceforge.pebble.web.view.impl.BlogEntryView;
 import net.sourceforge.pebble.web.view.impl.BlogPropertiesView;
 import net.sourceforge.pebble.web.view.impl.BlogSecurityView;
+import net.sourceforge.pebble.web.view.impl.CategoriesView;
 import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
@@ -1426,5 +1430,82 @@ public class Blogs {
 
 			return new SearchResultsView();
 		}
+	}
+
+	/**
+	 * Allows the user to edit the categories associated with the current blog.
+	 */
+	@GET
+	@Path("/categories")
+	public View allCategories() {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		setAttribute(Constants.CATEGORY_KEY, new Category());
+		setAttribute(Constants.CATEGORIES, blog.getCategories());
+		return new CategoriesView(true);
+	}
+
+	/**
+	 * Removes a given category from the associated with the current blog.
+	 */
+	@POST
+	@Path("/categories/remove")
+	public View removeCategories(@FormParam("category") String[] ids) {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		for (String id : ids) {
+			if (!id.equals("/")) {
+				Category category = blog.getCategory(id);
+				if (category != null) {
+					blog.removeCategory(category);
+					try {
+						// remove it from the persistent store
+						DAOFactory factory = DAOFactory.getConfiguredFactory();
+						CategoryDAO dao = factory.getCategoryDAO();
+						dao.deleteCategory(category, blog);
+					} catch (PersistenceException pe) {
+						pe.printStackTrace();
+					}
+				}
+			}
+		}
+		return allCategories();
+	}
+
+	/**
+	 * Allows the user to edit a specific category.
+	 */
+	@GET
+	@Path("/categories/of/{id}")
+	public View editCategory(@PathParam("id") String id) {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		if (id != null && id.length() > 0) {
+			Category category = blog.getCategory(id);
+			setAttribute(Constants.CATEGORY_KEY, category);
+		}
+		setAttribute(Constants.CATEGORIES, blog.getCategories());
+		return new CategoriesView(true);
+	}
+
+	/**
+	 * Save a given category from the associated with the current blog.
+	 */
+	@POST
+	@Path("/categories/save")
+	public View saveCategory(Category category, @FormParam("name") String name, @FormParam("tags") String tags) {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		category.setName(name);
+		category.setTags(tags);
+		try {
+			// add it to the persistent store
+			DAOFactory factory = DAOFactory.getConfiguredFactory();
+			CategoryDAO dao = factory.getCategoryDAO();
+			dao.addCategory(category, blog);
+		} catch (PersistenceException pe) {
+			pe.printStackTrace();
+		}
+		return allCategories();
 	}
 }

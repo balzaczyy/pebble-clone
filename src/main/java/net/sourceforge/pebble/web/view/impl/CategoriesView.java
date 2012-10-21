@@ -56,7 +56,8 @@ public class CategoriesView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return getLocalizedString("category.categories");
   }
 
@@ -65,11 +66,12 @@ public class CategoriesView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
+  @Override
+	public String getUri() {
     if (loggedIn) {
-      return "/WEB-INF/jsp/manageCategories.jsp";
+			return "manageCategories.vm";
     } else {
-      return "/WEB-INF/jsp/viewCategories.jsp";
+			return "viewCategories.vm";
     }
   }
 

@@ -59,7 +59,7 @@
       <a href="viewStaticPages.secureaction" title="$fmt.message('admin.tooltip.manageStaticPages')">
         $fmt.message("admin.staticPages")
       </a> |
-      <a href="viewCategories.secureaction" title="$fmt.message('admin.tooltip.editCategories')">
+      <a href="p/categories" title="$fmt.message('admin.tooltip.editCategories')">
         $fmt.message("admin.categories")
       </a> |
       <a href="files/" title="$fmt.message('admin.tooltip.manageFiles')">

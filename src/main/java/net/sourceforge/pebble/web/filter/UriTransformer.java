@@ -103,7 +103,7 @@ public class UriTransformer {
     if (result == null) {
       if (uri.equals("/categories") || uri.equals("/categories/")) {
         // URI of the form /categories/
-        result = "/viewCategories.action";
+				result = "/p/categories";
       } else if (uri.matches(CATEGORIES_REGEX + ".*\\/.*xml")) {
           // URI of the form /category[/subcategories]/[rss|rdf|atom].xml
           int indexOfLastSlash = uri.lastIndexOf("/");

@@ -141,8 +141,8 @@ public class UriTransformerTest extends SingleBlogTestCase {
   }
 
   public void testCategoriesLink() throws Exception {
-    assertEquals("/viewCategories.action", transformer.getUri("/categories/", blog));
-    assertEquals("/viewCategories.action", transformer.getUri("/categories", blog));
+		assertEquals("/p/categories", transformer.getUri("/categories/", blog));
+		assertEquals("/p/categories", transformer.getUri("/categories", blog));
   }
 
   public void testCategoryPermalink() throws Exception {

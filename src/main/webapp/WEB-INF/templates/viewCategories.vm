@@ -1,0 +1,33 @@
+##
+## Local variables:
+## - $href
+##
+
+<div class="contentItem">
+
+  <h1>$fmt.message("category.categories")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    <table width="99%" cellspacing="0" cellpadding="4">
+#set ($status = 0)
+#foreach ($aCategory in $categories)
+  #if ($status >= 1)
+    #if ($status % 2 == 0)
+      <tr class="even">
+    #else
+      <tr class="odd">
+    #end
+    #set ($href = $url.rewrite($aCategory.Permalink))
+        <td><a href="${href}">${aCategory.Name}</a> (${aCategory.NumberOfBlogEntries})</td>
+        <td align="right" class="small">
+          <a href="${href}rss.xml">$fmt.message("newsfeed.rss")</a> <a href="${href}rss.xml" style="border: 0px;"><img src="common/images/feed-icon-16x16.png" alt="RSS feed" border="0" /></a>
+        </td>
+      </tr>
+  #end
+  #set ($status = $status + 1)
+#end
+    </table>
+  </div>
+
+</div>

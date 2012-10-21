@@ -49,7 +49,7 @@ public class CategoryBuilder {
   private static final String CATEGORY_SEPARATOR = "/";
 
   /** the owning blog */
-  private Blog blog;
+  private final Blog blog;
 
   /** the root category */
   private Category rootCategory;
@@ -160,9 +160,9 @@ public class CategoryBuilder {
         }
 
         found = false;
-        Iterator it = parentCategory.getSubCategories().iterator();
+				Iterator<Category> it = parentCategory.getSubCategories().iterator();
         while (it.hasNext()) {
-          category = (Category)it.next();
+          category = it.next();
           if (category.getId().equals(categoryId)) {
             found = true;
             break;
@@ -221,9 +221,9 @@ public class CategoryBuilder {
   public List<Category> getCategories(Category category) {
     List<Category> allCategories = new ArrayList<Category>();
     allCategories.add(category);
-    Iterator it = category.getSubCategories().iterator();
+		Iterator<Category> it = category.getSubCategories().iterator();
     while (it.hasNext()) {
-      allCategories.addAll(getCategories((Category)it.next()));
+      allCategories.addAll(getCategories(it.next()));
     }
 
     return allCategories;

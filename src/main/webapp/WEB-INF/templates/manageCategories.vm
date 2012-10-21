@@ -1,0 +1,100 @@
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/categories.html" target="_blank">Help</a>
+  </div>
+
+  <h1>Categories</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    <form name="categoriesForm" method="post" action="p/categories/remove">
+#parse ("fragments/token.vm")
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+      <tr>
+        <th><input type="checkbox" name="allCategories" onclick="toggleCheckAll(document.categoriesForm.allCategories, document.categoriesForm.category)"/></th>
+        <th>Name</th>
+        <th>ID</th>
+        <th>Tags</th>
+        <th align="right">Blog Entries</th>
+      </tr>
+      </thead>
+      <tbody>
+#set ($status = 0)
+#foreach ($aCategory in $categories)
+  #if ($status % 2 == 0)
+      <tr class="even small">
+  #else
+      <tr class="odd small">
+  #end
+        <td width="2%">
+  #if (!$aCategory.RootCategory)
+          <input type="checkbox" name="category" value="${aCategory.Id}" />
+  #end
+        </td>
+        <td><a href="p/categories/of${aCategory.Id}" title="Edit this category">${aCategory.Name}</a></td>
+        <td>${aCategory.Id}</td>
+        <td>${aCategory.Tags}</td>
+        <td align="right">${aCategory.NumberOfBlogEntries}</td>
+      </tr>
+#end
+      </tbody>
+    </table>
+
+    <br />
+
+    <table width="99%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="right">
+          <button type="submit" value="Remove" >$fmt.message("common.remove")</button>
+        </td>
+      </tr>
+    </table>
+    </form>
+
+#if ($category)
+    <br />
+  #if (!$category.Id || $category.Id.length() == 0)
+    <h3>Add a category</h3>
+  #else
+    <h3>Edit a category</h3>
+  #end
+    <br />
+    <a name="form"></a>
+    <form name="editCategoryForm" action="p/categories/save" method="post" accept-charset="${blog.CharacterEncoding}">
+  #parse ("fragments/token.vm")
+      <table width="99%">
+        <tr>
+          <td valign="top">ID</td>
+          <td valign="top">
+  #if (!$category.Id || $category.Id.length() == 0)
+            <input type="text" name="id" size="40" value="" />
+  #else
+            <input type="hidden" name="id" size="40" value="${category.Id}" />${category.Id}
+  #end
+          </td>
+        </tr>
+        <tr>
+          <td valign="top">Name</td>
+          <td valign="top">
+            <input type="text" name="name" size="40" value="${category.Name}" />
+          </td>
+        </tr>
+        <tr>
+          <td valign="top">Tags</td>
+          <td valign="top">
+            <input type="text" name="tags" size="40" value="${category.Tags}" />
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" align="right">
+            <button name="submit" type="submit" Value="Save Category">$fmt.message("common.save")</button>
+          </td>
+        </tr>
+      </table>
+    </form>
+#end
+  </div>
+
+</div>

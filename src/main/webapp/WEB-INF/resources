@@ -1,5 +1,6 @@
 cn.zhouyiyan.pebble.Blogs
 cn.zhouyiyan.pebble.ViewWriter
 cn.zhouyiyan.pebble.CommentReader
+cn.zhouyiyan.pebble.CategoryReader
 cn.zhouyiyan.pebble.ErrorPageMapper
 cn.zhouyiyan.pebble.GeneralExceptionMapper

@@ -30,41 +30,32 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
-import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.domain.Category;
-import net.sourceforge.pebble.web.view.ForwardView;
+import net.sourceforge.pebble.web.action.SecureActionTestCase;
 import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.impl.CategoriesView;
 
 /**
- * Tests for the AddCategoryAction class.
+ * Tests for the ViewCategoriesAction class.
  *
  * @author    Simon Brown
  */
-public class AddCategoryActionTest extends SecureActionTestCase {
+public class ViewCategoriesActionTest extends SecureActionTestCase {
+	private Blogs blogs;
 
-  protected void setUp() throws Exception {
-    action = new AddCategoryAction();
-
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.isSecured = false;
   }
 
-  public void testProcess() throws Exception {
-    View view = action.process(request, response);
+  public void testViewTags() throws Exception {
+		View view = blogs.allCategories();
 
-    assertEquals(new Category(), action.getModel().get(Constants.CATEGORY_KEY));
-    assertTrue(view instanceof ForwardView);
-    assertEquals("/viewCategories.secureaction", ((ForwardView)view).getUri());
+    assertTrue(view instanceof CategoriesView);
+		assertEquals("manageCategories.vm", ((CategoriesView) view).getUri());
   }
-
-  /**
-   * Test that only blog contributors have access to add a blog entry.
-   */
-  public void testOnlyBlogContributorsHaveAccess() {
-    String roles[] = action.getRoles(request);
-    assertEquals(1, roles.length);
-    assertEquals(Constants.BLOG_CONTRIBUTOR_ROLE, roles[0]);
-  }
-
 }
