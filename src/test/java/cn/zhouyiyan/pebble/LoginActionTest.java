@@ -46,6 +46,7 @@ public class LoginActionTest extends SingleBlogActionTestCase {
     super.setUp();
 		blogs = new Blogs();
 		blogs.request = request;
+		blogs.isSecured = false;
   }
 
   public void testUserRedirectedToBlogHomePage() throws Exception {

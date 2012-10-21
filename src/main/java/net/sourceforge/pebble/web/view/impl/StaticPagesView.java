@@ -45,7 +45,8 @@ public class StaticPagesView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return getLocalizedString("view.staticPages");
   }
 
@@ -54,8 +55,9 @@ public class StaticPagesView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/viewStaticPages.jsp";
+  @Override
+	public String getUri() {
+		return "viewStaticPages.vm";
   }
 
 }

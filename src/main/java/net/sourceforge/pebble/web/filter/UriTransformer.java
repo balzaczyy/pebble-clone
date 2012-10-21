@@ -165,13 +165,11 @@ public class UriTransformer {
         }
         result = "/aboutAuthor.action?user=" + author;
       } else if (uri.equals("/pages/") || uri.equals("/pages")) {
-        result = "/viewStaticPage.action?name=index";
+				result = "/p/pages/index";
       } else if (uri.startsWith("/pages/")) {
         // url matches /pages/xyz.html
         String name = uri.substring(7, uri.length()-5);
-
-        result = "/viewStaticPage.action?name=";
-        result += name;
+				result = "/p/pages/" + name;
       } else if (uri.startsWith("/images/")) {
         // url matches /images/xyz.xyz
         String name = uri.substring(7, uri.length());

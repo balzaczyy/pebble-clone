@@ -32,20 +32,21 @@
 
 package net.sourceforge.pebble.decorator;
 
-import net.sourceforge.pebble.domain.BlogEntry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.domain.BlogEntry;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.util.UrlRewriter;
-import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
+
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.WikiRenderEngine;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
 import org.radeox.engine.BaseRenderEngine;
 import org.radeox.engine.context.BaseInitialRenderContext;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Decorates blog entries and comments by rendering them with Radeox, internal
@@ -64,7 +65,8 @@ public class RadeoxDecorator extends ContentDecoratorSupport {
    * @param context   the context in which the decoration is running
    * @param blogEntry the blog entry to be decorated
    */
-  public void decorate(ContentDecoratorContext context, BlogEntry blogEntry) {
+  @Override
+	public void decorate(ContentDecoratorContext context, BlogEntry blogEntry) {
     InitialRenderContext initialContext = new BaseInitialRenderContext();
     initialContext.set(RenderContext.INPUT_LOCALE, getBlog().getLocale());
     RenderEngine engineWithContext = new RadeoxWikiRenderEngine(initialContext, getBlog());
@@ -79,7 +81,8 @@ public class RadeoxDecorator extends ContentDecoratorSupport {
    * @param context    the context in which the decoration is running
    * @param staticPage the static page to be decorated
    */
-  public void decorate(ContentDecoratorContext context, StaticPage staticPage) {
+  @Override
+	public void decorate(ContentDecoratorContext context, StaticPage staticPage) {
     InitialRenderContext initialContext = new BaseInitialRenderContext();
     initialContext.set(RenderContext.INPUT_LOCALE, getBlog().getLocale());
     RenderEngine engineWithContext = new RadeoxWikiRenderEngine(initialContext, getBlog());
@@ -123,7 +126,7 @@ public class RadeoxDecorator extends ContentDecoratorSupport {
 
 class RadeoxWikiRenderEngine extends BaseRenderEngine implements WikiRenderEngine {
 
-  private Blog blog;
+  private final Blog blog;
 
   public RadeoxWikiRenderEngine(InitialRenderContext context, Blog blog) {
     super(context);
@@ -158,7 +161,7 @@ class RadeoxWikiRenderEngine extends BaseRenderEngine implements WikiRenderEngin
   }
 
   public void appendCreateLink(StringBuffer buffer, String name, String view) {
-    buffer.append("<a href=\"addStaticPage.secureaction?name=");
+		buffer.append("<a href=\"p/pages/add?name=");
     buffer.append(name);
     buffer.append("\">");
     buffer.append(view);

@@ -1,0 +1,17 @@
+##
+##  Renders a single static page, similar to blogEntry.vm yet simpler.
+##
+<div class="contentItem">
+
+#parse ("fragments/staticPageLinks.vm")
+  <a name="a${staticPage.Id}"></a>
+#if ($staticPage.Title && $staticPage.Title.length() > 0)
+  <h1><a href="${url.rewrite($staticPage.Permalink)}">${staticPage.Title}</a></h1>
+  <h2>${staticPage.Subtitle}</h2>
+#end
+
+  <div class="contentItemBody">
+    ${staticPage.Body}
+  </div>
+
+</div>

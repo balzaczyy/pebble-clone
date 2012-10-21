@@ -95,7 +95,10 @@ import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.ResponsesView;
 import net.sourceforge.pebble.web.view.impl.SearchResultsView;
+import net.sourceforge.pebble.web.view.impl.StaticPageFormView;
+import net.sourceforge.pebble.web.view.impl.StaticPageLockedView;
 import net.sourceforge.pebble.web.view.impl.StaticPageView;
+import net.sourceforge.pebble.web.view.impl.StaticPagesView;
 import net.sourceforge.pebble.web.view.impl.SubscribeView;
 import net.sourceforge.pebble.web.view.impl.SubscribedView;
 import net.sourceforge.pebble.web.view.impl.UnpublishedBlogEntriesView;
@@ -1179,8 +1182,7 @@ public class Blogs {
 	public View pages(@PathParam("name") String name) throws StaticPageServiceException {
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
 
-		StaticPageService service = new StaticPageService();
-		StaticPage staticPage = service.getStaticPageByName(blog, name);
+		StaticPage staticPage = new StaticPageService().getStaticPageByName(blog, name);
 		if (staticPage == null) {
 			// the page cannot be found - it may have been removed or the
 			// requesting URL was wrong
@@ -1192,6 +1194,240 @@ public class Blogs {
 		setAttribute("displayMode", "detail");
 
 		return new StaticPageView();
+	}
+
+	/**
+	 * Allows the user to view the static pages associated with the current blog.
+	 */
+	@GET
+	@Path("/pages")
+	public View allPages() throws StaticPageServiceException {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		StaticPageService service = new StaticPageService();
+		setAttribute("staticPages", service.getStaticPages(blog));
+		return new StaticPagesView();
+	}
+
+	/**
+	 * Allows the user to manage (edit and remove) a static page.
+	 */
+	@POST
+	@Path("/pages")
+	public View managePage(StaticPage page, //
+			@FormParam("submit") String submit, //
+			@FormParam("confirm") String confirm) throws StaticPageServiceException {
+		if ("Edit".equalsIgnoreCase(submit)) {//
+			return editPage(page);
+		} else if ("Remove".equalsIgnoreCase(submit) && "true".equals(confirm)) {//
+			return removePage(page);
+		} else if ("Unlock".equalsIgnoreCase(submit) && "true".equals(confirm)) {//
+			return unlockPage(page);
+		} else if ("Preview".equalsIgnoreCase(submit)) {//
+			return previewPage(page);
+		} else if ("Cancel".equalsIgnoreCase(submit)) {//
+			return cancelPage(page);
+		}
+		// save static page
+		// checkUserInRoles(Constants.BLOG_OWNER_ROLE);
+		// return new RedirectView(page.getLocalPermalink());
+		return savePage(page);
+	}
+
+	private View savePage(StaticPage staticPage) {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		StaticPageService service = new StaticPageService();
+		populateStaticPage(staticPage, request);
+		setAttribute(Constants.STATIC_PAGE_KEY, staticPage);
+
+		ValidationContext validationContext = new ValidationContext();
+		staticPage.validate(validationContext);
+
+		if (validationContext.hasErrors()) {
+			setAttribute("validationContext", validationContext);
+			return new StaticPageFormView();
+		} else {
+			try {
+				service.putStaticPage(staticPage);
+				staticPage.getBlog().info(
+						"Static page <a href=\"" + staticPage.getLocalPermalink() + "\">" + staticPage.getTitle() + "</a> saved.");
+				service.unlock(staticPage);
+				return new RedirectView(staticPage.getLocalPermalink());
+			} catch (StaticPageServiceException e) {
+				LOG.error(e.getMessage(), e);
+				return new StaticPageFormView();
+			}
+		}
+	}
+
+	private View cancelPage(StaticPage staticPage) {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		StaticPageService service = new StaticPageService();
+		service.unlock(staticPage);
+
+		if (staticPage.isPersistent()) {
+			return new RedirectView(staticPage.getLocalPermalink());
+		} else {
+			return new RedirectView(staticPage.getBlog().getUrl() + "p/pages");
+		}
+	}
+
+	private View previewPage(StaticPage staticPage) {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		// we don't want to actually edit the original whilst previewing
+		staticPage = (StaticPage) staticPage.clone();
+		populateStaticPage(staticPage, request);
+
+		ValidationContext validationContext = new ValidationContext();
+		staticPage.validate(validationContext);
+		setAttribute("validationContext", validationContext);
+		setAttribute(Constants.STATIC_PAGE_KEY, staticPage);
+
+		return new StaticPageFormView();
+	}
+
+	private void populateStaticPage(StaticPage staticPage, HttpServletRequest request) {
+		String title = request.getParameter("title");
+		String subtitle = request.getParameter("subtitle");
+		String body = StringUtils.filterNewlines(request.getParameter("body"));
+		String tags = request.getParameter("tags");
+		String originalPermalink = request.getParameter("originalPermalink");
+		String name = request.getParameter("name");
+		String author = SecurityUtils.getUsername();
+		String template = request.getParameter("template");
+
+		staticPage.setTitle(title);
+		staticPage.setSubtitle(subtitle);
+		staticPage.setBody(body);
+		staticPage.setTags(tags);
+		staticPage.setAuthor(author);
+		staticPage.setOriginalPermalink(originalPermalink);
+		staticPage.setName(name);
+		staticPage.setTemplate(template);
+	}
+
+	private View unlockPage(StaticPage staticPage) {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		StaticPageService service = new StaticPageService();
+		service.unlock(staticPage);
+		blog.info("Static page <a href=\"" + staticPage.getLocalPermalink() + "\">" + staticPage.getTitle()
+				+ "</a> unlocked.");
+		return new RedirectView(blog.getUrl() + "p/pages");
+	}
+
+	private View removePage(StaticPage staticPage) throws StaticPageServiceException {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		StaticPageService service = new StaticPageService();
+		if (service.lock(staticPage, SecurityUtils.getUsername())) {
+			service.removeStaticPage(staticPage);
+			blog.info("Static page \"" + staticPage.getTitle() + "\" removed.");
+			service.unlock(staticPage);
+		} else {
+			setAttribute(Constants.STATIC_PAGE_KEY, staticPage);
+			return new StaticPageLockedView();
+		}
+
+		return new RedirectView(blog.getUrl() + "p/pages");
+	}
+
+	private View editPage(StaticPage page) throws StaticPageServiceException {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		return editPage(page.getId());
+	}
+
+	/**
+	 * Removes one or more existing static pages.
+	 */
+	@POST
+	@Path("/pages/remove")
+	public View removePages(@FormParam("page") String[] ids) {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		StaticPageService service = new StaticPageService();
+
+		for (String id : ids) {
+			try {
+				removePage(service.getStaticPageById(blog, id));
+			} catch (StaticPageServiceException e) {
+				throw new WebApplicationException(e);
+			}
+		}
+
+		return new RedirectView(blog.getUrl() + "p/pages");
+	}
+
+	/**
+	 * Adds a new static page. This is called to create a blank static page to populate a HTML form containing the
+	 * contents of that page.
+	 */
+	@GET
+	@Path("/pages/add")
+	public View addPage(@QueryParam("name") String name) {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		StaticPage staticPage = new StaticPage(blog);
+		staticPage.setName(name);
+		staticPage.setTitle("Title");
+		staticPage.setBody("<p>\n\n</p>");
+		staticPage.setAuthor(SecurityUtils.getUsername());
+
+		setAttribute(Constants.STATIC_PAGE_KEY, staticPage);
+
+		return new StaticPageFormView();
+	}
+
+	/**
+	 * Edits an existing static page. This is called to populate a HTML form containing the contents of the static page.
+	 */
+	@GET
+	@Path("/pages/edit/{name}")
+	public View editPage(@PathParam("name") String name) throws StaticPageServiceException {
+		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		StaticPageService service = new StaticPageService();
+		StaticPage staticPage = service.getStaticPageById(blog, name);
+
+		if (staticPage == null) {
+			return new NotFoundView();
+		} else {
+			setAttribute(Constants.STATIC_PAGE_KEY, staticPage);
+			if (service.lock(staticPage, SecurityUtils.getUsername())) {
+				return new StaticPageFormView();
+			} else {
+				return new StaticPageLockedView();
+			}
+		}
+	}
+
+	/**
+	 * Unlocks a static page.
+	 */
+	@GET
+	@Path("/pages/unlock/{name}")
+	public View unlockPage(@PathParam("name") String id) {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		if (id != null) {
+			StaticPageService service = new StaticPageService();
+			try {
+				StaticPage staticPage = service.getStaticPageById(blog, id);
+				if (staticPage != null) {
+					service.unlock(staticPage);
+					blog.info("Static page <a href=\"" + staticPage.getLocalPermalink() + "\">" + staticPage.getTitle()
+							+ "</a> unlocked.");
+				}
+			} catch (StaticPageServiceException e) {
+				blog.warn(e.getClass().getName() + " Error while unlocking static page - "
+						+ StringUtils.transformHTML(e.getMessage()));
+				LOG.warn("Error while unlocking static page", e);
+			}
+		}
+
+		return new RedirectView(blog.getUrl() + "p/pages");
 	}
 
 	/**
@@ -1444,7 +1680,7 @@ public class Blogs {
 	@GET
 	@Path("/categories")
 	public View allCategories() {
-		if (!User.isAuthenticated()) return new CategoriesView(false);
+		if (isSecured && !User.isAuthenticated()) return new CategoriesView(false);
 		checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
 		setAttribute(Constants.CATEGORY_KEY, new Category());
@@ -1525,7 +1761,7 @@ public class Blogs {
 	@GET
 	@Path("/login")
 	public View login(@QueryParam("redirectUrl") String redirectUrl) {
-		if (!User.isAuthenticated()) {
+		if (isSecured && !User.isAuthenticated()) {
 			setAttribute("error", request.getParameter("error"));
 			return new LoginPageView();
 		}

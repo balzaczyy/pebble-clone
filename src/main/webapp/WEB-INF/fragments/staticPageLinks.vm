@@ -1,0 +1,39 @@
+<div class="contentItemLinks">
+#if ($displayMode != "preview")
+
+  #if ($isAuthorisedForBlog)
+    <div class="inlineAdminLinks">
+    #set ($isLockedByMe = $staticPage && $staticPage.LockedBy == $authenticatedUser.Username)
+    #if (!$staticPage.LockedBy || $staticPage.LockedBy == $authenticatedUser.Username)
+      #if ($isBlogContributor)
+          <form name="staticPageForm" action="p/entries#form" method="post">
+        #parse ("fragments/token.vm")           
+            <input type="hidden" name="page" value="${staticPage.Id}" />
+            <button type="submit" name="submit" value="Edit">$fmg.message("common.edit")</button>
+            <input type="checkbox" name="confirm" value="true" />
+        #if ($isLockedByMe) 
+            <button type="submit" name="submit" value="Unlock" >$fmg.message("common.unlock")</button>
+        #end
+            <button type="submit" name="submit" value="Remove">$fmg.message("common.remove")</button>
+          </form>
+        #if ($isLockedByMe)  
+            <br />$fmg.message("staticPage.lockedByCurrentUser")
+        #end
+      #end
+    #else
+      #if ($isBlogAdminOrBlogOwner)
+        <form name="staticPageForm" action="p/entries#form" method="post">
+        #parse ("fragments/token.vm")
+          <input type="hidden" name="page" value="${staticPage.Id}" />
+          <input type="checkbox" name="confirm" value="true" />
+          <button type="submit" name="submit" value="Unlock" >$fmg.message("common.unlock")</button>
+        </form>
+        <br />
+      #end
+		$fmt.message("staticPage.lockedByUser", "${staticPage.LockedBy}")
+    #end
+    </div>
+  #end
+
+#end
+</div>

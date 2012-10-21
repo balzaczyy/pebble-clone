@@ -1,0 +1,89 @@
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/staticPages.html" target="_blank">$fmt.message("common.help")</a>
+  </div>
+
+  <h1>$fmt.message("view.staticPages")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+#if ($isBlogContributor)
+    <p>
+      This page shows all of the static pages for this blog, where you can edit or remove pages. You can also
+      <a href="p/pages/add#form">add a new static page</a>.
+    </p>
+
+    <form name="staticPagesForm" method="post" action="p/pages/remove">
+  #parse ("fragments/token.vm")
+#end
+
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+      <tr>
+#if ($isBlogContributor)
+        <th><input type="checkbox" name="allPages" onclick="toggleCheckAll(document.staticPagesForm.allPages, document.staticPagesForm.page)"/></th>
+#end
+        <th>Name</th>
+        <th>Title</th>
+        <th align="right">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+#set ($status = 0)
+#foreach ($staticPage in $staticPages)
+  #if ($status % 2 == 0)
+      <tr class="even small">
+  #else
+      <tr class="odd small">
+  #end
+  #if ($isBlogContributor)
+        <td width="2%">
+          <input type="checkbox" name="page" value="${staticPage.Id}" />
+        </td>
+  #end
+        <td>
+          <a href="${url.rewrite($staticPage.LocalPermalink)}">${staticPage.Name}.html</a>
+        </td>
+        <td>
+          ${staticPage.Title}
+        </td>
+        <td align="right">
+  #if (!$staticPage.LockedBy || $staticPage.LockedBy.length() == 0)
+    #if ($isBlogContributor)
+            <a href="p/pages/edit/${staticPage.Id}#form">Edit</a>
+    #end
+  #elseif ($staticPage.LockedBy == $authenticatedUser.Username)
+    #if ($isBlogContributor)
+            <a href="p/pages/edit/${staticPage.Id}#form">Edit</a> |
+    #end
+            <a href="p/pages/unlock/${staticPage.Id}" title="Locked by ${staticPage.LockedBy}">Unlock</a>
+  #elseif ($staticPage.LockedBy.length() > 0)
+    #if ($isBlogAdminOrBlogOwner)
+            <a href="p/pages/unlock/${staticPage.Id}" title="Locked by ${staticPage.LockedBy}">Unlock</a>
+    #end
+  #else
+            -
+  #end
+        </td>
+      </tr>
+#end
+      </tbody>
+    </table>
+
+    <br />
+
+#if ($isBlogContributor)
+    <table width="99%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="right">
+          <input type="submit" value="Remove" />
+        </td>
+      </tr>
+    </table>
+    </form>
+#end
+
+</div>
+
+</div>

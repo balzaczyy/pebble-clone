@@ -124,15 +124,15 @@ public class UriTransformerTest extends SingleBlogTestCase {
 
   public void testStaticPermalinkUrlsForSingleUserBlog() throws Exception {
     // test a url to request a "static" permalink
-    assertEquals("/viewStaticPage.action?name=some-story", transformer.getUri("/pages/some-story.html", blog));
+		assertEquals("/p/pages/some-story", transformer.getUri("/pages/some-story.html", blog));
   }
 
   public void testDefaultStaticPageWithNoTrailingSlash() throws Exception {
-    assertEquals("/viewStaticPage.action?name=index", transformer.getUri("/pages", blog));
+		assertEquals("/p/pages/index", transformer.getUri("/pages", blog));
   }
 
   public void testDefaultStaticPageWithTrailingSlash() throws Exception {
-    assertEquals("/viewStaticPage.action?name=index", transformer.getUri("/pages/", blog));
+		assertEquals("/p/pages/index", transformer.getUri("/pages/", blog));
   }
 
   public void testUrlEndingWithSlashForSingleUserBlog() throws Exception {

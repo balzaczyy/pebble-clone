@@ -46,7 +46,8 @@ public class StaticPageFormView extends HtmlView {
   /**
    * Prepares the view for presentation.
    */
-  public void prepare() {
+  @Override
+	public void prepare() {
     StaticPage staticPage = (StaticPage)getModel().get(Constants.STATIC_PAGE_KEY);
     StaticPage previewStaticPage = (StaticPage)staticPage.clone();
 
@@ -62,7 +63,8 @@ public class StaticPageFormView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     StaticPage staticPage = (StaticPage)getModel().get(Constants.STATIC_PAGE_KEY);
     return staticPage.getTitle();
   }
@@ -72,8 +74,9 @@ public class StaticPageFormView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/staticPageForm.jsp";
+  @Override
+	public String getUri() {
+		return "staticPageForm.vm";
   }
 
 }
