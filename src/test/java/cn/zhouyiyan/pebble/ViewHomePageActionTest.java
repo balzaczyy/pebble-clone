@@ -29,10 +29,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
 import net.sourceforge.pebble.Constants;
-import net.sourceforge.pebble.web.model.Model;
+import net.sourceforge.pebble.web.action.SingleBlogActionTestCase;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
 
@@ -42,11 +42,12 @@ import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
  * @author    Simon Brown
  */
 public class ViewHomePageActionTest extends SingleBlogActionTestCase {
-
-  protected void setUp() throws Exception {
-    action = new ViewBlogEntriesByPageAction();
-
+	private Blogs blogs;
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
   }
 
   /**
@@ -54,11 +55,10 @@ public class ViewHomePageActionTest extends SingleBlogActionTestCase {
    * @throws Exception
    */
   public void testViewHomePage() throws Exception {
-    View view = action.process(request, response);
+		View view = blogs.home();
 
-    Model model = action.getModel();
-    assertEquals(blog.getBlogForThisMonth(), model.get(Constants.MONTHLY_BLOG));
-    assertEquals(blog.getRecentBlogEntries(), model.get(Constants.BLOG_ENTRIES));
+		assertEquals(blog.getBlogForThisMonth(), request.getAttribute(Constants.MONTHLY_BLOG));
+		assertEquals(blog.getRecentBlogEntries(), request.getAttribute(Constants.BLOG_ENTRIES));
     assertTrue(view instanceof BlogEntriesView);
   }
 

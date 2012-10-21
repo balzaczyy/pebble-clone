@@ -225,7 +225,7 @@ public class UriTransformer {
       } else if (uri.startsWith("/blogentries/")) {
         // view blog entries by page /blogentries/1.html
         String page = uri.substring(13, uri.length()-5);
-        result = "/viewBlogEntriesByPage.action?page=" + page;
+				result = "/p/entries/recent?page=" + page;
       } else if (uri.equals("/") || uri.equals("/index.jsp") || uri.equals("/index.html")) {
 				result = "/p";
       } else {
