@@ -40,7 +40,8 @@ import net.sourceforge.pebble.web.view.HtmlView;
  */
 public class LoginPageView extends HtmlView {
 
-  public void prepare() {
+  @Override
+	public void prepare() {
     getModel().put("isLoginPage", "true");
   }
 
@@ -49,7 +50,8 @@ public class LoginPageView extends HtmlView {
    *
    * @return the theme name as a String
    */
-  protected String getTheme() {
+  @Override
+	protected String getTheme() {
     return SYSTEM_THEME;
   }
 
@@ -58,7 +60,8 @@ public class LoginPageView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return getLocalizedString("login.title");
   }
 
@@ -67,8 +70,9 @@ public class LoginPageView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/login.jsp";
+  @Override
+	public String getUri() {
+		return "login.vm";
   }
 
 }

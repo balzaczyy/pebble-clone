@@ -30,7 +30,7 @@
     <span id="admin-user-group" class="adminGroup" onmouseover="showMenu('admin-user'); hideMenu('admin-content'); hideMenu('admin-responses'); hideMenu('admin-blog'); hideMenu('admin-logs'); hideMenu('admin-admin')"">$fmt.message("admin.user")</span> |
 #end
 
-    <span><a href="${pebbleContext.Configuration.SecureUrl}logout.action?redirectUrl=${blogUrl}" onmouseover="hideMenu('admin-admin'); hideMenu('admin-user'); hideMenu('admin-content'); hideMenu('admin-responses'); hideMenu('admin-blog'); hideMenu('admin-logs')">$fmt.message("admin.logout")</a></span>
+    <span><a href="${pebbleContext.Configuration.SecureUrl}p/logout?redirectUrl=${blogUrl}" onmouseover="hideMenu('admin-admin'); hideMenu('admin-user'); hideMenu('admin-content'); hideMenu('admin-responses'); hideMenu('admin-blog'); hideMenu('admin-logs')">$fmt.message("admin.logout")</a></span>
     </td>
     <td align="right">
       <span>

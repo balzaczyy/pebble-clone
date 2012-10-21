@@ -29,41 +29,28 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import net.sourceforge.pebble.web.action.SingleBlogActionTestCase;
 import net.sourceforge.pebble.web.view.RedirectView;
-import net.sourceforge.pebble.web.view.View;
 
 /**
- * Logs out the current user.
+ * Tests for the LoginAction class.
  *
  * @author    Simon Brown
  */
-public class LogoutAction extends Action {
-
-  /**
-   * Peforms the processing associated with this action.
-   *
-   * @param request  the HttpServletRequest instance
-   * @param response the HttpServletResponse instance
-   * @return the name of the next view
-   */
+public class LoginActionTest extends SingleBlogActionTestCase {
+	private Blogs blogs;
   @Override
-	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-    String redirectUrl = request.getParameter("redirectUrl");
-    request.getSession().invalidate();
+	protected void setUp() throws Exception {
+    super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+  }
 
-		// Cookie terminate = new
-		// Cookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
-		// null);
-		// terminate.setMaxAge(-1);
-		// response.addCookie(terminate);
-    
-    return new RedirectView(redirectUrl);
+  public void testUserRedirectedToBlogHomePage() throws Exception {
+		RedirectView view = (RedirectView) blogs.login(blog.getUrl());
+    assertEquals(blog.getUrl(), view.getUri());
   }
 
 }

@@ -90,6 +90,7 @@ import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
+import net.sourceforge.pebble.web.view.impl.LoginPageView;
 import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.ResponsesView;
@@ -197,6 +198,7 @@ public class Blogs {
 	}
 
 	static void setAttribute(HttpServletRequest request, String name, Object o) {
+		if (o == null) return;
 		@SuppressWarnings("unchecked")
 		Set<String> vmKeys = (Set<String>) request.getAttribute("vmkeys");
 		if (vmKeys == null) {
@@ -1507,5 +1509,39 @@ public class Blogs {
 			pe.printStackTrace();
 		}
 		return allCategories();
+	}
+
+	/**
+	 * An action to initiate a login.
+	 */
+	@GET
+	@Path("/login")
+	public View login(@QueryParam("redirectUrl") String redirectUrl) {
+		if (!User.isAuthenticated()) {
+			setAttribute("error", request.getParameter("error"));
+			return new LoginPageView();
+		}
+		AbstractBlog blog = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
+		if (redirectUrl == null || redirectUrl.trim().length() == 0) {
+			redirectUrl = blog.getUrl();
+		}
+		return new RedirectView(redirectUrl);
+	}
+
+	/**
+	 * Logs out the current user.
+	 */
+	@GET
+	@Path("/logout")
+	public View logout(@QueryParam("redirectUrl") String redirectUrl) {
+		request.getSession().invalidate();
+
+		// Cookie terminate = new
+		// Cookie(TokenBasedRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
+		// null);
+		// terminate.setMaxAge(-1);
+		// response.addCookie(terminate);
+
+		return new RedirectView(redirectUrl);
 	}
 }

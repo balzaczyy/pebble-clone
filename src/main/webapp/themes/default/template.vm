@@ -57,9 +57,9 @@
   <div id="footer">
     $fmt.message("common.poweredBy", "<a title='Powered by Pebble ${version}' href='http://pebble.sourceforge.net/'>Pebble $version</a>")
 #if (!$isAuthenticated)    
-    |<a href="${secureUrl}login.secureaction">$fmt.message("login.title")</a>
+    |<a href="${secureUrl}p/login">$fmt.message("login.title")</a>
 #else
-    |<a href="${secureUrl}logout.action?redirectUrl=${blogUrl}">Logout</a>
+    |<a href="${secureUrl}p/logout?redirectUrl=${blogUrl}">Logout</a>
 #end
   </div>
 </div>

@@ -29,31 +29,34 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.view.impl;
+package cn.zhouyiyan.pebble;
 
-import net.sourceforge.pebble.web.action.LoginPageAction;
+import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.mock.MockHttpSession;
 import net.sourceforge.pebble.web.action.SingleBlogActionTestCase;
-import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.RedirectView;
 
 /**
- * Tests for the LoginPageAction class.
+ * Tests for the LoginAction class.
  *
  * @author    Simon Brown
  */
-public class LoginPageActionTest extends SingleBlogActionTestCase {
-
-  protected void setUp() throws Exception {
-    action = new LoginPageAction();
-
+public class LogoutActionTest extends SingleBlogActionTestCase {
+	private Blogs blogs;
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
   }
 
-  /**
-   * Tests that the resulting view is decorated in the standard theme.
-   */
-  public void testLoginPage() throws Exception {
-    View view = action.process(request, response);
-    assertTrue(view instanceof LoginPageView);
+  public void testUserLoggedOutAndRedirectedToBlogHomePage() throws Exception {
+		RedirectView view = (RedirectView) blogs.logout(blog.getUrl());
+    assertEquals(blog.getUrl(), view.getUri());
+
+    MockHttpSession session = (MockHttpSession)request.getSession();
+    assertNull(session.getAttribute(Constants.AUTHENTICATED_USER));
+    assertTrue(session.wasInvalidated());
   }
 
 }
