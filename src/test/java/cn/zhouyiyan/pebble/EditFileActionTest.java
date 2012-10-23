@@ -29,63 +29,76 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
-
-import net.sourceforge.pebble.domain.FileMetaData;
-import net.sourceforge.pebble.web.view.ForbiddenView;
-import net.sourceforge.pebble.web.view.RedirectView;
-import net.sourceforge.pebble.web.view.View;
+package cn.zhouyiyan.pebble;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 
+import javax.ws.rs.WebApplicationException;
+
+import net.sourceforge.pebble.domain.FileMetaData;
+import net.sourceforge.pebble.web.action.SecureActionTestCase;
+import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.impl.FileFormView;
+
 /**
- * Tests for the RemoveFilesAction class.
+ * Tests for the EditFileAction class.
  *
  * @author    Simon Brown
  */
-public class RemoveFilesActionTest extends SecureActionTestCase {
-
-  protected void setUp() throws Exception {
-    action = new RemoveFilesAction();
-
+public class EditFileActionTest extends SecureActionTestCase {
+	private Blogs blogs;
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.isSecured = false;
   }
 
   /**
-   * Tests that a file can be deleted.
+   * Tests that a file can be loaded for editing.
    */
-  public void testDeleteFile() throws Exception {
+  public void testEditFile() throws Exception {
     File file = new File(blog.getFilesDirectory(), "afile.txt");
     BufferedWriter writer = new BufferedWriter(new FileWriter(file));
     writer.write("Testing...");
     writer.flush();
     writer.close();
 
-    request.setParameter("path", "/");
-    request.setParameter("name", new String[]{"afile.txt"});
-    request.setParameter("type", FileMetaData.BLOG_FILE);
+		// request.setParameter("path", "/");
+		// request.setParameter("name", "afile.txt");
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
 
-    View view = action.process(request, response);
+		View view = blogs.editFile(FileMetaData.BLOG_FILE, "/", "afile.txt");
 
-    // check file now exists and the right view is returned
-    assertFalse("File still exists", file.exists());
-    assertTrue(view instanceof RedirectView);
+    // check file information available and the right view is returned
+		assertEquals("Testing...", request.getAttribute("fileContent"));
+		assertEquals(FileMetaData.BLOG_FILE, request.getAttribute("type"));
+		FileMetaData fileMetaData = (FileMetaData) request.getAttribute("file");
+    assertEquals("afile.txt", fileMetaData.getName());
+    assertEquals("/", fileMetaData.getPath());
+    assertTrue(view instanceof FileFormView);
+
+    // and clean up
+    file.delete();
   }
 
   /**
-   * Tests that a file can't be deleted from outside of the root.
+   * Tests that a file can't be loaded for editing from outside of the root.
    */
-  public void testDeleteFileReturnsForbiddenWheOutsideOfRoot() throws Exception {
-    request.setParameter("path", "/");
-    request.setParameter("name", new String[]{"../afile.txt"});
-    request.setParameter("type", FileMetaData.BLOG_FILE);
+  public void testEditFileReturnsForbiddenWheOutsideOfRoot() throws Exception {
+		// request.setParameter("path", "/");
+		// request.setParameter("name", "../afile.txt");
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
 
-    View view = action.process(request, response);
-
-    // check a forbidden response is returned
-    assertTrue(view instanceof ForbiddenView);
+		try {
+			blogs.editFile(FileMetaData.BLOG_FILE, "/", "../afile.txt");
+			fail();
+		} catch (WebApplicationException e) {
+			assertEquals(403, e.getResponse().getStatus());
+		}
   }
 
 }

@@ -1,5 +1,6 @@
 package cn.zhouyiyan.pebble;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -7,8 +8,10 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -52,7 +55,11 @@ import net.sourceforge.pebble.domain.BlogServiceException;
 import net.sourceforge.pebble.domain.Category;
 import net.sourceforge.pebble.domain.Comment;
 import net.sourceforge.pebble.domain.Day;
+import net.sourceforge.pebble.domain.FileManager;
+import net.sourceforge.pebble.domain.FileMetaData;
+import net.sourceforge.pebble.domain.IllegalFileAccessException;
 import net.sourceforge.pebble.domain.Month;
+import net.sourceforge.pebble.domain.MultiBlog;
 import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.domain.Tag;
@@ -66,16 +73,20 @@ import net.sourceforge.pebble.service.LastModifiedService;
 import net.sourceforge.pebble.service.StaticPageService;
 import net.sourceforge.pebble.service.StaticPageServiceException;
 import net.sourceforge.pebble.util.CookieUtils;
+import net.sourceforge.pebble.util.FileUtils;
 import net.sourceforge.pebble.util.I18n;
 import net.sourceforge.pebble.util.MailUtils;
 import net.sourceforge.pebble.util.Pageable;
 import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.util.StringUtils;
 import net.sourceforge.pebble.web.validation.ValidationContext;
+import net.sourceforge.pebble.web.view.FileView;
+import net.sourceforge.pebble.web.view.ForbiddenView;
 import net.sourceforge.pebble.web.view.NotFoundView;
 import net.sourceforge.pebble.web.view.NotModifiedView;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.ZipView;
 import net.sourceforge.pebble.web.view.impl.AbstractRomeFeedView;
 import net.sourceforge.pebble.web.view.impl.AdvancedSearchView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesByDayView;
@@ -90,7 +101,10 @@ import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
+import net.sourceforge.pebble.web.view.impl.FileFormView;
+import net.sourceforge.pebble.web.view.impl.FilesView;
 import net.sourceforge.pebble.web.view.impl.LoginPageView;
+import net.sourceforge.pebble.web.view.impl.NotEnoughSpaceView;
 import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.ResponsesView;
@@ -1787,5 +1801,329 @@ public class Blogs {
 		// response.addCookie(terminate);
 
 		return new RedirectView(redirectUrl);
+	}
+
+	/**
+	 * Gets a file/image from a blog.
+	 */
+	@GET
+	@Path("/files/{name:.*}")
+	public View getFile(@PathParam("name") String name, @QueryParam("type") String type) {
+		verifyFileActionAuthorities(type);
+
+		Object o = request.getAttribute(Constants.BLOG_KEY);
+		if (o instanceof MultiBlog) { return new NotFoundView(); }
+
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		if (name == null || name.length() == 0 || name.equals("/")) {
+			// forward to secure file browser
+			return allFiles(type);
+		}
+
+		FileManager fileManager = new FileManager(blog, type);
+		File root = fileManager.getRootDirectory();
+		File file = fileManager.getFile(name);
+
+		if (!file.exists()) {
+			// file doesn't exist so send back a 404
+			return new NotFoundView();
+		}
+
+		if (!FileUtils.underneathRoot(root, file) || file.isDirectory()) {
+
+			// forward to secure file browser
+			return allFiles(type, name);
+		}
+
+		Date lastModified = new Date(file.lastModified());
+		Calendar expires = blog.getCalendar();
+		expires.add(Calendar.MONTH, 1);
+
+		if (lastModifiedService.checkAndProcessLastModified(request, response, lastModified, expires.getTime())) {
+			return new NotModifiedView();
+		} else {
+			return new FileView(file);
+		}
+	}
+
+	View allFiles(String type, String path) {
+		return allFiles(type, path, null);
+	}
+
+	View allFiles(String type) {
+		return allFiles(type, "/", null);
+	}
+
+	/**
+	 * Allows the user to view the files in a specific location - blog images, blog files and theme files.
+	 */
+	@GET
+	@Path("/files")
+	public View allFiles(@QueryParam("type") String type, //
+			@QueryParam("path") @DefaultValue("/") String path, //
+			@QueryParam("file") String fileName) {
+		verifyFileActionAuthorities(type);
+
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		FileManager fileManager = new FileManager(blog, type);
+		FileMetaData directory = fileManager.getFileMetaData(path);
+
+		try {
+			List<FileMetaData> files = fileManager.getFiles(path);
+			setAttribute("files", files);
+		} catch (IllegalFileAccessException e) {
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+
+		String uploadAction = null;
+		if (type.equals(FileMetaData.BLOG_IMAGE)) {
+			uploadAction = "uploadImageToBlog.secureaction";
+		} else if (type.equals(FileMetaData.THEME_FILE)) {
+			uploadAction = "uploadFileToTheme.secureaction";
+		} else {
+			uploadAction = "uploadFileToBlog.secureaction";
+		}
+
+		// does the user want details about a specific file?
+		if (fileName != null && fileName.length() > 0) {
+			setAttribute("file", fileManager.getFileMetaData(path, fileName));
+		}
+
+		setAttribute("type", type);
+		setAttribute("directory", directory);
+		setAttribute("parent", fileManager.getParent(directory));
+		setAttribute("uploadAction", uploadAction);
+		setAttribute("root", fileManager.getFileMetaData("/"));
+
+		if (PebbleContext.getInstance().getConfiguration().getFileUploadQuota() > -1) {
+			setAttribute("currentUsage", FileManager.getCurrentUsage(blog));
+		}
+
+		return new FilesView();
+	}
+
+	private void verifyFileActionAuthorities(String type) {
+		// the roles permitted to access this action depend on the
+		// type of file that is being manipulated (viewed, edited, etc)
+		if (FileMetaData.BLOG_IMAGE.equals(type)) {
+			checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		} else if (FileMetaData.BLOG_FILE.equals(type)) {
+			checkUserInRoles(Constants.BLOG_CONTRIBUTOR_ROLE);
+		} else if (FileMetaData.THEME_FILE.equals(type)) {
+			checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE);
+		} else if (FileMetaData.BLOG_DATA.equals(type)) {
+			checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE);
+		} else {
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+	}
+
+	/**
+	 * Allows the user to remove one or more files.
+	 */
+	@POST
+	@Path("/files/remove/{type}{path:/.*}")
+	public View removeFiles(@PathParam("type") String type, //
+			@PathParam("path") @DefaultValue("/") String path, //
+			@QueryParam("name") String[] names) {
+		verifyFileActionAuthorities(type);
+
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		FileManager fileManager = new FileManager(blog, type);
+		FileManager themeFileManager = new FileManager(blog, FileMetaData.BLOG_DATA);
+
+		for (String name : names) {
+			try {
+				fileManager.deleteFile(path, name);
+
+				// if it's a theme file, also delete the copy in blog.dir/theme
+				if (FileMetaData.THEME_FILE.equals(type)) {
+					themeFileManager.deleteFile("/theme" + path, name);
+				}
+
+				blog.info("File \"" + StringUtils.transformHTML(name) + "\" removed.");
+			} catch (IllegalFileAccessException e) {
+				return new ForbiddenView();
+			}
+		}
+
+		FileMetaData directory = fileManager.getFileMetaData(path);
+		return new RedirectView(blog.getUrl() + directory.getUrl());
+	}
+
+	/**
+	 * Allows the user to edit an existing file.
+	 */
+	@GET
+	@Path("/files/edit/{type}{path:/.*}")
+	public View editFile(@PathParam("type") String type,//
+			@PathParam("path") @DefaultValue("/") String path,//
+			@QueryParam("name") String name) {
+		verifyFileActionAuthorities(type);
+
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		FileManager fileManager = new FileManager(blog, type);
+		FileMetaData file = fileManager.getFileMetaData(path, name);
+		FileMetaData parent = fileManager.getParent(file);
+
+		try {
+			String content = fileManager.loadFile(path, name);
+			setAttribute("fileContent", content);
+		} catch (IllegalFileAccessException e) {
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+
+		setAttribute("file", file);
+		setAttribute("parent", parent);
+		setAttribute("type", type);
+
+		return new FileFormView();
+	}
+
+	/**
+	 * Allows the user to save an existing file.
+	 */
+	@POST
+	@Path("/files/save/{type}{path:/.*}")
+	public View saveFile(@PathParam("type") String type, //
+			@PathParam("path") @DefaultValue("/") String path, //
+			@FormParam("name") String name, //
+			@FormParam("fileContent") String content) throws IOException {
+		verifyFileActionAuthorities(type);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		try {
+			FileManager fileManager = new FileManager(blog, type);
+			fileManager.saveFile(path, name, content);
+
+			// if it's a theme file, also save a copy to blog.dir/theme
+			if (FileMetaData.THEME_FILE.equals(type)) {
+				fileManager = new FileManager(blog, FileMetaData.BLOG_DATA);
+				fileManager.saveFile("/theme" + path, name, content);
+			}
+
+			blog.info("File \"" + StringUtils.transformHTML(name) + "\" saved.");
+		} catch (IllegalFileAccessException e) {
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+
+		return editFile(type, path, name);
+	}
+
+	/**
+	 * Allows the user to copy (or rename/move) a file.
+	 */
+	@POST
+	@Path("/files/copy/{type}{path:/.*}")
+	public View copyFile(@PathParam("type") String type,//
+			@PathParam("path") @DefaultValue("/") String path,//
+			@FormParam("name") String name, //
+			@FormParam("newName") String toName, //
+			@FormParam("submit") String submit) throws IOException {
+		verifyFileActionAuthorities(type);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		String oldName = StringUtils.filterHTML(name);
+		String newName = StringUtils.filterHTML(toName);
+
+		FileManager fileManager = new FileManager(blog, type);
+		FileMetaData directory = fileManager.getFileMetaData(path);
+		try {
+			if (submit.equalsIgnoreCase("rename")) {
+				fileManager.renameFile(path, name, newName);
+
+				// if it's a theme file, also rename the copy in blog.dir/theme
+				if (FileMetaData.THEME_FILE.equals(type)) {
+					fileManager = new FileManager(blog, FileMetaData.BLOG_DATA);
+					fileManager.renameFile("/theme" + path, name, newName);
+				}
+
+				blog.info("File \"" + oldName + "\" renamed to \"" + newName + "\".");
+			} else {
+				if (FileManager.hasEnoughSpace(blog, fileManager.getFileMetaData(path, name).getSizeInKB())) {
+					fileManager.copyFile(path, name, newName);
+
+					// if it's a theme file, also create a copy in blog.dir/theme
+					if (FileMetaData.THEME_FILE.equals(type)) {
+						fileManager = new FileManager(blog, FileMetaData.BLOG_DATA);
+						fileManager.copyFile("/theme" + path, name, newName);
+					}
+
+					blog.info("File \"" + oldName + "\" copied to \"" + newName + "\".");
+				} else {
+					return new NotEnoughSpaceView();
+				}
+			}
+		} catch (IllegalFileAccessException e) {
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+
+		return new RedirectView(blog.getUrl() + directory.getUrl());
+	}
+
+	/**
+	 * Allows the user to create a directory.
+	 */
+	@POST
+	@Path("/files/create/{type}{path:/.*}")
+	public View createDirectory(@PathParam("type") String type,//
+			@PathParam("path") @DefaultValue("/") String path, //
+			@FormParam("name") String name) {
+		verifyFileActionAuthorities(type);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		name = StringUtils.filterHTML(name);
+
+		FileManager fileManager = new FileManager(blog, type);
+		FileMetaData directory = fileManager.getFileMetaData(path);
+		try {
+			fileManager.createDirectory(path, name);
+
+			// if it's a theme file, also create a directory in blog.dir/theme
+			if (type.equals(FileMetaData.THEME_FILE)) {
+				fileManager = new FileManager(blog, FileMetaData.BLOG_DATA);
+				fileManager.createDirectory("/theme" + path, name);
+			}
+
+			blog.info("Directory \"" + name + "\" created.");
+		} catch (IllegalFileAccessException e) {
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+
+		return new RedirectView(blog.getUrl() + directory.getUrl());
+	}
+
+	/**
+	 * Allows the user to export a directory as a ZIP file.
+	 */
+	@GET
+	@Path("/export/{type}{name:/.*}")
+	public View export(@PathParam("type") String type, //
+			@PathParam("name") @DefaultValue("/") String path) {
+		verifyFileActionAuthorities(type);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		try {
+			String filename;
+			if (FileMetaData.BLOG_DATA.equals(type)) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+				if (path.equals("/logs")) {
+					filename = blog.getId() + "-logs-" + sdf.format(blog.getCalendar().getTime()) + ".zip";
+				} else {
+					filename = blog.getId() + "-" + sdf.format(blog.getCalendar().getTime()) + ".zip";
+				}
+			} else {
+				filename = "export.zip";
+			}
+
+			FileManager fileManager = new FileManager(blog, type);
+			List<FileMetaData> files = fileManager.getFiles(path, true);
+
+			return new ZipView(files, filename);
+		} catch (IllegalFileAccessException e) {
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
 	}
 }

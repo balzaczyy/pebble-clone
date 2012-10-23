@@ -31,8 +31,8 @@
  */
 package net.sourceforge.pebble.web.view.impl;
 
-import net.sourceforge.pebble.web.view.HtmlView;
 import net.sourceforge.pebble.domain.FileMetaData;
+import net.sourceforge.pebble.web.view.HtmlView;
 
 /**
  * Represents the file view.
@@ -46,7 +46,8 @@ public class FilesView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     String type = (String)getModel().get("type");
     if (type.equals(FileMetaData.BLOG_IMAGE)) {
       return getLocalizedString("view.files.images");
@@ -62,8 +63,9 @@ public class FilesView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/viewFiles.jsp";
+  @Override
+	public String getUri() {
+		return "viewFiles.vm";
   }
 
 }

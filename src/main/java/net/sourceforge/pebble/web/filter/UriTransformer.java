@@ -174,20 +174,17 @@ public class UriTransformer {
         // url matches /images/xyz.xyz
         String name = uri.substring(7, uri.length());
 
-        result = "/file.action?type=" + FileMetaData.BLOG_IMAGE + "&name=";
-        result += name;
+				result = "/p/files" + name + "?type=" + FileMetaData.BLOG_IMAGE;
       } else if (uri.startsWith("/files/")) {
         // url matches /files/xyz.xyz
         String name = uri.substring(6, uri.length());
 
-        result = "/file.action?type=" + FileMetaData.BLOG_FILE + "&name=";
-        result += name;
+				result = "/p/files" + name + "?type=" + FileMetaData.BLOG_FILE;
       } else if (uri.startsWith("/theme/")) {
         // url matches /files/xyz.xyz
         String name = uri.substring(6, uri.length());
 
-        result = "/file.action?type=" + FileMetaData.THEME_FILE + "&name=";
-        result += name;
+				result = "/p/files" + name + "?type=" + FileMetaData.THEME_FILE;
       } else if (uri.matches("\\/help\\/\\w*\\.html")) {
         // url matches /help/xyz.html
         String name = uri.substring(6, uri.length());

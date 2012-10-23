@@ -31,6 +31,14 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.comparator.BlogEntryComparator;
 import net.sourceforge.pebble.domain.Blog;
@@ -40,13 +48,6 @@ import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.AbstractRomeFeedView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Exports an entire blog as RSS/RDF/Atom.
@@ -62,11 +63,12 @@ public class ExportBlogAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     String flavor = request.getParameter("flavor");
 
     if (flavor != null && flavor.equalsIgnoreCase("zip")) {
-      return new ForwardView("/zipDirectory.secureaction?type=blogData");
+ return new ForwardView("/p/export/blogData/");
     }
 
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
@@ -98,7 +100,8 @@ public class ExportBlogAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request The request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     return new String[]{Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE};
   }
 

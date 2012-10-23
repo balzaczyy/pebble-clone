@@ -29,16 +29,18 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
-
-import net.sourceforge.pebble.domain.FileMetaData;
-import net.sourceforge.pebble.web.view.ForbiddenView;
-import net.sourceforge.pebble.web.view.RedirectView;
-import net.sourceforge.pebble.web.view.View;
+package cn.zhouyiyan.pebble;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+
+import javax.ws.rs.WebApplicationException;
+
+import net.sourceforge.pebble.domain.FileMetaData;
+import net.sourceforge.pebble.web.action.SecureActionTestCase;
+import net.sourceforge.pebble.web.view.RedirectView;
+import net.sourceforge.pebble.web.view.View;
 
 /**
  * Tests for the CopyFileAction class.
@@ -46,11 +48,14 @@ import java.io.FileWriter;
  * @author    Simon Brown
  */
 public class CopyFileActionTest extends SecureActionTestCase {
+	private Blogs blogs;
 
-  protected void setUp() throws Exception {
-    action = new CopyFileAction();
-
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.isSecured = false;
+		blogs.request = request;
   }
 
   /**
@@ -66,13 +71,13 @@ public class CopyFileActionTest extends SecureActionTestCase {
 
     assertFalse("Destination file already exists", destinationFile.exists());
 
-    request.setParameter("path", "/");
-    request.setParameter("name", "afile.txt");
-    request.setParameter("type", FileMetaData.BLOG_FILE);
-    request.setParameter("newName", "anewfile.txt");
-    request.setParameter("submit", "copy");
+		// request.setParameter("path", "/");
+		// request.setParameter("name", "afile.txt");
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
+		// request.setParameter("newName", "anewfile.txt");
+		// request.setParameter("submit", "copy");
 
-    View view = action.process(request, response);
+		View view = blogs.copyFile(FileMetaData.BLOG_FILE, "/", "afile.txt", "anewfile.txt", "copy");
 
     // check file now exists and the right view is returned
     assertTrue("File doesn't exist", destinationFile.exists());
@@ -98,13 +103,13 @@ public class CopyFileActionTest extends SecureActionTestCase {
 
     assertFalse("Destination file already exists", destinationFile.exists());
 
-    request.setParameter("path", "/");
-    request.setParameter("name", "afile.txt");
-    request.setParameter("type", FileMetaData.BLOG_FILE);
-    request.setParameter("newName", "anewfile.txt");
-    request.setParameter("submit", "rename");
+		// request.setParameter("path", "/");
+		// request.setParameter("name", "afile.txt");
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
+		// request.setParameter("newName", "anewfile.txt");
+		// request.setParameter("submit", "rename");
 
-    View view = action.process(request, response);
+		View view = blogs.copyFile(FileMetaData.BLOG_FILE, "/", "afile.txt", "anewfile.txt", "rename");
 
     // check source doesn't exist, destination exists and
     // correct view is returned
@@ -121,16 +126,18 @@ public class CopyFileActionTest extends SecureActionTestCase {
    * Tests that a file can't be copied from/to outside of the root.
    */
   public void testCopyFileReturnsForbiddenWheOutsideOfRoot() throws Exception {
-    request.setParameter("path", "/");
-    request.setParameter("name", "../afile.txt");
-    request.setParameter("type", FileMetaData.BLOG_FILE);
-    request.setParameter("newName", "anewfile.txt");
-    request.setParameter("submit", "copy");
+		// request.setParameter("path", "/");
+		// request.setParameter("name", "../afile.txt");
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
+		// request.setParameter("newName", "anewfile.txt");
+		// request.setParameter("submit", "copy");
 
-    View view = action.process(request, response);
-
-    // check a forbidden response is returned
-    assertTrue(view instanceof ForbiddenView);
+		try {
+			blogs.copyFile(FileMetaData.BLOG_FILE, "/", "../afile.txt", "anewfile.txt", "copy");
+			fail();
+		} catch (WebApplicationException e) {
+			assertEquals(403, e.getResponse().getStatus());
+		}
   }
 
 }

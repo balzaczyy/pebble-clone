@@ -14,9 +14,7 @@
 #if ($isAuthenticated)
       <p>
         If you were editing your theme and have caused this error, click <a href="resetTheme.secureaction?
-  #if ($token)
-    pebbleSecurityToken=$token
-  #end
+  #if ($token) pebbleSecurityToken=$token #end
 ">here</a>
         to switch back to the default theme.
       </p>

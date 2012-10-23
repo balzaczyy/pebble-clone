@@ -29,59 +29,63 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 
 import net.sourceforge.pebble.domain.FileMetaData;
+import net.sourceforge.pebble.web.action.SecureActionTestCase;
 import net.sourceforge.pebble.web.view.ForbiddenView;
-import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.RedirectView;
-
-import java.io.File;
+import net.sourceforge.pebble.web.view.View;
 
 /**
- * Tests for the CreateDirectoryAction class.
+ * Tests for the RemoveFilesAction class.
  *
  * @author    Simon Brown
  */
-public class CreateDirectoryActionTest extends SecureActionTestCase {
-
-  protected void setUp() throws Exception {
-    action = new CreateDirectoryAction();
-
+public class RemoveFilesActionTest extends SecureActionTestCase {
+	private Blogs blogs;
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.isSecured = false;
   }
 
   /**
-   * Tests that a new directory can be created.
+   * Tests that a file can be deleted.
    */
-  public void testCreateDirectory() throws Exception {
-    File file = new File(blog.getImagesDirectory(), "newdirectory");
-    assertFalse("File already exists", file.exists());
+  public void testDeleteFile() throws Exception {
+    File file = new File(blog.getFilesDirectory(), "afile.txt");
+    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+    writer.write("Testing...");
+    writer.flush();
+    writer.close();
 
-    request.setParameter("path", "/");
-    request.setParameter("name", "newdirectory");
-    request.setParameter("type", FileMetaData.BLOG_IMAGE);
+		// request.setParameter("path", "/");
+		// request.setParameter("name", new String[]{"afile.txt"});
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
 
-    View view = action.process(request, response);
+		View view = blogs.removeFiles(FileMetaData.BLOG_FILE, "/", new String[] { "afile.txt" });
 
     // check file now exists and the right view is returned
-    file = new File(blog.getImagesDirectory(), "newdirectory");
-    assertTrue("File doesn't exist", file.exists());
+    assertFalse("File still exists", file.exists());
     assertTrue(view instanceof RedirectView);
-
-    // and clean up
-    file.delete();
   }
 
   /**
-   * Tests that a new directory can't be created when it is outside of the root.
+   * Tests that a file can't be deleted from outside of the root.
    */
-  public void testCreateDirectoryReturnsForbiddenWheOutsideOfRoot() throws Exception {
-    request.setParameter("path", "/");
-    request.setParameter("name", "../newdirectory");
-    request.setParameter("type", FileMetaData.BLOG_IMAGE);
+  public void testDeleteFileReturnsForbiddenWheOutsideOfRoot() throws Exception {
+		// request.setParameter("path", "/");
+		// request.setParameter("name", new String[]{"../afile.txt"});
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
 
-    View view = action.process(request, response);
+		View view = blogs.removeFiles(FileMetaData.BLOG_FILE, "/", new String[] { "../afile.txt" });
 
     // check a forbidden response is returned
     assertTrue(view instanceof ForbiddenView);

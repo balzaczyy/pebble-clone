@@ -94,12 +94,13 @@ public class UriTransformerTest extends SingleBlogTestCase {
 
   public void testImageUrlForSingleUserBlog() throws Exception {
     // test a uri that points to an image located within the blog
-    assertEquals("/file.action?type=" + FileMetaData.BLOG_IMAGE + "&name=/myImage.jpg", transformer.getUri("/images/myImage.jpg", blog));
+		assertEquals("/p/files/myImage.jpg?type=" + FileMetaData.BLOG_IMAGE,
+				transformer.getUri("/images/myImage.jpg", blog));
   }
 
   public void testFileUrlForSingleUserBlog() throws Exception {
     // test a uri that points to an image located within the blog
-    assertEquals("/file.action?type=" + FileMetaData.BLOG_FILE + "&name=/myFile.zip", transformer.getUri("/files/myFile.zip", blog));
+		assertEquals("/p/files/myFile.zip?type=" + FileMetaData.BLOG_FILE, transformer.getUri("/files/myFile.zip", blog));
   }
 
   public void testMonthlyUrlForSingleUserBlog() throws Exception {

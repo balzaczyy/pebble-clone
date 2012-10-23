@@ -31,12 +31,6 @@
  */
 package net.sourceforge.pebble.web.view;
 
-import net.sourceforge.pebble.domain.FileMetaData;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,6 +39,13 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.pebble.domain.FileMetaData;
+
 /**
  * Represents a binary view component and prepares the model for display.
  *
@@ -52,10 +53,10 @@ import java.util.zip.ZipOutputStream;
  */
 public class ZipView extends BinaryView {
 
-  private List files;
-  private String filename;
+	private final List<FileMetaData> files;
+  private final String filename;
 
-  public ZipView(List files, String filename) {
+	public ZipView(List<FileMetaData> files, String filename) {
     this.files = files;
     this.filename = filename;
   }
@@ -65,11 +66,13 @@ public class ZipView extends BinaryView {
    *
    * @return the title as a String
    */
-  public String getContentType() {
+  @Override
+	public String getContentType() {
     return "application/zip";
   }
 
-  public long getContentLength() {
+  @Override
+	public long getContentLength() {
     return 0;
   }
 
@@ -80,14 +83,15 @@ public class ZipView extends BinaryView {
    * @param response the HttpServletResponse instance
    * @param context
    */
-  public void dispatch(HttpServletRequest request, HttpServletResponse response, ServletContext context) throws ServletException {
+  @Override
+	public void dispatch(HttpServletRequest request, HttpServletResponse response, ServletContext context) throws ServletException {
     try {
       response.setHeader("Content-Disposition", "filename=" + filename);
       byte[] buf = new byte[1024];
       ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(response.getOutputStream()));
-      Iterator it = files.iterator();
+			Iterator<FileMetaData> it = files.iterator();
       while (it.hasNext()) {
-        FileMetaData file = (FileMetaData)it.next();
+        FileMetaData file = it.next();
         if (file.isDirectory()) {
           continue;
         }

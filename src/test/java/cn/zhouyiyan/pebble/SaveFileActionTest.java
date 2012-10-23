@@ -29,13 +29,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
+
+import javax.ws.rs.WebApplicationException;
 
 import net.sourceforge.pebble.domain.FileManager;
 import net.sourceforge.pebble.domain.FileMetaData;
-import net.sourceforge.pebble.web.view.ForbiddenView;
-import net.sourceforge.pebble.web.view.ForwardView;
+import net.sourceforge.pebble.web.action.SecureActionTestCase;
 import net.sourceforge.pebble.web.view.View;
+import net.sourceforge.pebble.web.view.impl.FileFormView;
 
 /**
  * Tests for the SaveFileAction class.
@@ -43,28 +45,30 @@ import net.sourceforge.pebble.web.view.View;
  * @author    Simon Brown
  */
 public class SaveFileActionTest extends SecureActionTestCase {
-
-  protected void setUp() throws Exception {
-    action = new SaveFileAction();
-
+	private Blogs blogs;
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.isSecured = false;
+		blogs.request = request;
   }
 
   /**
    * Tests that a file can be saved.
    */
   public void testSaveFile() throws Exception {
-    request.setParameter("path", "/");
-    request.setParameter("name", "afile.txt");
-    request.setParameter("type", FileMetaData.BLOG_FILE);
-    request.setParameter("fileContent", "Some content.");
+		// request.setParameter("path", "/");
+		// request.setParameter("name", "afile.txt");
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
+		// request.setParameter("fileContent", "Some content.");
 
-    View view = action.process(request, response);
+		View view = blogs.saveFile(FileMetaData.BLOG_FILE, "/", "afile.txt", "Some content.");
 
     // check file was saved and the right view is returned
     FileManager fileManager = new FileManager(blog, FileMetaData.BLOG_FILE);
     assertEquals("Some content.", fileManager.loadFile("/", "afile.txt"));
-    assertTrue(view instanceof ForwardView);
+		assertTrue(view instanceof FileFormView);
 
     // and clean up
     fileManager.deleteFile("/", "afile.txt");
@@ -74,15 +78,17 @@ public class SaveFileActionTest extends SecureActionTestCase {
    * Tests that a file can't be saved outside of the root.
    */
   public void testSaveFileReturnsForbiddenWheOutsideOfRoot() throws Exception {
-    request.setParameter("path", "/");
-    request.setParameter("name", "../afile.txt");
-    request.setParameter("fileContent", "some content");
-    request.setParameter("type", FileMetaData.BLOG_FILE);
+		// request.setParameter("path", "/");
+		// request.setParameter("name", "../afile.txt");
+		// request.setParameter("fileContent", "some content");
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
 
-    View view = action.process(request, response);
-
-    // check a forbidden response is returned
-    assertTrue(view instanceof ForbiddenView);
+		try {
+			blogs.saveFile(FileMetaData.BLOG_FILE, "/", "../afile.txt", "some content");
+			fail();
+		} catch (WebApplicationException e) {
+			assertEquals(403, e.getResponse().getStatus());
+		}
   }
 
 }

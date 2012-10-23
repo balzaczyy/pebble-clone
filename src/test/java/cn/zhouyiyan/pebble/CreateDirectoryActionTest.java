@@ -29,58 +29,68 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
+
+import java.io.File;
+
+import javax.ws.rs.WebApplicationException;
 
 import net.sourceforge.pebble.domain.FileMetaData;
-import net.sourceforge.pebble.web.view.ForwardView;
+import net.sourceforge.pebble.web.action.SecureActionTestCase;
+import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
 
-import javax.servlet.ServletException;
-
 /**
- * Tests for the FileAction class.
+ * Tests for the CreateDirectoryAction class.
  *
  * @author    Simon Brown
  */
-public class FileActionTest extends SingleBlogActionTestCase {
-
-  protected void setUp() throws Exception {
-    action = new FileAction();
-
+public class CreateDirectoryActionTest extends SecureActionTestCase {
+	private Blogs blogs;
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.isSecured = false;
   }
 
-  public void testBrowsingForbiddenByAnonymousUsers() {
-    try {
-      View view = action.process(request, response);
-      assertTrue(view instanceof ForwardView);
-      assertTrue(((ForwardView)view).getUri().startsWith("/viewFiles.secureaction"));
-    } catch (ServletException e) {
-      fail();
-    }
+  /**
+   * Tests that a new directory can be created.
+   */
+  public void testCreateDirectory() throws Exception {
+    File file = new File(blog.getImagesDirectory(), "newdirectory");
+    assertFalse("File already exists", file.exists());
+
+		// request.setParameter("path", "/");
+		// request.setParameter("name", "newdirectory");
+		// request.setParameter("type", FileMetaData.BLOG_IMAGE);
+
+		View view = blogs.createDirectory(FileMetaData.BLOG_IMAGE, "/", "newdirectory");
+
+    // check file now exists and the right view is returned
+    file = new File(blog.getImagesDirectory(), "newdirectory");
+    assertTrue("File doesn't exist", file.exists());
+    assertTrue(view instanceof RedirectView);
+
+    // and clean up
+    file.delete();
   }
 
-  public void testBrowsingForbiddenWhenRootRequestedByAnonymousUsers() {
-    try {
-      request.setParameter("name", "/");
-      View view = action.process(request, response);
-      assertTrue(view instanceof ForwardView);
-      assertTrue(((ForwardView)view).getUri().startsWith("/viewFiles.secureaction"));
-    } catch (ServletException e) {
-      fail();
-    }
-  }
+  /**
+   * Tests that a new directory can't be created when it is outside of the root.
+   */
+  public void testCreateDirectoryReturnsForbiddenWheOutsideOfRoot() throws Exception {
+		// request.setParameter("path", "/");
+		// request.setParameter("name", "../newdirectory");
+		// request.setParameter("type", FileMetaData.BLOG_IMAGE);
 
-  public void testAccessToParentDirectoriesIsDeniedToAnonymousUsers() {
-    try {
-      request.setParameter("name", "../");
-      request.setParameter("type", FileMetaData.BLOG_FILE);
-      View view = action.process(request, response);
-      assertTrue(view instanceof ForwardView);
-      assertTrue(((ForwardView)view).getUri().startsWith("/viewFiles.secureaction"));
-    } catch (ServletException e) {
-      fail();
-    }
+		try {
+			blogs.createDirectory(FileMetaData.BLOG_IMAGE, "/", "../newdirectory");
+			fail();
+		} catch (WebApplicationException e) {
+			assertEquals(403, e.getResponse().getStatus());
+		}
   }
 
 }

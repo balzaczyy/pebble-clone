@@ -29,37 +29,53 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.view.impl;
+package cn.zhouyiyan.pebble;
+
+import javax.ws.rs.WebApplicationException;
 
 import net.sourceforge.pebble.domain.FileMetaData;
-import net.sourceforge.pebble.web.view.HtmlView;
+import net.sourceforge.pebble.web.action.SingleBlogActionTestCase;
 
 /**
- * Represents the edit file form.
- *
- * @author    Simon Brown
+ * Tests for the FileAction class.
+ * 
+ * @author Simon Brown
  */
-public class FileFormView extends HtmlView {
+public class FileActionTest extends SingleBlogActionTestCase {
+	private Blogs blogs;
 
-  /**
-   * Gets the title of this view.
-   *
-   * @return the title as a String
-   */
-  @Override
-	public String getTitle() {
-    FileMetaData file = (FileMetaData)getModel().get("file");
-    return file.getName();
-  }
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+	}
 
-  /**
-   * Gets the URI that this view represents.
-   *
-   * @return the URI as a String
-   */
-  @Override
-	public String getUri() {
-		return "fileForm.vm";
-  }
+	public void testBrowsingForbiddenByAnonymousUsers() {
+		try {
+			blogs.getFile(null, null);
+			fail();
+		} catch (WebApplicationException e) {
+			assertEquals(403, e.getResponse().getStatus());
+		}
+	}
+
+	public void testBrowsingForbiddenWhenRootRequestedByAnonymousUsers() {
+		try {
+			blogs.getFile("/", null);
+			fail();
+		} catch (WebApplicationException e) {
+			assertEquals(403, e.getResponse().getStatus());
+		}
+	}
+
+	public void testAccessToParentDirectoriesIsDeniedToAnonymousUsers() {
+		try {
+			blogs.getFile("../", FileMetaData.BLOG_FILE);
+			fail();
+		} catch (WebApplicationException e) {
+			assertEquals(403, e.getResponse().getStatus());
+		}
+	}
 
 }

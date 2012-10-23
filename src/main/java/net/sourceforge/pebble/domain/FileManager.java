@@ -31,13 +31,25 @@
  */
 package net.sourceforge.pebble.domain;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.comparator.FileMetaDataComparator;
 import net.sourceforge.pebble.util.FileUtils;
-import net.sourceforge.pebble.PebbleContext;
-import org.apache.commons.io.IOUtils;
 
-import java.io.*;
-import java.util.*;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Encapsulates methods for managing and manipulating files under the
@@ -53,7 +65,7 @@ import java.util.*;
 public class FileManager {
 
   /** the type of files being managed */
-  private String type;
+  private final String type;
 
   /** the root directory for the particular file type */
   private File root;
@@ -104,11 +116,11 @@ public class FileManager {
       if (file.isDirectory()) {
         metaData.setDirectory(true);
         try {
-          List files = getFiles(metaData, true);
+					List<FileMetaData> files = getFiles(metaData, true);
           long size = 0;
-          Iterator it = files.iterator();
+					Iterator<FileMetaData> it = files.iterator();
           while (it.hasNext()) {
-            size += ((FileMetaData)it.next()).getSize();
+						size += it.next().getSize();
           }
           metaData.setSize(size);
         } catch (IllegalFileAccessException ifae) {
@@ -378,25 +390,25 @@ public class FileManager {
    * @return  a List of FileMetaData instances
    * @throws IllegalFileAccessException   if trying to access a file outside the root
    */
-  public List getFiles(String path) throws IllegalFileAccessException {
+	public List<FileMetaData> getFiles(String path) throws IllegalFileAccessException {
     return getFiles(path, false);
   }
 
-  public List getFiles(String path, boolean includeChildren) throws IllegalFileAccessException {
+	public List<FileMetaData> getFiles(String path, boolean includeChildren) throws IllegalFileAccessException {
     FileMetaData subDirectory = getFileMetaData(path);
     return getFiles(subDirectory, includeChildren);
   }
 
-  private List getFiles(FileMetaData path, boolean includeChildren) throws IllegalFileAccessException {
+	private List<FileMetaData> getFiles(FileMetaData path, boolean includeChildren) throws IllegalFileAccessException {
     File directoryToView = getFile(path);
 
     if (!isUnderneathRootDirectory(directoryToView)) {
       throw new IllegalFileAccessException();
     }
 
-    List directoriesAndFiles = new ArrayList();
-    List files = new ArrayList();
-    List directories = new ArrayList();
+		List<FileMetaData> directoriesAndFiles = new ArrayList<FileMetaData>();
+		List<FileMetaData> files = new ArrayList<FileMetaData>();
+		List<FileMetaData> directories = new ArrayList<FileMetaData>();
     File f[] = directoryToView.listFiles();
     if (f != null) {
       File file;

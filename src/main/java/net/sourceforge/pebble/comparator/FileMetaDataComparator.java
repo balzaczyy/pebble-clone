@@ -31,9 +31,9 @@
  */
 package net.sourceforge.pebble.comparator;
 
-import net.sourceforge.pebble.domain.FileMetaData;
-
 import java.util.Comparator;
+
+import net.sourceforge.pebble.domain.FileMetaData;
 
 /**
  * A comparator used to order FileMetaData instances, in alphabetic
@@ -41,7 +41,7 @@ import java.util.Comparator;
  *
  * @author    Simon Brown
  */
-public class FileMetaDataComparator implements Comparator {
+public class FileMetaDataComparator implements Comparator<FileMetaData> {
 
   /**
    * Compares two objects.
@@ -53,10 +53,7 @@ public class FileMetaDataComparator implements Comparator {
    *          the counts are the same, then -n, 0 or +n is returned if the name
    *          of the first is less than, the same as or greater than the second
    */
-  public int compare(Object o1, Object o2) {
-    FileMetaData f1 = (FileMetaData)o1;
-    FileMetaData f2 = (FileMetaData)o2;
-
+	public int compare(FileMetaData f1, FileMetaData f2) {
     return f1.getName().compareTo(f2.getName());
   }
 

@@ -29,16 +29,18 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package net.sourceforge.pebble.web.action;
+package cn.zhouyiyan.pebble;
+
+import java.util.List;
+
+import javax.ws.rs.WebApplicationException;
 
 import net.sourceforge.pebble.domain.FileManager;
 import net.sourceforge.pebble.domain.FileMetaData;
 import net.sourceforge.pebble.domain.Theme;
-import net.sourceforge.pebble.web.view.ForbiddenView;
+import net.sourceforge.pebble.web.action.SecureActionTestCase;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.impl.FilesView;
-
-import java.util.List;
 
 /**
  * Tests for the ViewFilesAction class.
@@ -46,11 +48,13 @@ import java.util.List;
  * @author    Simon Brown
  */
 public class ViewFilesActionTest extends SecureActionTestCase {
-
-  protected void setUp() throws Exception {
-    action = new ViewFilesAction();
-
+	private Blogs blogs;
+  @Override
+	protected void setUp() throws Exception {
     super.setUp();
+		blogs = new Blogs();
+		blogs.request = request;
+		blogs.isSecured = false;
   }
 
   /**
@@ -64,37 +68,38 @@ public class ViewFilesActionTest extends SecureActionTestCase {
     fileManager.saveFile("/", "y.txt", "Some content");
     fileManager.saveFile("/", "b.txt", "Some content");
 
-    request.setParameter("path", "/");
-    request.setParameter("type", FileMetaData.BLOG_FILE);
+		// request.setParameter("path", "/");
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
 
-    View view = action.process(request, response);
+		View view = blogs.allFiles(FileMetaData.BLOG_FILE, "/");
 
     // check file information available and the right view is returned
-    assertEquals(FileMetaData.BLOG_FILE, action.getModel().get("type"));
-    FileMetaData fileMetaData = (FileMetaData)action.getModel().get("directory");
+		assertEquals(FileMetaData.BLOG_FILE, request.getAttribute("type"));
+		FileMetaData fileMetaData = (FileMetaData) request.getAttribute("directory");
     assertEquals("/", fileMetaData.getAbsolutePath());
     assertTrue(fileMetaData.isDirectory());
-    assertEquals("uploadFileToBlog.secureaction", action.getModel().get("uploadAction"));
+		assertEquals("uploadFileToBlog.secureaction", request.getAttribute("uploadAction"));
     assertTrue(view instanceof FilesView);
 
-    List files = (List)action.getModel().get("files");
+		@SuppressWarnings("unchecked")
+		List<FileMetaData> files = (List<FileMetaData>) request.getAttribute("files");
     assertEquals(4, files.size());
 
     // the files should be in this order
     // - a, z, b.txt, y.txt (directories followed by files, both alphabetically)
-    FileMetaData file = (FileMetaData)files.get(0);
+    FileMetaData file = files.get(0);
     assertEquals("a", file.getName());
     assertEquals("/", file.getPath());
     assertTrue(file.isDirectory());
-    file = (FileMetaData)files.get(1);
+    file = files.get(1);
     assertEquals("z", file.getName());
     assertEquals("/", file.getPath());
     assertTrue(file.isDirectory());
-    file = (FileMetaData)files.get(2);
+    file = files.get(2);
     assertEquals("b.txt", file.getName());
     assertEquals("/", file.getPath());
     assertFalse(file.isDirectory());
-    file = (FileMetaData)files.get(3);
+    file = files.get(3);
     assertEquals("y.txt", file.getName());
     assertEquals("/", file.getPath());
     assertFalse(file.isDirectory());
@@ -114,21 +119,12 @@ public class ViewFilesActionTest extends SecureActionTestCase {
     FileManager fileManager = new FileManager(blog, FileMetaData.BLOG_FILE);
     fileManager.saveFile("/", "a.txt", "Some content");
 
-    request.setParameter("type", FileMetaData.BLOG_FILE);
-    action.process(request, response);
-    List files = (List)action.getModel().get("files");
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
+		blogs.allFiles(FileMetaData.BLOG_FILE);
+		@SuppressWarnings("unchecked")
+		List<FileMetaData> files = (List<FileMetaData>) request.getAttribute("files");
     assertEquals(1, files.size());
-    FileMetaData file = (FileMetaData)files.get(0);
-    assertEquals("a.txt", file.getName());
-    assertEquals("/", file.getPath());
-    assertFalse(file.isDirectory());
-
-    // and the same test with a blank path
-    request.setParameter("path", "");
-    action.process(request, response);
-    files = (List)action.getModel().get("files");
-    assertEquals(1, files.size());
-    file = (FileMetaData)files.get(0);
+    FileMetaData file = files.get(0);
     assertEquals("a.txt", file.getName());
     assertEquals("/", file.getPath());
     assertFalse(file.isDirectory());
@@ -141,46 +137,48 @@ public class ViewFilesActionTest extends SecureActionTestCase {
    * Tests that the upload action is set correctly for blog images.
    */
   public void testUploadActionForBlogImages() throws Exception {
-    request.setParameter("path", "/");
-    request.setParameter("type", FileMetaData.BLOG_IMAGE);
-    action.process(request, response);
-    assertEquals("uploadImageToBlog.secureaction", action.getModel().get("uploadAction"));
+		// request.setParameter("path", "/");
+		// request.setParameter("type", FileMetaData.BLOG_IMAGE);
+		blogs.allFiles(FileMetaData.BLOG_IMAGE, "/");
+		assertEquals("uploadImageToBlog.secureaction", request.getAttribute("uploadAction"));
   }
 
   /**
    * Tests that the upload action is set correctly for theme files.
    */
   public void testUploadActionForThemeFiles() throws Exception {
-    request.setParameter("path", "/");
-    request.setParameter("type", FileMetaData.THEME_FILE);
+		// request.setParameter("path", "/");
+		// request.setParameter("type", FileMetaData.THEME_FILE);
     Theme theme = new Theme(blog, "custom", "/some/path");
     blog.setEditableTheme(theme);
-    action.process(request, response);
-    assertEquals("uploadFileToTheme.secureaction", action.getModel().get("uploadAction"));
+		blogs.allFiles(FileMetaData.THEME_FILE, "/");
+		assertEquals("uploadFileToTheme.secureaction", request.getAttribute("uploadAction"));
   }
 
   /**
    * Tests that files can't be accessed outside of the root.
    */
   public void testViewFilesReturnsForbiddenWhenOutsideOfRoot() throws Exception {
-    request.setParameter("path", "../");
-    request.setParameter("type", FileMetaData.BLOG_FILE);
+		// request.setParameter("path", "../");
+		// request.setParameter("type", FileMetaData.BLOG_FILE);
 
-    View view = action.process(request, response);
-
-    // check a forbidden response is returned
-    assertTrue(view instanceof ForbiddenView);
+		try {
+			blogs.allFiles(FileMetaData.BLOG_FILE, "../");
+			fail();
+		} catch (WebApplicationException e) {
+			assertEquals(403, e.getResponse().getStatus());
+		}
   }
 
   /**
    * Tests that a specific file can be selected.
    */
   public void testSelectFile() throws Exception {
-    request.setParameter("path", "/");
-    request.setParameter("type", FileMetaData.BLOG_IMAGE);
-    request.setParameter("file", "afile.txt");
-    action.process(request, response);
-    FileMetaData fileMetaData = (FileMetaData)action.getModel().get("file");
+		// request.setParameter("path", "/");
+		// request.setParameter("type", FileMetaData.BLOG_IMAGE);
+		// request.setParameter("file", "afile.txt");
+		blogs.allFiles(FileMetaData.BLOG_IMAGE, "/", "afile.txt");
+		FileMetaData fileMetaData = (FileMetaData) request.getAttribute("file");
     assertEquals("afile.txt", fileMetaData.getName());
     assertFalse(fileMetaData.isDirectory());
   }
