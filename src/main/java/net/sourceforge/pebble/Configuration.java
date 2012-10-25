@@ -59,7 +59,7 @@ public class Configuration {
   private boolean userThemesEnabled = true;
   private String smtpHost = "java:comp/env/mail/Session";
 	private long fileUploadSize = 2048; // 10240
-  private long fileUploadQuota = -1;
+	private final int fileUploadQuota = -1;
   private DAOFactory daoFactory = new FileDAOFactory();
 	private SecurityRealm securityRealm = new DefaultSecurityRealm(this);
 
@@ -126,12 +126,8 @@ public class Configuration {
     this.fileUploadSize = fileUploadSize;
   }
 
-  public long getFileUploadQuota() {
+	public int getFileUploadQuota() {
     return fileUploadQuota;
-  }
-
-  public void setFileUploadQuota(long fileUploadQuota) {
-    this.fileUploadQuota = fileUploadQuota;
   }
 
   public DAOFactory getDaoFactory() {

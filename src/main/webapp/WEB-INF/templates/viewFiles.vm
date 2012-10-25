@@ -4,7 +4,7 @@
 #if ($parent)
     <a href="${url.rewrite($parent.Url)}">$fmt.message("admin.backToParent")</a> |
 #end
-    <a href="p/export/{$type}/${directory.AbsolutePath}">$fmt.message("admin.exportAsZip")</a> |
+    <a href="p/export/${type}${directory.AbsolutePath}">$fmt.message("admin.exportAsZip")</a> |
 #if ($type == "blogImage")
     <a href="./help/images.html" target="_blank">$fmt.message("common.help")</a>
 #elseif ($type == "blogFile")
@@ -22,7 +22,7 @@
 #elseif ($type == "blogFile")
     $fmt.message("view.files.files")
 #elseif ($type == "themeFile")
-    $fmt.message("view.files.theme") (${blog.editableTheme.name})
+    $fmt.message("view.files.theme") (${blog.EditableTheme.Name})
 #elseif ($type == "blogData")
     $fmt.message("view.files.files")
 #end
@@ -141,7 +141,7 @@
 " method="post">
     <input type="hidden" name="type" value="${type}" />
     <input type="hidden" name="path" value="${directory.AbsolutePath}" />
-    <h3>Upload file (files must be less than ${pebbleContext.Configuration.FileUploadSize&nbsp;KB each)</h3>
+    <h3>Upload file (files must be less than ${pebbleContext.Configuration.FileUploadSize}&nbsp;KB each)</h3>
     <p>
       <table width="99%" cellspacing="0" cellpadding="4">
         <thead>
