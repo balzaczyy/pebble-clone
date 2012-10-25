@@ -78,7 +78,6 @@ public class ViewFilesActionTest extends SecureActionTestCase {
 		FileMetaData fileMetaData = (FileMetaData) request.getAttribute("directory");
     assertEquals("/", fileMetaData.getAbsolutePath());
     assertTrue(fileMetaData.isDirectory());
-		assertEquals("uploadFileToBlog.secureaction", request.getAttribute("uploadAction"));
     assertTrue(view instanceof FilesView);
 
 		@SuppressWarnings("unchecked")
@@ -140,7 +139,6 @@ public class ViewFilesActionTest extends SecureActionTestCase {
 		// request.setParameter("path", "/");
 		// request.setParameter("type", FileMetaData.BLOG_IMAGE);
 		blogs.allFiles(FileMetaData.BLOG_IMAGE, "/");
-		assertEquals("uploadImageToBlog.secureaction", request.getAttribute("uploadAction"));
   }
 
   /**
@@ -152,7 +150,6 @@ public class ViewFilesActionTest extends SecureActionTestCase {
     Theme theme = new Theme(blog, "custom", "/some/path");
     blog.setEditableTheme(theme);
 		blogs.allFiles(FileMetaData.THEME_FILE, "/");
-		assertEquals("uploadFileToTheme.secureaction", request.getAttribute("uploadAction"));
   }
 
   /**

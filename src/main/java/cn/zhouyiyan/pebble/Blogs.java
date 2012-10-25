@@ -102,6 +102,7 @@ import net.sourceforge.pebble.web.view.impl.CommentFormView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.FileFormView;
+import net.sourceforge.pebble.web.view.impl.FileTooLargeView;
 import net.sourceforge.pebble.web.view.impl.FilesView;
 import net.sourceforge.pebble.web.view.impl.LoginPageView;
 import net.sourceforge.pebble.web.view.impl.NotEnoughSpaceView;
@@ -119,6 +120,9 @@ import net.sourceforge.pebble.web.view.impl.UnpublishedBlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.UserView;
 import net.sourceforge.pebble.web.view.impl.UsersView;
 
+import org.apache.commons.fileupload.DiskFileUpload;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.HeadMethod;
@@ -1877,15 +1881,6 @@ public class Blogs {
 			throw new WebApplicationException(Status.FORBIDDEN);
 		}
 
-		String uploadAction = null;
-		if (type.equals(FileMetaData.BLOG_IMAGE)) {
-			uploadAction = "uploadImageToBlog.secureaction";
-		} else if (type.equals(FileMetaData.THEME_FILE)) {
-			uploadAction = "uploadFileToTheme.secureaction";
-		} else {
-			uploadAction = "uploadFileToBlog.secureaction";
-		}
-
 		// does the user want details about a specific file?
 		if (fileName != null && fileName.length() > 0) {
 			setAttribute("file", fileManager.getFileMetaData(path, fileName));
@@ -1894,7 +1889,6 @@ public class Blogs {
 		setAttribute("type", type);
 		setAttribute("directory", directory);
 		setAttribute("parent", fileManager.getParent(directory));
-		setAttribute("uploadAction", uploadAction);
 		setAttribute("root", fileManager.getFileMetaData("/"));
 
 		if (PebbleContext.getInstance().getConfiguration().getFileUploadQuota() > -1) {
@@ -2093,6 +2087,102 @@ public class Blogs {
 		}
 
 		return new RedirectView(blog.getUrl() + directory.getUrl());
+	}
+
+	/**
+	 * Allow the user to upload a file.
+	 */
+	@POST
+	@Path("/files/upload/{type}")
+	public View uploadFile(@PathParam("type") String type) throws Exception {
+		verifyFileActionAuthorities(type);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		String path = "";
+		String[] filenames = new String[10];
+
+		FileManager fileManager = new FileManager(blog, type);
+
+		boolean isMultipart = FileUploadBase.isMultipartContent(request);
+
+		if (isMultipart) {
+			DiskFileUpload upload = new DiskFileUpload();
+			long sizeInBytes = PebbleContext.getInstance().getConfiguration().getFileUploadSize() * 1024; // convert
+																																																		// to
+																																																		// bytes
+			upload.setSizeMax(sizeInBytes);
+			upload.setSizeThreshold((int) sizeInBytes / 4);
+			upload.setRepositoryPath(System.getProperty("java.io.tmpdir"));
+
+			List<?> items;
+			try {
+				items = upload.parseRequest(request);
+			} catch (FileUploadBase.SizeLimitExceededException e) {
+				return new FileTooLargeView();
+			}
+
+			// find the form fields first
+			Iterator<?> it = items.iterator();
+			while (it.hasNext()) {
+				FileItem item = (FileItem) it.next();
+				if (item.isFormField() && item.getFieldName().startsWith("filename")) {
+					int index = Integer.parseInt(item.getFieldName().substring(item.getFieldName().length() - 1));
+					filenames[index] = item.getString();
+					LOG.debug("index is {}, filename is {}", index, filenames[index]);
+				} else if (item.isFormField() && item.getFieldName().equals("path")) {
+					path = item.getString();
+				}
+			}
+
+			// now the actual files
+			it = items.iterator();
+			while (it.hasNext()) {
+				FileItem item = (FileItem) it.next();
+
+				if (!item.isFormField() && item.getSize() > 0 && item.getFieldName().startsWith("file")) {
+					int index = Integer.parseInt(item.getFieldName().substring(item.getFieldName().length() - 1));
+
+					// if the filename hasn't been specified, use that from the file
+					// being uploaded
+					if (filenames[index] == null || filenames[index].length() == 0) {
+						filenames[index] = item.getName();
+					}
+
+					File destinationDirectory = fileManager.getFile(path);
+					File file = new File(destinationDirectory, filenames[index]);
+					if (!fileManager.isUnderneathRootDirectory(file)) {
+ throw new WebApplicationException(Status.FORBIDDEN);
+					}
+
+					long itemSize = item.getSize() / 1024;
+					if (FileManager.hasEnoughSpace(blog, itemSize)) {
+						LOG.debug("Writing file {}, size is ", filenames[index], item.getSize());
+						writeFile(fileManager, path, filenames[index], item);
+
+						// if it's a theme file, also create a copy in blog.dir/theme
+						if (type.equals(FileMetaData.THEME_FILE)) {
+							writeFile(new FileManager(blog, FileMetaData.BLOG_DATA), "/theme" + path, filenames[index], item);
+						}
+					} else {
+						return new NotEnoughSpaceView();
+					}
+				}
+			}
+		}
+
+		blog.info("Files uploaded.");
+
+		FileMetaData directory = fileManager.getFileMetaData(path);
+
+		return new RedirectView(blog.getUrl() + directory.getUrl());
+	}
+
+	private void writeFile(FileManager fileManager, String path, String filename, FileItem item) throws Exception {
+		File destinationDirectory = fileManager.getFile(path);
+		destinationDirectory.mkdirs();
+
+		File file = new File(destinationDirectory, filename);
+		item.write(file);
 	}
 
 	/**

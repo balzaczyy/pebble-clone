@@ -40,7 +40,8 @@ import net.sourceforge.pebble.web.view.HtmlView;
  */
 public class FileTooLargeView extends HtmlView {
 
-  public void prepare() {
+  @Override
+	public void prepare() {
   }
 
   /**
@@ -48,7 +49,8 @@ public class FileTooLargeView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return null;
   }
 
@@ -57,8 +59,9 @@ public class FileTooLargeView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/fileTooLarge.jsp";
+  @Override
+	public String getUri() {
+		return "fileTooLarge.vm";
   }
 
 }
