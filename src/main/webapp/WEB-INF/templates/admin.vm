@@ -91,7 +91,7 @@
       <a href="p/customizations" title="$fmt.message('admin.tooltip.manageYourBlogProperties')">
         $fmt.message("admin.properties")
       </a> |
-      <a href="viewBlogSecurity.secureaction" title="$fmt.message('admin.tooltip.manageYourBlogSecurity')">
+      <a href="p/security" title="$fmt.message('admin.tooltip.manageYourBlogSecurity')">
         $fmt.message("admin.security")
       </a> |
       <a href="viewPlugins.secureaction" title="$fmt.message('admin.tooltip.manageYourPlugins')">

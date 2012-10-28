@@ -14,9 +14,7 @@
     </p>
 
     <form name="securityForm" action="saveBlogSecurity.secureaction" method="POST" accept-charset="${blog.CharacterEncoding}">
-#if ($token)
-      <input type="hidden" name="pebbleSecurityToken" value="$token" />
-#end
+#parse ("fragments/token.vm")
       <table width="99%">
         <tr>
           <td align="center">Blog owners</td>
@@ -24,10 +22,10 @@
         </tr>
         <tr>
           <td align="center">
-#select7 ("blogOwners" ${blogOwnerUsers} ${blog.BlogOwners} "name" "username" "10" "true")
+#select7 ("blogOwners" ${blogOwnerUsers} ${blog.BlogOwners} "name" "username" 10 "true")
           </td>
           <td align="center">
-#select 7("blogPublishers" ${blogPublisherUsers} ${blog.BlogPublishers} "name" "username" "10" "true")
+#select7 ("blogPublishers" ${blogPublisherUsers} ${blog.BlogPublishers} "name" "username" 10 "true")
           </td>
         </tr>
 
@@ -37,10 +35,10 @@
         </tr>
         <tr>
           <td align="center">
-#select7 ("blogContributors" ${blogContributorUsers} ${blog.BlogContributors} "name" "username" "10" "true")
+#select7 ("blogContributors" ${blogContributorUsers} ${blog.BlogContributors} "name" "username" 10 "true")
           </td>
           <td align="center">
-#select7 ("blogReaders" ${allUsers} ${blog.BlogReaders} "name" "username" "10" "true")
+#select7 ("blogReaders" ${allUsers} ${blog.BlogReaders} "name" "username" 10 "true")
           </td>
         </tr>
 
