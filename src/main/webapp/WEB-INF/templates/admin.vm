@@ -96,9 +96,9 @@
       </a> |
       <a href="viewPlugins.secureaction" title="$fmt.message('admin.tooltip.manageYourPlugins')">
         $fmt.message("admin.plugins")
-      </a>
+      </a> |
   #if ($pebbleContext.Configuration.isUserThemesEnabled)
-        | <a href="theme/" title="$fmt.message('admin.tooltip.manageYourTheme')">
+        <a href="theme/" title="$fmt.message('admin.tooltip.manageYourTheme')">
           $fmt.message("admin.themes")
         </a> |
   #end

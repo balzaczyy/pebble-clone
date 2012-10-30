@@ -58,6 +58,7 @@ import net.sourceforge.pebble.domain.Day;
 import net.sourceforge.pebble.domain.FileManager;
 import net.sourceforge.pebble.domain.FileMetaData;
 import net.sourceforge.pebble.domain.IllegalFileAccessException;
+import net.sourceforge.pebble.domain.Message;
 import net.sourceforge.pebble.domain.Month;
 import net.sourceforge.pebble.domain.MultiBlog;
 import net.sourceforge.pebble.domain.Response;
@@ -105,6 +106,7 @@ import net.sourceforge.pebble.web.view.impl.FileFormView;
 import net.sourceforge.pebble.web.view.impl.FileTooLargeView;
 import net.sourceforge.pebble.web.view.impl.FilesView;
 import net.sourceforge.pebble.web.view.impl.LoginPageView;
+import net.sourceforge.pebble.web.view.impl.MessagesView;
 import net.sourceforge.pebble.web.view.impl.NotEnoughSpaceView;
 import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
@@ -277,6 +279,37 @@ public class Blogs {
     return new BlogSecurityView();
 	}
 	
+	/**
+	 * Allows the user to see all messages for the current blog.
+	 */
+	@GET
+	@Path("/messages")
+	public View getMessages() {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		List<Message> messages = blog.getMessages();
+		Collections.reverse(messages);
+		setAttribute("messages", messages);
+
+		return new MessagesView();
+	}
+
+	/**
+	 * Allows the user to clear all messages for the current blog.
+	 */
+	@POST
+	@Path("/messages")
+	public View clearMessages() {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		blog.clearMessages();
+		setAttribute("messages", blog.getMessages());
+
+		return new MessagesView();
+	}
+
 	/**
 	 * Adds a new blog entry. This is called to create a blank blog entry to
 	 * populate a HTML form containing the contents of that entry.

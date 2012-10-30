@@ -1,0 +1,45 @@
+<div class="contentItem">
+  <h1>$fmt.message("view.messages")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th>Date/Time</th>
+          <th>Type</th>
+          <th>Message</th>
+        </tr>
+      </thead>
+#set ($status = 0)
+#foreach ($message in $messages)
+  #if ($status % 2 == 0)
+      <tr class="even small">
+  #else
+      <tr class="odd small">
+  #end
+        <td valign="top">$fmt.shortDate($message.Date)</td>
+        <td valign="top">$message.Type</td>
+        <td>$message.Text</td>
+      </tr>
+  #set ($status = $status + 1)
+#end
+    </table>
+
+    <br />
+
+#if ($messages && !$messages.isEmpty())
+    <form name="messagesForm" action="p/messages" method="POST" accept-charset="${blog.CharacterEncoding}">
+  #parse ("fragments/token.vm")
+      <table width="99%">
+        <tr>
+          <td align="right">
+            <input name="submit" type="submit" Value="Clear Messages">
+          </td>
+        </tr>
+      </table>
+    </form>
+#end
+
+  </div>
+</div>

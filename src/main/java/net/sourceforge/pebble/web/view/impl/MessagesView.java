@@ -32,10 +32,10 @@
 
 package net.sourceforge.pebble.web.view.impl;
 
-import net.sourceforge.pebble.web.view.HtmlView;
-
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
+
+import net.sourceforge.pebble.web.view.HtmlView;
 
 /**
  * Represents the messages page.
@@ -47,8 +47,9 @@ public class MessagesView extends HtmlView {
   /**
    * Prepares the view for presentation.
    */
-  public void prepare() {
-    List list = (List)getModel().get("messages");
+  @Override
+	public void prepare() {
+		List<?> list = (List<?>) getModel().get("messages");
     Collections.reverse(list);
   }
 
@@ -57,7 +58,8 @@ public class MessagesView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return null;
   }
 
@@ -66,8 +68,9 @@ public class MessagesView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/viewMessages.jsp";
+  @Override
+	public String getUri() {
+		return "viewMessages.vm";
   }
 
 }
