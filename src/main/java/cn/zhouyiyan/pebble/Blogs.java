@@ -15,11 +15,13 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.http.Cookie;
@@ -64,6 +66,8 @@ import net.sourceforge.pebble.domain.MultiBlog;
 import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.domain.Tag;
+import net.sourceforge.pebble.plugins.PluginConfigType;
+import net.sourceforge.pebble.plugins.PluginLocator;
 import net.sourceforge.pebble.search.SearchException;
 import net.sourceforge.pebble.search.SearchHit;
 import net.sourceforge.pebble.search.SearchResults;
@@ -108,6 +112,7 @@ import net.sourceforge.pebble.web.view.impl.FilesView;
 import net.sourceforge.pebble.web.view.impl.LoginPageView;
 import net.sourceforge.pebble.web.view.impl.MessagesView;
 import net.sourceforge.pebble.web.view.impl.NotEnoughSpaceView;
+import net.sourceforge.pebble.web.view.impl.PluginsView;
 import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.ResponsesView;
@@ -287,12 +292,10 @@ public class Blogs {
 	public View getMessages() {
 		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
 				Constants.BLOG_CONTRIBUTOR_ROLE);
-
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
 		List<Message> messages = blog.getMessages();
 		Collections.reverse(messages);
 		setAttribute("messages", messages);
-
 		return new MessagesView();
 	}
 
@@ -306,8 +309,90 @@ public class Blogs {
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
 		blog.clearMessages();
 		setAttribute("messages", blog.getMessages());
-
 		return new MessagesView();
+	}
+
+	/**
+	 * Views the plugins associated with the current blog.
+	 */
+	@GET
+	@Path("/plugins")
+	public View getPlugins() {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		setAttribute("pluginProperties", blog.getPluginProperties().getProperties());
+		setAttribute("pluginPropertiesAsString", blog.getPluginProperties().getPropertiesAsString());
+		setAttribute("availablePlugins", PluginLocator.getAvailablePluginsSortedForBlog(blog));
+		return new PluginsView();
+	}
+
+	private static final String PLUGIN_TYPE_PLACEHOLDER_PREFIX = "pluginType_";
+
+	/**
+	 * Saves the plugins associated with the current blog.
+	 */
+	@POST
+	@Path("/plugins")
+	public View savePlugins() throws BlogServiceException {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		String submit = request.getParameter("submit");
+		if (submit != null && submit.length() > 0) {
+			Properties pluginProperties = blog.getPluginProperties().getProperties();
+			Enumeration<?> params = request.getParameterNames();
+			while (params.hasMoreElements()) {
+				String key = (String) params.nextElement();
+
+				if (key.equals("submit")) {
+					// this is the parameter representing the submit button - do nothing
+				} else if (key.startsWith(PluginConfigType.PLUGIN_PROPERTY_NAME_PREFIX)) {
+					String value = request.getParameterValues(key)[0];
+					String property = key.substring(PluginConfigType.PLUGIN_PROPERTY_NAME_PREFIX.length());
+					if (value == null || value.length() == 0) {
+						pluginProperties.remove(property);
+					} else {
+						pluginProperties.setProperty(property, value);
+					}
+				} else if (key.startsWith(PLUGIN_TYPE_PLACEHOLDER_PREFIX)) {
+					// Place holder for checking if all plugins of a particular type have
+					// been disabled
+					String pluginType = key.substring(PLUGIN_TYPE_PLACEHOLDER_PREFIX.length());
+					if (request.getParameter(pluginType) == null) {
+						blog.setProperty(pluginType, "");
+					}
+				} else {
+					// this is an existing parameter - save or remove it
+					String[] values = request.getParameterValues(key);
+					StringBuilder builder = new StringBuilder();
+					String separator = "";
+					for (String value : values) {
+						builder.append(separator).append(value);
+						separator = "\n";
+					}
+					blog.setProperty(key, builder.toString());
+				}
+			}
+
+			blog.storeProperties();
+			blog.getPluginProperties().store();
+		}
+
+		return reloadBlog("/aboutBlog.secureaction");
+	}
+
+	/**
+	 * Reloads a blog from disk.
+	 */
+	View reloadBlog(@QueryParam("redirectUrl") String redirectUrl) {
+		checkUserInRoles(Constants.BLOG_OWNER_ROLE, Constants.BLOG_ADMIN_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		BlogManager.getInstance().reloadBlog(blog);
+		if (redirectUrl != null && redirectUrl.length() > 0) {
+			return new RedirectView(blog.getUrl() + redirectUrl.substring(1));
+		} else {
+			return new RedirectView(blog.getUrl());
+		}
 	}
 
 	/**

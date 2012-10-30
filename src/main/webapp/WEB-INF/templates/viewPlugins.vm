@@ -1,0 +1,90 @@
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/plugins.html" target="_blank">$fmt.message("common.help")</a>
+  </div>
+
+  <h1>$fmt.message("view.plugins")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody" style="overflow: auto">
+    <form name="pluginsForm" action="p/plugins" method="POST" accept-charset="${blog.CharacterEncoding}">
+#parse ("fragments/token.vm")
+
+      <a name="permalinkProvider"></a>
+      Permalink Provider (<span class="help"><a href="./help/permalinkProviders.html" target="_blank">Help</a></span>)
+      <br />
+#pluginSingle ("permalinkProviderName" $availablePlugins.PermalinkProviders $pluginProperties $blog.PermalinkProviderName)
+
+      <a name="pageDecorators"></a>
+      Page Decorators
+      <br />
+#pluginMultiple ("pageDecorators" $availablePlugins.PageDecorators $pluginProperties $blog.PageDecoratorNames "true")
+
+      <a name="contentDecorators"></a>
+      Content Decorators (<span class="help"><a href="./help/contentDecorators.html" target="_blank">Help</a></span>)
+      <br />
+#pluginMultiple ("decorators" $availablePlugins.ContentDecorators $pluginProperties $blog.ContentDecorators "true")
+
+      <a name="feedDecorators"></a>
+      Feed Decorators
+      <br />
+#pluginMultiple ("feedDecorators" $availablePlugins.FeedDecorators $pluginProperties $blog.FeedDecoratorNames "true")
+
+      <a name="blogListeners"></a>
+      Blog Listeners (<span class="help"><a href="./help/blogListeners.html" target="_blank">Help</a></span>)
+      <br />
+#pluginMultiple ("blogListeners" $availablePlugins.BlogListeners $pluginProperties $blog.BlogListeners "false")
+
+      <a name="blogEntryListeners"></a>
+      Blog Entry Listeners (<span class="help"><a href="./help/blogEntryListeners.html" target="_blank">Help</a></span>)
+      <br />
+#pluginMultiple ("blogEntryListeners" $availablePlugins.BlogEntryListeners $pluginProperties $blog.BlogEntryListeners "false")
+
+      <a name="commentListeners"></a>
+      Comment Listeners (<span class="help"><a href="./help/commentListeners.html" target="_blank">Help</a></span>)
+      <br />
+#pluginMultiple ("commentListeners" $availablePlugins.CommentListeners $pluginProperties $blog.CommentListeners "false")
+
+      <a name="commentConfirmationStrategy"></a>
+      Comment Confirmation Strategy (<span class="help"><a href="./help/confirmationStrategies.html#commentProcess" target="_blank">Help</a></span>)
+      <br />
+#pluginSingle ("commentConfirmationStrategy" $availablePlugins.CommentConfirmationStrategies $pluginProperties $blog.CommentConfirmationStrategyName)
+
+      <a name="openIdCommentAuthorProviders"></a>
+      Open ID Comment Author Providers
+      <br />
+#pluginMultiple ("openIdCommentAuthorProviders" $availablePlugins.OpenIdCommentAuthorProviders $pluginProperties $blog.OpenIdCommentAuthorProviderNames "true")
+
+      <a name="trackbackListeners"></a>
+      TrackBack Listeners (<span class="help"><a href="./help/trackbackListeners.html" target="_blank">Help</a></span>)
+      <br />
+#pluginMultiple ("trackBackListeners" $availablePlugins.TrackbackListeners $pluginProperties $blog.TrackBackListeners "false")
+
+      <a name="trackBackConfirmationStrategy"></a>
+      TrackBack Confirmation Strategy (<span class="help"><a href="./help/confirmationStrategies.html#trackbackProcess" target="_blank">Help</a></span>)
+      <br />
+#pluginSingle ("trackBackConfirmationStrategy" $availablePlugins.TrackbackConfirmationStrategies $pluginProperties $blog.TrackBackConfirmationStrategyName)
+
+      Lucene Analyzer
+      <br />
+#pluginSingle ("luceneAnalyzer" $availablePlugins.LuceneAnalyzers $pluginProperties $blog.LuceneAnalyzer)
+
+      <a name="logger"></a>
+      Logger (<span class="help"><a href="./help/logs.html" target="_blank">Help</a></span>)
+      <br />
+#pluginSingle ("logger" $availablePlugins.Loggers $pluginProperties $blog.LoggerName)
+
+      <table width="99%">
+        <tr>
+          <td align="right">
+            <input name="submit" type="submit" Value="Save Plugins">
+          </td>
+        </tr>
+      </table>
+    </form>
+    <script type="text/javascript">
+        initPluginProperties();
+    </script>
+  </div>
+</div>

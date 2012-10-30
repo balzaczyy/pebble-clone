@@ -94,7 +94,7 @@
       <a href="p/security" title="$fmt.message('admin.tooltip.manageYourBlogSecurity')">
         $fmt.message("admin.security")
       </a> |
-      <a href="viewPlugins.secureaction" title="$fmt.message('admin.tooltip.manageYourPlugins')">
+      <a href="p/plugins" title="$fmt.message('admin.tooltip.manageYourPlugins')">
         $fmt.message("admin.plugins")
       </a> |
   #if ($pebbleContext.Configuration.isUserThemesEnabled)
@@ -102,7 +102,7 @@
           $fmt.message("admin.themes")
         </a> |
   #end
-      <a href="viewMessages.secureaction">
+      <a href="p/messages">
         $fmt.message("admin.messages") (${blog.NumberOfMessages})
       </a> |
       <a href="utilities.secureaction" title="$fmt.message('admin.tooltip.maintenanceAndUpgradeUtilities')">
@@ -193,11 +193,11 @@
         </td>
         <td align="right" valign="top">
   #if ($blog.NumberOfMessages == 1)
-          <a href="viewMessages.secureaction">
+          <a href="p/messages">
             $fmt.message("admin.oneMessage")
           </a>
   #else
-          <a href="viewMessages.secureaction">
+          <a href="p/messages">
             $fmt.message("admin.someMessages", "${blog.NumberOfMessages}")
           </a>
   #end

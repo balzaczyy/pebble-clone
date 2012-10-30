@@ -46,3 +46,75 @@
 #macro (select $name $items $selected)
   #select5 ($name $items $selected "" "")
 #end
+
+#macro (pluginConfig $plugin $properties $divId)
+<div id="${divId}" class="pluginConfig" style="display: none;">
+  #if ($plugin.Description)
+  <div class="pluginDescription">$plugin.Description</div>
+  #else
+  No plugin description
+  #end
+  #if ($plugin.isConfigurable())
+  <ul>
+    #foreach ($pluginConfig in $plugin.pluginConfig)
+    <li>
+      <div class="pluginPropertyLabel">$pluginConfig.Name :</div>
+      <div class="pluginPropertyControl">
+      #if ($pluginConfig.Type.Class.SimpleName == "CheckboxPluginConfigType")
+        <input type="checkbox" name="pluginProperty_${pluginConfig.Key}" value="true"/>
+      #elseif ($pluginConfig.Type.Class.SimpleName == "PasswordPluginConfigType")
+        <input type="password" name="pluginProperty_${pluginConfig.Key}" value="${url.escape($properties.getProperty($pluginConfig.Key, ''))}"/>
+      #elseif ($pluginConfig.Type.Class.SimpleName == "PlainTextPluginConfigType")
+        <input type="text" name="pluginProperty_${pluginConfig.Key}" value="${url.escape($properties.getProperty($pluginConfig.Key, ''))}"/>
+      #elseif ($pluginConfig.Type.Class.SimpleName == "TextAreaPluginConfigType")
+        <textarea rows="5" cols="30" name="pluginProperty_${pluginConfig.Key}">
+        $url.escape($properties.getProperty($pluginConfig.Key, ''))
+        </textarea>
+      #end
+      </div>
+    </li>
+    #end
+  </ul>
+  #end
+</div>
+#end
+
+#macro (pluginSingle $name $plugins $properties $enabled)
+<div class="singlePluginBox">
+#select5 ($name $plugins $enabled "name" "pluginClass")
+#foreach ($plugin in $plugins)
+  #set ($id = "pluginsBox_${name}_${plugin.PluginClass}")
+  #pluginConfig ($plugin $properties "${id}_pluginConfig")
+#end
+</div>
+<script type="text/javascript">
+  initSingleSelect("${name}");
+</script>
+#end
+
+#macro (pluginMultiple $name $plugins $properties $enabled $orderable)
+<input type="hidden" name="pluginType_${name}" value="true"/>
+<ul id="pluginsBox_${name}" class="pluginsBox">
+  #foreach ($plugin in $plugins)
+    #set ($id = "pluginsBox_${name}_${plugin.PluginClass}")
+  <li id="${id}">
+    <div class="pluginHeader">
+      <input id="${id}_checkbox" type="checkbox" value="${plugin.PluginClass}" name="${name}"
+    #if ($enabled.contains($plugin.PluginClass)) checked="true" #end
+      >
+      <label for="${id}_checkbox">${plugin.Name}</label>
+    #if ($orderable && $orderable == "true")
+      <div class="moveHandle">&nbsp;</div>
+    #end
+      <div onclick="Effect.toggle('${id}_pluginConfig', 'blind', {duration : 0.5});" class="pluginConfigLink">Configure</div>
+    </div>
+    #pluginConfig ($plugin $properties "${id}_pluginConfig")
+  </li>
+  #end
+</ul>
+  #if ($orderable && $orderable == "true")
+<script type="text/javascript">
+    Sortable.create('pluginsBox_${name}', {handles: $$('#pluginsBox_${name} .moveHandle')})
+</script>
+  #end
+#end

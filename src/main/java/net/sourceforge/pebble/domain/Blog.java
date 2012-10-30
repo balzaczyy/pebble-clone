@@ -334,7 +334,7 @@ public class Blog extends AbstractBlog {
         BlogListener listener = instantiate(c.asSubclass(BlogListener.class));
         eventListenerList.addBlogListener(listener);
       } catch (Exception e) {
-        error("Could not start blog listener \"" + className + "\" - check the class name is correct on the <a href=\"viewPlugins.secureaction#blogListeners\">plugins page</a>.");
+        error("Could not start blog listener \"" + className + "\" - check the class name is correct on the <a href=\"p/plugins#blogListeners\">plugins page</a>.");
         log.error("Blog listener " + className + " could not be registered", e);
       }
     }
@@ -352,7 +352,7 @@ public class Blog extends AbstractBlog {
         BlogEntryListener listener = instantiate(c.asSubclass(BlogEntryListener.class));
         eventListenerList.addBlogEntryListener(listener);
       } catch (Exception e) {
-        error("Could not start blog entry listener \"" + className + "\" - check the class name is correct on the <a href=\"viewPlugins.secureaction#blogEntryListeners\">plugins page</a>.");
+        error("Could not start blog entry listener \"" + className + "\" - check the class name is correct on the <a href=\"p/plugins#blogEntryListeners\">plugins page</a>.");
         log.error("Blog entry listener " + className + " could not be registered", e);
       }
     }
@@ -391,7 +391,7 @@ public class Blog extends AbstractBlog {
         CommentListener listener = instantiate(c.asSubclass(CommentListener.class));
         eventListenerList.addCommentListener(listener);
       } catch (Exception e) {
-        error("Could not start comment listener \"" + className + "\" - check the class name is correct on the <a href=\"viewPlugins.secureaction#commentListeners\">plugins page</a>.");
+        error("Could not start comment listener \"" + className + "\" - check the class name is correct on the <a href=\"p/plugins#commentListeners\">plugins page</a>.");
         log.error("Comment listener " + className + " could not be registered", e);
       }
     }
@@ -412,7 +412,7 @@ public class Blog extends AbstractBlog {
         TrackBackListener listener = instantiate(c.asSubclass(TrackBackListener.class));
         eventListenerList.addTrackBackListener(listener);
       } catch (Exception e) {
-        error("Could not start TrackBack listener \"" + className + "\" - check the class name is correct on the <a href=\"viewPlugins.secureaction#trackbackListeners\">plugins page</a>.");
+        error("Could not start TrackBack listener \"" + className + "\" - check the class name is correct on the <a href=\"p/plugins#trackbackListeners\">plugins page</a>.");
         log.error("TrackBack listener " + className + " could not be registered", e);
       }
     }
@@ -436,7 +436,7 @@ public class Blog extends AbstractBlog {
         decorator.setBlog(this);
         decoratorChain.add(decorator);
       } catch (Exception e) {
-        error("Could not start decorator \"" + className + "\" - check the class name is correct on the <a href=\"viewPlugins.secureaction#contentDecorators\">plugins page</a>.");
+        error("Could not start decorator \"" + className + "\" - check the class name is correct on the <a href=\"p/plugins#contentDecorators\">plugins page</a>.");
         e.printStackTrace();
         log.error(className + " could not be started", e);
       }
