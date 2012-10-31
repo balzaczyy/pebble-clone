@@ -15,8 +15,10 @@ import javax.servlet.http.HttpSession;
 import net.sourceforge.pebble.PebbleContext;
 
 public class AuthenticationFilter implements Filter {
+	@Override
 	public void init(FilterConfig config) throws ServletException {}
 
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException,
 			ServletException {
 		String username = req.getParameter("j_username");
@@ -45,10 +47,11 @@ public class AuthenticationFilter implements Filter {
 		} else { // login fail
 			String prefix = PebbleContext.getInstance().getConfiguration().getUrl();
 			HttpServletResponse response = (HttpServletResponse) resp;
-			response.sendRedirect(prefix + "loginPage.action?error=login.incorrect");
+			response.sendRedirect(prefix + "p/login?error=login.incorrect");
 			// TODO consider "openid.not.mapped" and "openid.error"
 		}
 	}
 
+	@Override
 	public void destroy() {}
 }

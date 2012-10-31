@@ -17,12 +17,14 @@ import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.util.SecurityUtils;
 
 public final class PrivateBlogInterceptor implements Filter {
+	@Override
 	public void init(FilterConfig config) throws ServletException {}
 
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse resp, //
 			FilterChain chain) throws IOException, ServletException {
 		String uri = (String) request.getAttribute(Constants.INTERNAL_URI);
-		boolean isPublicResource = uri.endsWith("loginPage.action") //
+		boolean isPublicResource = uri.endsWith("/login") //
 				|| uri.endsWith(".secureaction") //
 				|| uri.startsWith("/themes/") //
 				|| uri.startsWith("/scripts/") //
@@ -39,7 +41,7 @@ public final class PrivateBlogInterceptor implements Filter {
 				if (blog.isPrivate() && !SecurityUtils.isUserAuthorisedForBlog(blog)) {
 					String prefix = PebbleContext.getInstance().getConfiguration().getUrl();
 					HttpServletResponse response = (HttpServletResponse) resp;
-					response.sendRedirect(prefix + "loginPage.action?error=error.notAuthorised");
+					response.sendRedirect(prefix + "p/login?error=error.notAuthorised");
 					return;
 				}
 			}
@@ -47,5 +49,6 @@ public final class PrivateBlogInterceptor implements Filter {
 		chain.doFilter(request, resp);
 	}
 
+	@Override
 	public void destroy() {}
 }
