@@ -96,6 +96,7 @@ import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.ZipView;
 import net.sourceforge.pebble.web.view.impl.AbstractRomeFeedView;
 import net.sourceforge.pebble.web.view.impl.AdvancedSearchView;
+import net.sourceforge.pebble.web.view.impl.BlogDetailsView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesByDayView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesByMonthView;
 import net.sourceforge.pebble.web.view.impl.BlogEntriesView;
@@ -163,6 +164,28 @@ public class Blogs {
 			}
 		}
 		return recentEntries(1);
+	}
+
+	/**
+	 * Views the current configuration of the blog.
+	 */
+	@GET
+	@Path("/about")
+	public View about() {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE);
+		return new BlogDetailsView();
+	}
+
+	/**
+	 * Runs the garbage collector.
+	 * 
+	 * @author Simon Brown
+	 */
+	@GET
+	@Path("/gc")
+	public View gc() {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE);
+		return about();
 	}
 
 	/**
@@ -383,7 +406,7 @@ public class Blogs {
 			blog.getPluginProperties().store();
 		}
 
-		return reloadBlog("/aboutBlog.secureaction");
+		return reloadBlog("/p/about");
 	}
 
 	/**

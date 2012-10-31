@@ -1,0 +1,157 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("view.aboutThisBlog")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+
+    <table width="99%" cellpadding="4" cellspacing="0" class="small">
+
+    <tr class="odd">
+      <td valign="top"><b>$fmt.message("view.aboutThisBlog.blogEntries")</b></td>
+      <td>$fmt.message("view.aboutThisBlog.numberOfEntries", "${blog.NumberOfBlogEntries}", "${blog.NumberOfPublishedBlogEntries}", "${blog.NumberOfUnpublishedBlogEntries}")</td>
+    </tr>
+
+    <tr class="even">
+      <td valign="top"><b>$fmt.message("view.aboutThisBlog.responses")</b></td>
+      <td>$blog.NumberOfResponses</td>
+    </tr>
+
+    <tr class="odd">
+      <td valign="top"><b>$fmt.message("view.aboutThisBlog.lastModified")</b></td>
+      <td>$fmt.longDateLongTime($blog.LastModified)</td>
+    </tr>
+
+    <tr class="even">
+      <td valign="top"><b>$fmt.message("view.aboutThisBlog.uptime")</b></td>
+      <td>$fmt.message("view.aboutThisBlog.actualUptime", "${pebbleContext.Uptime.Days}", "${pebbleContext.Uptime.Hours}", "${pebbleContext.Uptime.Minutes}", "${pebbleContext.Uptime.Seconds}")</td>
+    </tr>
+
+    <tr class="odd">
+      <td valign="top"><b>$fmt.message("view.aboutThisBlog.version")</b></td>
+      <td>Pebble $pebbleContext.BuildVersion, built $pebbleContext.BuildDate</td>
+    </tr>
+
+    <tr class="even">
+      <td valign="top"><b>$fmt.message("view.aboutThisBlog.jvmMemory")</b></td>
+      <td>
+		$fmt.message("view.aboutThisBlog.jvmMemory.actual", "${pebbleContext.MemoryUsageInKB}", "${pebbleContext.TotalMemoryInKB}")
+		(<a href="p/gc" title="$fmt.message('view.aboutThisBlog.runGC.long')">$fmt.message("view.aboutThisBlog.runGC")</a>)
+      </td>
+    </tr>
+
+      <tr class="odd">
+        <td valign="top"><b>$fmt.message("view.aboutThisBlog.blogDirectory")</b></td>
+        <td>$blog.Root</td>
+      </tr>
+
+      <tr class="even">
+        <td valign="top"><b>$fmt.message("view.aboutThisBlog.blogUrl")</b></td>
+        <td>${blogUrl}</td>
+      </tr>
+
+      <tr class="odd">
+        <td valign="top"><b>$fmt.message("view.aboutThisBlog.xmlRpcDetails")</b></td>
+        <td>
+          $fmt.message("view.aboutThisBlog.xmlRpcDetails.url", $pebbleContext.Configuration.Url)
+          <br />
+          Handler : blogger or metaWeblog
+          <br />
+          Blog ID : ${blog.Id}
+        </td>
+      </tr>
+
+      <tr class="even">
+        <td colspan="2">
+          <b>Permalink Provider</b><br />
+            ${blog.PermalinkProvider.Class.Name}
+        </td>
+      </tr>
+
+      <tr class="odd">
+        <td colspan="2">
+          <b>Content Decorators</b><br />
+#foreach ($decorator in $blog.ContentDecoratorChain.ContentDecorators)
+            ${decorator.Class.Name}<br />
+#end
+        </td>
+      </tr>
+
+      <tr class="even">
+        <td colspan="2">
+          <b>Blog Listeners</b><br />
+#foreach ($listener in $blog.eventListenerList.BlogListeners)
+            ${listener.Class.Name}
+#end
+        </td>
+      </tr>
+
+      <tr class="odd">
+        <td colspan="2">
+          <b>Blog Entry Listeners</b><br />
+#foreach ($listener in $blog.EventListenerList.BlogEntryListeners)
+            ${listener.Class.Name}<br />
+#end
+        </td>
+      </tr>
+
+      <tr class="even">
+        <td colspan="2">
+          <b>Comment Listeners</b><br />
+#foreach ($listener in $blog.EventListenerList.CommentListeners)
+            ${listener.Class.Name}<br />
+#end
+        </td>
+      </tr>
+
+      <tr class="odd">
+        <td colspan="2">
+          <b>Comment Confirmation Strategy</b><br />
+          ${blog.CommentConfirmationStrategy.Class.Name}
+        </td>
+      </tr>
+
+      <tr class="even">
+        <td colspan="2">
+          <b>TrackBack Listeners</b><br />
+#foreach ($listener in $blog.EventListenerList.TrackBackListeners)
+            ${listener.Class.Name}<br />
+#end
+        </td>
+      </tr>
+
+    <tr class="odd">
+      <td colspan="2">
+        <b>TrackBack Confirmation Strategy</b><br />
+          ${blog.TrackBackConfirmationStrategy.Class.Name}
+      </td>
+    </tr>
+
+    <tr class="even">
+      <td colspan="2">
+        <b>Lucene Analyzer</b><br />
+        ${blog.LuceneAnalyzer}
+      </td>
+    </tr>
+
+    <tr class="odd">
+      <td colspan="2">
+        <b>Logger</b><br />
+        ${blog.Logger.Class.Name}
+      </td>
+    </tr>
+    </table>
+
+    <div style="overflow: auto;">
+    <table width="99%" cellpadding="4" cellspacing="0" class="small">
+    <tr class="even">
+      <td>
+        <b>Properties</b><pre>${blog.PluginProperties.PropertiesAsString}</pre>
+      </td>
+    </tr>
+    </table>
+    </div>
+
+  </div>
+
+</div>

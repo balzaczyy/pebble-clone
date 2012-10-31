@@ -32,6 +32,14 @@ public class Formatter {
 		return rb.getString(key).replace("{0}", var1).replace("{1}", var2);
 	}
 
+	public String message(String key, String var1, String var2, String var3) {
+		return rb.getString(key).replace("{0}", var1).replace("{1}", var2).replace("{2}", var3);
+	}
+
+	public String message(String key, String var1, String var2, String var3, String var4) {
+		return rb.getString(key).replace("{0}", var1).replace("{1}", var2).replace("{2}", var3).replace("{3}", var4);
+	}
+
 	public String formatDate(Date date, String pattern) {
 		DateFormat df = new SimpleDateFormat(pattern, loc);
 		df.setTimeZone(tz);
@@ -42,6 +50,10 @@ public class Formatter {
 		DateFormat df = DateFormat.getDateInstance(DateFormat.LONG, loc);
 		df.setTimeZone(tz);
 		return df.format(date);
+	}
+
+	public String longDateLongTime(Date date) {
+		return longDate(date, tz);
 	}
 
 	public String longDate(Date date, TimeZone overridedTz) {

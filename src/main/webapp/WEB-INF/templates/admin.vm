@@ -108,7 +108,7 @@
       <a href="p/utilities" title="$fmt.message('admin.tooltip.maintenanceAndUpgradeUtilities')">
         $fmt.message("admin.utilities")
       </a> |
-      <a href="aboutBlog.secureaction" title="$fmt.message('admin.tooltip.aboutThisBlog')">
+      <a href="p/about" title="$fmt.message('admin.tooltip.aboutThisBlog')">
         $fmt.message("admin.about")
       </a>
 #end
