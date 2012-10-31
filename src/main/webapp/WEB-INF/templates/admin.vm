@@ -105,7 +105,7 @@
       <a href="p/messages">
         $fmt.message("admin.messages") (${blog.NumberOfMessages})
       </a> |
-      <a href="utilities.secureaction" title="$fmt.message('admin.tooltip.maintenanceAndUpgradeUtilities')">
+      <a href="p/utilities" title="$fmt.message('admin.tooltip.maintenanceAndUpgradeUtilities')">
         $fmt.message("admin.utilities")
       </a> |
       <a href="aboutBlog.secureaction" title="$fmt.message('admin.tooltip.aboutThisBlog')">

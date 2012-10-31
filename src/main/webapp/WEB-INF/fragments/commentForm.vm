@@ -12,9 +12,7 @@
 #end
 
 <form id="commentForm" name="commentForm" action="p/comments" method="post" accept-charset="${blog.CharacterEncoding}">
-#if ($token)
-  <input type="hidden" name="pebbleSecurityToken" value="$token" />
-#end
+#parse("fragments/token.vm")
   <input type="hidden" name="blogId" value="${blogEntry.Blog.Id}" />
   <input type="hidden" name="entry" value="${blogEntry.Id}" />
 #if ($undecoratedComment)

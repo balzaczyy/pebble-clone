@@ -3,9 +3,7 @@
   #if ($isAuthorisedForBlog)
   <div class="inlineAdminLinks">
     <form name="blogEntryForm" action="p/entries/manage/${blogEntry.Id}" method="post">
-    #if ($token)
-      <input type="hidden" name="pebbleSecurityToken" value="$token" />
-    #end
+    #parse ("fragments/token.vm")
       <input type="hidden" name="entry" value="${blogEntry.Id}" />
   #end
 
@@ -35,9 +33,7 @@
 
   #if ($isBlogContributor)
     <form action="sendTrackBack.secureaction" method="post">
-    #if ($token)
-      <input type="hidden" name="pebbleSecurityToken" value="$token" />
-    #end
+    #parse ("fragments/token.vm")
       <input type="hidden" name="entry" value="${blogEntry.Id}" />
       <button type="submit" value="Send TrackBack" >$fmt.message("common.sendTrackback")</button>
     </form>

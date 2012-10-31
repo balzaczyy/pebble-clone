@@ -5,9 +5,7 @@
 
   <div class="contentItemBody">
     <form action="${confirmationAction}" method="post" accept-charset="${blog.CharacterEncoding}">
-#if ($token)
-      <input type="hidden" name="pebbleSecurityToken" value="$token" />
-#end      
+#parse ("fragments/token.vm")
       <p>$fmt.message("confirmation.defaultMessage")</p>
 
       <table width="99%">

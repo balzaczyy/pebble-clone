@@ -38,9 +38,7 @@
 
   <div class="contentItemBody">
     <form class="editBlogEntryForm" name="editBlogEntry" action="p/entries/save/${blogEntry.Id}#preview" method="POST" accept-charset="${blog.CharacterEncoding}">
-#if ($token)
-    <input type="hidden" name="pebbleSecurityToken" value="$token" />
-#end
+#parse ("fragments/token.vm")
     <input type="hidden" name="entry" value="${blogEntry.Id}" />
     <input type="hidden" name="persistent" value="${blogEntry.isPersistent()}" />
 

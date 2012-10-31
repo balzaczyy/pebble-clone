@@ -65,9 +65,7 @@
 
 #if ($displayMode == "detail" && $isBlogContributor && $blogEntry.NumberOfResponses > 0)
   <form name="responsesForm" method="post" action="manageResponses.secureaction">
-  #if ($token)
-    <input type="hidden" name="pebbleSecurityToken" value="$token" />
-  #end
+  #parse ("fragments/token.vm")
     <input type="hidden" name="redirectUrl" value="${url.rewrite($blogEntry.LocalPermalink)}" />
 
     <br /><br />

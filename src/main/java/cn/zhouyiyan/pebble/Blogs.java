@@ -66,6 +66,7 @@ import net.sourceforge.pebble.domain.MultiBlog;
 import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.domain.Tag;
+import net.sourceforge.pebble.domain.Theme;
 import net.sourceforge.pebble.plugins.PluginConfigType;
 import net.sourceforge.pebble.plugins.PluginLocator;
 import net.sourceforge.pebble.search.SearchException;
@@ -84,6 +85,7 @@ import net.sourceforge.pebble.util.MailUtils;
 import net.sourceforge.pebble.util.Pageable;
 import net.sourceforge.pebble.util.SecurityUtils;
 import net.sourceforge.pebble.util.StringUtils;
+import net.sourceforge.pebble.util.Utilities;
 import net.sourceforge.pebble.web.validation.ValidationContext;
 import net.sourceforge.pebble.web.view.FileView;
 import net.sourceforge.pebble.web.view.ForbiddenView;
@@ -105,6 +107,7 @@ import net.sourceforge.pebble.web.view.impl.CategoriesView;
 import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
+import net.sourceforge.pebble.web.view.impl.EmailSubscribersView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.FileFormView;
 import net.sourceforge.pebble.web.view.impl.FileTooLargeView;
@@ -124,8 +127,10 @@ import net.sourceforge.pebble.web.view.impl.StaticPagesView;
 import net.sourceforge.pebble.web.view.impl.SubscribeView;
 import net.sourceforge.pebble.web.view.impl.SubscribedView;
 import net.sourceforge.pebble.web.view.impl.UnpublishedBlogEntriesView;
+import net.sourceforge.pebble.web.view.impl.UnsubscribedView;
 import net.sourceforge.pebble.web.view.impl.UserView;
 import net.sourceforge.pebble.web.view.impl.UsersView;
+import net.sourceforge.pebble.web.view.impl.UtilitiesView;
 
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
@@ -382,9 +387,49 @@ public class Blogs {
 	}
 
 	/**
+	 * Resets the plugins associated with a blog.
+	 */
+	@GET
+	@Path("/plugins/reset")
+	public View resetPlugins() {
+		checkUserInRoles(Constants.BLOG_OWNER_ROLE, Constants.BLOG_ADMIN_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		Utilities.resetPlugins(blog);
+		return reloadBlog();
+	}
+
+	/**
+	 * Resets the theme associated with a blog back to "default".
+	 */
+	@GET
+	@Path("/themes/reset")
+	public View resetThemes() {
+		checkUserInRoles(Constants.BLOG_OWNER_ROLE, Constants.BLOG_ADMIN_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		Utilities.resetTheme(blog);
+		return reloadBlog();
+	}
+
+	/**
+	 * Restores the theme associated with a blog back to a fresh copy of the
+	 * specified theme.
+	 */
+	@GET
+	@Path("/themes/restore")
+	public View restoreTheme(@QueryParam("theme") @DefaultValue(Theme.DEFAULT_THEME_NAME) String theme) {
+		checkUserInRoles(Constants.BLOG_OWNER_ROLE, Constants.BLOG_ADMIN_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		String themeName = request.getParameter("theme");
+		Utilities.restoreTheme(blog, themeName);
+		return reloadBlog();
+	}
+
+	/**
 	 * Reloads a blog from disk.
 	 */
-	View reloadBlog(@QueryParam("redirectUrl") String redirectUrl) {
+	@GET
+	@Path("/reload")
+	public View reloadBlog(@QueryParam("redirectUrl") String redirectUrl) {
 		checkUserInRoles(Constants.BLOG_OWNER_ROLE, Constants.BLOG_ADMIN_ROLE);
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
 		BlogManager.getInstance().reloadBlog(blog);
@@ -393,6 +438,116 @@ public class Blogs {
 		} else {
 			return new RedirectView(blog.getUrl());
 		}
+	}
+
+	View reloadBlog() {
+		return reloadBlog(null);
+	}
+
+	/**
+	 * Utilities for the current blog, such as those useful for moving between
+	 * versions of Pebble.
+	 */
+	@GET
+	@Path("/utilities")
+	public View getUtilities(@QueryParam("action") String action) {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		if (action == null) { // TODO no token is needed here
+			// do nothing
+		} else if (action.equalsIgnoreCase("ipAddressListener")) {
+			Utilities.buildIpAddressLists(blog);
+			return reloadBlog();
+		} else if (action.equalsIgnoreCase("fixHtmlInResponses")) {
+			Utilities.fixHtmlInResponses(blog);
+			return reloadBlog();
+		} else if (action.equalsIgnoreCase("buildIndexes")) {
+			Utilities.buildIndexes(blog);
+			return reloadBlog();
+		} else if (action.equalsIgnoreCase("convertCategories")) {
+			Utilities.convertCategories(blog);
+			return reloadBlog();
+		} else if (action.equalsIgnoreCase("restructureBlogToGMT")) {
+			Utilities.restructureBlogToGMT(blog);
+			Utilities.buildIndexes(blog);
+			return reloadBlog();
+		} else if (action.equalsIgnoreCase("moveBlogEntriesFromCategory")) {
+			Category from = blog.getCategory(request.getParameter("from"));
+			Category to = blog.getCategory(request.getParameter("to"));
+			if (from != null && to != null) {
+				Utilities.moveBlogEntriesFromCategory(blog, from, to);
+			}
+		}
+
+		return new UtilitiesView();
+	}
+
+	/**
+	 * Exports an entire blog as RSS/RDF/Atom.
+	 */
+	@GET
+	@Path("/export/blog/{flavor}")
+	public View exportBlog(@PathParam("flavor") String flavor) {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE);
+
+		if ("zip".equalsIgnoreCase(flavor)) { return export("blogData", "/"); }
+
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		response.setContentType("application/xml; charset=" + blog.getCharacterEncoding());
+
+		List<BlogEntry> blogEntries = blog.getBlogEntries();
+		Collections.sort(blogEntries, new BlogEntryComparator());
+		setAttribute(Constants.BLOG_ENTRIES, blogEntries);
+
+		// set the locale of this feed request to be English
+
+		if ("atom".equalsIgnoreCase(flavor)) {
+			return new FeedView(AbstractRomeFeedView.FeedType.ATOM);
+		} else if ("rdf".equalsIgnoreCase(flavor)) {
+			return new RdfView();
+		} else {
+			return new FeedView(AbstractRomeFeedView.FeedType.RSS);
+		}
+	}
+
+	/**
+	 * Presents a list of e-mail subscribers to the user.
+	 */
+	@GET
+	@Path("/email/subs")
+	public View subscribeEmails() {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		setAttribute("emailAddresses", blog.getEmailSubscriptionList().getEmailAddresses());
+		return new EmailSubscribersView();
+	}
+
+	/**
+	 * Allows the user to unsubscribe from e-mail updates whenever a blog entry is
+	 * added.
+	 */
+	@POST
+	@Path("/email/unsub")
+	public View unsubscribeEmails(@QueryParam("email") String[] emails) {
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		Set<String> emailSet = new HashSet<String>();
+		for (String email : emails) {
+			email = StringUtils.filterHTML(email);
+			blog.getEmailSubscriptionList().removeEmailAddress(email);
+			emailSet.add(email);
+		}
+
+		String emailListAsString = "";
+		for (String email : emailSet) {
+			emailListAsString += email;
+			emailListAsString += " ";
+		}
+
+		setAttribute("email", emailListAsString);
+		return new UnsubscribedView();
 	}
 
 	/**
@@ -2334,4 +2489,5 @@ public class Blogs {
 			throw new WebApplicationException(Status.FORBIDDEN);
 		}
 	}
+
 }

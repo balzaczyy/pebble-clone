@@ -1,0 +1,49 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("view.emailSubscribers")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+
+    <form name="emailSubscribersForm" action="p/email/unsub" method="post">
+#parse ("fragments/token.vm")
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+      <tr>
+        <th></th>
+        <th><input type="checkbox" name="allEmailAddresses" onclick="toggleCheckAll(document.emailSubscribersForm.allEmailAddresses, document.emailSubscribersForm.email)"/></th>
+        <th>E-mail Address</th>
+      </tr>
+      </thead>
+      <tbody>
+#set ($status = 0)
+#foreach ($emailAddress in $emailAddresses)
+  #if ($status % 2 == 0)
+      <tr class="even">
+  #else
+      <tr class="odd">
+  #end
+        <td width="2%" valign="top">$status</td>
+        <td valign="top" class="small">
+          <input type="checkbox" name="email" value="${emailAddress}" />
+        </td>
+        <td>${emailAddress}</td>
+      </tr>
+  #set ($status = $status + 1)
+#end
+      </tbody>
+    </table>
+
+    <br />
+
+    <table width="99%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="right">
+          <input type="submit" name="submit" value="Unsubscribe" />
+        </td>
+      </tr>
+    </table>
+    </form>
+  </div>
+
+</div>

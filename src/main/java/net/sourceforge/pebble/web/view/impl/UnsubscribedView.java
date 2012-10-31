@@ -45,7 +45,8 @@ public class UnsubscribedView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return getLocalizedString("newsfeed.unsubscribedTitle");
   }
 
@@ -54,8 +55,9 @@ public class UnsubscribedView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/unsubscribed.jsp";
+  @Override
+	public String getUri() {
+		return "unsubscribed.vm";
   }
 
 }

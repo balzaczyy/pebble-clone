@@ -1,0 +1,9 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("newsfeed.unsubscribedTitle")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    $fmt.message("newsfeed.unsubscribed", $email)
+  </div>
+</div>

@@ -45,7 +45,8 @@ public class EmailSubscribersView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
 	return getLocalizedString("view.emailSubscribers");
   }
 
@@ -54,8 +55,9 @@ public class EmailSubscribersView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/viewEmailSubscribers.jsp";
+  @Override
+	public String getUri() {
+		return "viewEmailSubscribers.vm";
   }
 
 }

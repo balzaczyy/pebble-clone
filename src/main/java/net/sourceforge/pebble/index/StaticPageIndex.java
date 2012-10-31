@@ -31,13 +31,24 @@
  */
 package net.sourceforge.pebble.index;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.StaticPage;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.io.*;
-import java.util.*;
 
 /**
  * Maintains an index of all static pages
@@ -54,7 +65,7 @@ public class StaticPageIndex {
   private static final int MAXIMUM_LOCK_ATTEMPTS = 3;
 
   /** the owning blog */
-  private Blog blog;
+  private final Blog blog;
 
   /** the collection of all static pages */
   private Map<String,String> index = new HashMap<String,String>();
@@ -123,7 +134,7 @@ public class StaticPageIndex {
         }
         index(staticPage);
       } else {
-        blog.error("Could not index static page - try <a href=\"utilities.secureaction?action=buildIndexes\">rebuilding the indexes</a>.");
+				blog.error("Could not index static page - try <a href=\"p/utilities?action=buildIndexes\">rebuilding the indexes</a>.");
       }
     }
   }
