@@ -31,13 +31,17 @@
  */
 package net.sourceforge.pebble.domain;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+
 import net.sourceforge.pebble.dao.DAOFactory;
 import net.sourceforge.pebble.dao.PersistenceException;
 import net.sourceforge.pebble.dao.RefererFilterDAO;
 import net.sourceforge.pebble.logging.CountedUrl;
-
-import java.util.*;
-import java.util.regex.Matcher;
 
 /**
  * A class to manage regular expressions used to filter out obscene and spam
@@ -51,10 +55,10 @@ public class RefererFilterManager {
   private int nextId = 1;
 
   /** the owning root blog */
-  private Blog rootBlog;
+  private final Blog rootBlog;
 
   /** the collection of all filters */
-  private Collection filters;
+	private Collection<RefererFilter> filters;
 
   /**
    * Creates a new instance.
@@ -73,10 +77,10 @@ public class RefererFilterManager {
       RefererFilterDAO dao = factory.getRefererFilterDAO();
       filters = dao.getRefererFilters(rootBlog);
 
-      Iterator it = filters.iterator();
+			Iterator<RefererFilter> it = filters.iterator();
       RefererFilter filter;
       while (it.hasNext()) {
-        filter = (RefererFilter)it.next();
+        filter = it.next();
         filter.setId(nextId);
         nextId++;
       }
@@ -116,10 +120,10 @@ public class RefererFilterManager {
       DAOFactory factory = DAOFactory.getConfiguredFactory();
       RefererFilterDAO dao = factory.getRefererFilterDAO();
 
-      Iterator it = filters.iterator();
+			Iterator<RefererFilter> it = filters.iterator();
       RefererFilter filter;
       while (it.hasNext()) {
-        filter = (RefererFilter)it.next();
+        filter = it.next();
 
         if (filter.getExpression().equals(expression)) {
           // remove it from the persistent store
@@ -143,7 +147,7 @@ public class RefererFilterManager {
    *
    * @return  a Collection of RefererFilter instances
    */
-  public Collection getFilters() {
+	public Collection<RefererFilter> getFilters() {
     return Collections.unmodifiableCollection(filters);
   }
 
@@ -154,12 +158,12 @@ public class RefererFilterManager {
    * @param referers    the List of referers (CountedUrls) to be filtered
    * @return  a filtered List containing CountedUrls
    */
-  public List filter(List referers) {
-    List results = new ArrayList();
-    Iterator it = referers.iterator();
+	public List<CountedUrl> filter(List<? extends CountedUrl> referers) {
+		List<CountedUrl> results = new ArrayList<CountedUrl>();
+		Iterator<? extends CountedUrl> it = referers.iterator();
     CountedUrl referer;
     while (it.hasNext()) {
-      referer = (CountedUrl)it.next();
+      referer = it.next();
       if (!filter(referer)) {
         results.add(referer);
       }
@@ -182,11 +186,11 @@ public class RefererFilterManager {
       return false;
     }
 
-    Iterator it = filters.iterator();
+		Iterator<RefererFilter> it = filters.iterator();
     RefererFilter filter;
     Matcher matcher;
     while (it.hasNext()) {
-      filter = (RefererFilter)it.next();
+      filter = it.next();
       matcher = filter.getCompiledExpression().matcher(referer.getUrl());
       if (matcher.matches()) {
         return true;

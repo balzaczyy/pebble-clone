@@ -116,10 +116,10 @@
 
     <span id="admin-logs">
 #if ($isAuthorisedForBlog)
-      <a href="viewReferers.secureaction" title="$fmt.message('admin.tooltip.viewReferrersForToday')">
+      <a href="p/referers" title="$fmt.message('admin.tooltip.viewReferrersForToday')">
         $fmt.message("admin.referrers")
       </a> 
-      (<a href="viewReferers.secureaction?filter=false" title="$fmt.message('admin.tooltip.viewReferrersForTodayUnfiltered')"/>
+      (<a href="p/referers?filter=false" title="$fmt.message('admin.tooltip.viewReferrersForTodayUnfiltered')"/>
         $fmt.message("admin.viewReferrersForTodayUnfiltered")
       </a>) |
       <a href="viewRequests.secureaction" title="$fmt.message('admin.tooltip.viewRequestsForToday')">
@@ -131,7 +131,7 @@
       <a href="viewLogSummary.secureaction?year=${yearNow}" title="$fmt.message('admin.tooltip.yearlyLogs')">
         $fmt.message("admin.yearlyLogs")
       </a> |
-      <a href="viewRefererFilters.secureaction" title="$fmt.message('admin.tooltip.viewReferrerFilters')">
+      <a href="p/referers/filters" title="$fmt.message('admin.tooltip.viewReferrerFilters')">
         $fmt.message("admin.referrerFilters")
       </a>
 #end

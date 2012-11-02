@@ -1,10 +1,10 @@
 <div class="contentItem">
 
   <div class="contentItemLinks">
-    <a href="./help/referers.html" target="_blank"><fmt:message key="common.help"/></a>
+    <a href="./help/referers.html" target="_blank">$fmt.message("common.help")</a>
   </div>
 
-  <h1><fmt:message key="view.refererFilters"/></h1>
+  <h1>$fmt.message("view.refererFilters")</h1>
   <h2>&nbsp;</h2>
 
   <div class="contentItemBody">
@@ -13,8 +13,8 @@
       As an example, to exlude all URLs from <code>*.somedomain.com</code>, the expression would be <code>.*\.somedomain\.com.*</code>
     </p>
 
-    <form name="newRefererFilterForm" action="addRefererFilters.secureaction" method="post">
-      <pebble:token/>
+    <form name="newRefererFilterForm" action="p/referers/filters" method="post">
+#parse ("fragments/token.vm")
       <b>Filter</b>
       <input type="text" name="expression" size="40" value=""/>
       <input name="submit" type="submit" Value="Add Filter" />
@@ -22,8 +22,8 @@
 
     <br />
 
-    <form name="refererFiltersForm" action="removeRefererFilters.secureaction" method="post">
-    <pebble:token/>
+    <form name="refererFiltersForm" action="p/referers/filters/remove" method="post">
+#parser ("fragments/token.vm")
     <table width="99%" cellspacing="0" cellpadding="4">
       <thead>
       <tr>
@@ -32,23 +32,17 @@
       </tr>
       </thead>
       <tbody>
-      <c:forEach var="filter" items="${filters}" varStatus="status">
-        <c:choose>
-          <c:when test="${status.count % 2 == 0}">
-            <tr class="even small">
-          </c:when>
-          <c:otherwise>
-              <tr class="odd small">
-          </c:otherwise>
-        </c:choose>
-          <td>
-            <input type="checkbox" name="expression" value="<c:out value="${filter.expression}" />" />
-          </td>
-          <td>
-            <c:out value="${filter.expression}" escapeXml="false"/>
-          </td>
+#set ($status = 0)
+#foreach ($filter in $filters)
+  #if ($status % 2 == 0)
+        <tr class="even small">
+  #else
+        <tr class="odd small">
+          <td><input type="checkbox" name="expression" value="${filter.Expression}" /></td>
+          <td>${filter.Expression}</td>
         </tr>
-      </c:forEach>
+  #set ($status = $status + 1)
+#end
       </tbody>
     </table>
 

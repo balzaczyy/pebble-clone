@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,6 +44,7 @@ import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.api.confirmation.CommentConfirmationStrategy;
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.comparator.BlogEntryComparator;
+import net.sourceforge.pebble.comparator.CountedUrlByCountComparator;
 import net.sourceforge.pebble.comparator.PageBasedContentByTitleComparator;
 import net.sourceforge.pebble.dao.CategoryDAO;
 import net.sourceforge.pebble.dao.DAOFactory;
@@ -63,10 +65,15 @@ import net.sourceforge.pebble.domain.IllegalFileAccessException;
 import net.sourceforge.pebble.domain.Message;
 import net.sourceforge.pebble.domain.Month;
 import net.sourceforge.pebble.domain.MultiBlog;
+import net.sourceforge.pebble.domain.RefererFilter;
+import net.sourceforge.pebble.domain.RefererFilterManager;
 import net.sourceforge.pebble.domain.Response;
 import net.sourceforge.pebble.domain.StaticPage;
 import net.sourceforge.pebble.domain.Tag;
 import net.sourceforge.pebble.domain.Theme;
+import net.sourceforge.pebble.logging.CountedUrl;
+import net.sourceforge.pebble.logging.Log;
+import net.sourceforge.pebble.logging.Referer;
 import net.sourceforge.pebble.plugins.PluginConfigType;
 import net.sourceforge.pebble.plugins.PluginLocator;
 import net.sourceforge.pebble.search.SearchException;
@@ -119,6 +126,8 @@ import net.sourceforge.pebble.web.view.impl.NotEnoughSpaceView;
 import net.sourceforge.pebble.web.view.impl.PluginsView;
 import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
+import net.sourceforge.pebble.web.view.impl.RefererFiltersView;
+import net.sourceforge.pebble.web.view.impl.ReferersView;
 import net.sourceforge.pebble.web.view.impl.ResponsesView;
 import net.sourceforge.pebble.web.view.impl.SearchResultsView;
 import net.sourceforge.pebble.web.view.impl.StaticPageFormView;
@@ -2513,4 +2522,181 @@ public class Blogs {
 		}
 	}
 
+	/**
+	 * Gets the referers for the specified time period. This differs from the
+	 * unsecure version in that it allows referers to be seen month by month and
+	 * referer filtering can be toggled on/off.
+	 */
+	@GET
+	@Path("/referers")
+	public View getReferers(@QueryParam("filter") String filter) throws ServletException {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		Log log = getLog(blog);
+
+		List<? extends CountedUrl> referers = new ArrayList<Referer>(log.getReferers());
+		if ("true".equalsIgnoreCase(filter)) {
+			referers = blog.getRefererFilterManager().filter(referers);
+		}
+		Collections.sort(referers, new CountedUrlByCountComparator());
+
+		// now calculate the total number of referers, after filtering spam
+		int totalReferers = 0;
+		Iterator<? extends CountedUrl> it = referers.iterator();
+		CountedUrl url;
+		while (it.hasNext()) {
+			url = it.next();
+			totalReferers += url.getCount();
+		}
+
+		setAttribute("logAction", "viewReferers");
+		setAttribute("referers", referers);
+		setAttribute("totalReferers", new Integer(totalReferers));
+		setAttribute("year", request.getParameter("year"));
+		setAttribute("month", request.getParameter("month"));
+		setAttribute("day", request.getParameter("day"));
+
+		return new ReferersView();
+	}
+
+	private Log getLog(Blog blog) throws ServletException {
+
+		String yearAsString = request.getParameter("year");
+		String monthAsString = request.getParameter("month");
+		String dayAsString = request.getParameter("day");
+
+		Calendar cal = blog.getCalendar();
+		Log log = null;
+		String logPeriod = "";
+
+		if (yearAsString != null && yearAsString.length() > 0 && monthAsString != null && monthAsString.length() > 0
+				&& dayAsString != null && dayAsString.length() > 0) {
+			int year = Integer.parseInt(yearAsString);
+			int month = Integer.parseInt(monthAsString);
+			int day = Integer.parseInt(dayAsString);
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, month - 1);
+			cal.set(Calendar.DAY_OF_MONTH, day);
+			log = blog.getLogger()
+					.getLog(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", blog.getLocale());
+			dateFormat.setTimeZone(blog.getTimeZone());
+			registerObjectsForNavigation(blog, blog.getBlogForDay(year, month, day));
+			logPeriod = dateFormat.format(cal.getTime());
+		} else if (yearAsString != null && yearAsString.length() > 0 && monthAsString != null && monthAsString.length() > 0) {
+			int year = Integer.parseInt(yearAsString);
+			int month = Integer.parseInt(monthAsString);
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, month - 1);
+			log = blog.getLogger().getLog(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
+			SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM yyyy", blog.getLocale());
+			dateFormat.setTimeZone(blog.getTimeZone());
+			registerObjectsForNavigation(blog, blog.getBlogForMonth(year, month));
+			logPeriod = dateFormat.format(cal.getTime());
+		} else {
+			// get the log for today
+			log = blog.getLogger().getLog();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", blog.getLocale());
+			dateFormat.setTimeZone(blog.getTimeZone());
+			registerObjectsForNavigation(blog, blog.getBlogForToday());
+			logPeriod = dateFormat.format(cal.getTime());
+		}
+
+		setAttribute("logPeriod", logPeriod);
+
+		return log;
+	}
+
+	private void registerObjectsForNavigation(Blog blog, Month month) {
+		Month firstMonth = blog.getBlogForFirstMonth();
+		Month previousMonth = month.getPreviousMonth();
+		Month nextMonth = month.getNextMonth();
+
+		if (!previousMonth.before(firstMonth)) {
+			setAttribute("previousMonth", previousMonth);
+		}
+
+		if (!nextMonth.getDate().after(blog.getCalendar().getTime()) || nextMonth.before(firstMonth)) {
+			setAttribute("nextMonth", nextMonth);
+		}
+		setAttribute("displayMode", "logSummaryForMonth");
+	}
+
+	private void registerObjectsForNavigation(Blog blog, Day day) {
+		Day firstDay = blog.getBlogForFirstMonth().getBlogForFirstDay();
+		Day previousDay = day.getPreviousDay();
+		Day nextDay = day.getNextDay();
+
+		if (!previousDay.before(firstDay)) {
+			setAttribute("previousDay", previousDay);
+		}
+
+		if (!nextDay.getDate().after(blog.getCalendar().getTime()) || nextDay.before(firstDay)) {
+			setAttribute("nextDay", nextDay);
+		}
+		setAttribute("displayMode", "logSummaryForDay");
+	}
+
+	/**
+	 * Adds one or more referer filters.
+	 */
+	@POST
+	@Path("/referers/filters")
+	public View addRefererFilter(@FormParam("expression") String[] expressions, //
+			@FormParam("redirectUrl") String redirectUrl) {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog rootBlog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		for (String expression : expressions) {
+			if (expression != null && expression.trim().length() > 0) {
+				RefererFilterManager rm = rootBlog.getRefererFilterManager();
+				RefererFilter filter = new RefererFilter(expression);
+				rm.addFilter(filter);
+			}
+		}
+
+		// is there a redirect override?
+		if (redirectUrl != null && redirectUrl.length() > 0) {
+			return new RedirectView(redirectUrl);
+		} else {
+			return getRefererFilters();
+		}
+	}
+
+	/**
+	 * Edits the referer filters associated with the current blog.
+	 */
+	@GET
+	@Path("/referers/filters")
+	public View getRefererFilters() {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		List<RefererFilter> sortedList = new ArrayList<RefererFilter>(blog.getRefererFilterManager().getFilters());
+		Collections.sort(sortedList);
+		setAttribute("filters", sortedList);
+
+		return new RefererFiltersView();
+	}
+
+	/**
+	 * Removes selected referer filters.
+	 */
+	@POST
+	@Path("/referers/filters/remove")
+	public View removeRefererFilters(@FormParam("expression") String[] expressions) {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog rootBlog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		for (String expression : expressions) {
+			RefererFilterManager rm = rootBlog.getRefererFilterManager();
+			rm.removeFilter(expression);
+		}
+
+		return getRefererFilters();
+	}
 }

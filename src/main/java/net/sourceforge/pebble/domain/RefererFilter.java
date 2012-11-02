@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  *
  * @author    Simon Brown
  */
-public class RefererFilter implements Comparable {
+public class RefererFilter implements Comparable<RefererFilter> {
 
   // the internal ID for this filter
   private long id;
@@ -106,7 +106,8 @@ public class RefererFilter implements Comparable {
    *
    * @return  the hashcode as an int
    */
-  public int hashCode() {
+  @Override
+	public int hashCode() {
     return expression.hashCode();
   }
 
@@ -116,7 +117,8 @@ public class RefererFilter implements Comparable {
    * @param o   the object to compare against
    * @return    true if Object o represents the same category, false otherwise
    */
-  public boolean equals(Object o) {
+  @Override
+	public boolean equals(Object o) {
     if (!(o instanceof RefererFilter)) {
       return false;
     }
@@ -137,8 +139,9 @@ public class RefererFilter implements Comparable {
    * @throws ClassCastException if the specified object's type prevents it
    *         from being compared to this Object.
    */
-  public int compareTo(Object o) {
-    RefererFilter category = (RefererFilter)o;
+	@Override
+	public int compareTo(RefererFilter o) {
+    RefererFilter category = o;
     return getExpression().compareTo(category.getExpression());
   }
 

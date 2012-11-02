@@ -31,10 +31,10 @@
  */
 package net.sourceforge.pebble.dao;
 
+import java.util.Collection;
+
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.RefererFilter;
-
-import java.util.Collection;
 
 public interface RefererFilterDAO {
 
@@ -45,7 +45,7 @@ public interface RefererFilterDAO {
    * @return  a Collection of RefererFilter instances
    * @throws  PersistenceException    if filters cannot be loaded
    */
-  public Collection getRefererFilters(Blog rootBlog) throws PersistenceException;
+	public Collection<RefererFilter> getRefererFilters(Blog rootBlog) throws PersistenceException;
 
   /**
    * Adds the specified referer filter.

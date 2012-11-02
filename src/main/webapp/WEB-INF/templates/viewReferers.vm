@@ -1,0 +1,62 @@
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/referers.html" target="_blank">$fmt.message("common.help")</a>
+  </div>
+
+  <h1>$fmt.message("view.referrersForPeriod", $logPeriod)</h1>
+  <h2>Total : $totalReferers</h2>
+
+  <div class="contentItemBody">
+    <form name="referersForm" method="post" action="p/referers/filters">
+#parse ("fragments/token.vm")
+    <input type="hidden" name="redirectUrl" value="${blogUrl}/p/referers" />
+##    <input type="hidden" name="year" value="${year}"" />
+##    <input type="hidden" name="month" value="${month}" />
+##    <input type="hidden" name="day" value="${day}" />
+
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th><input type="checkbox" name="allExpressions" onclick="toggleCheckAll(document.referersForm.allExpressions, document.referersForm.expression)"/></th>
+          <th>Referer</th>
+          <th align="right">Count</th>
+        </tr>
+      </thead>
+      <tbody>
+#set ($status = 0)
+#foreach ($referer in $referers)
+  #if ($status % 2 == 0)
+        <tr class="even small">
+  #else
+        <tr class="odd small">
+  #end
+          <td width="2%">
+            <input type="checkbox" name="expression" value="${referer.DomainFilter}" />
+          </td>
+          <td>
+            <a href="${url.escape($referer.Url)}" title="${url.escape($referer.Url)}" rel="nofollow">${url.escape($referer.TruncatedName)}</a>
+          </td>
+          <td align="right">${referer.Count}</td>
+        </tr>
+  #set ($status = $status + 1)
+#end
+      </tbody>
+    </table>
+
+#if ($isAuthorisedForBlog)
+    <br />
+
+    <table width="99%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="right">
+          <input type="submit" value="Spam" />
+        </td>
+      </tr>
+    </table>
+#end
+
+    </form>
+  </div>
+
+</div>
