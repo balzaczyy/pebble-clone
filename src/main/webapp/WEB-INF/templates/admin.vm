@@ -122,7 +122,7 @@
       (<a href="p/referers?filter=false" title="$fmt.message('admin.tooltip.viewReferrersForTodayUnfiltered')"/>
         $fmt.message("admin.viewReferrersForTodayUnfiltered")
       </a>) |
-      <a href="viewRequests.secureaction" title="$fmt.message('admin.tooltip.viewRequestsForToday')">
+      <a href="p/logs/requests" title="$fmt.message('admin.tooltip.viewRequestsForToday')">
         $fmt.message("admin.requests")
       </a> |
       <a href="viewLogSummary.secureaction" title="$fmt.message('admin.tooltip.viewLogSummaryForThisMonth')">

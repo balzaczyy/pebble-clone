@@ -11,9 +11,9 @@
     <form name="referersForm" method="post" action="p/referers/filters">
 #parse ("fragments/token.vm")
     <input type="hidden" name="redirectUrl" value="${blogUrl}/p/referers" />
-##    <input type="hidden" name="year" value="${year}"" />
-##    <input type="hidden" name="month" value="${month}" />
-##    <input type="hidden" name="day" value="${day}" />
+##    <input type="hidden" name="year" value="${pyear}"" />
+##    <input type="hidden" name="month" value="${pmonth}" />
+##    <input type="hidden" name="day" value="${pday}" />
 
     <table width="99%" cellspacing="0" cellpadding="4">
       <thead>

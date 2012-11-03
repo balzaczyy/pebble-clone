@@ -45,6 +45,7 @@ import net.sourceforge.pebble.api.confirmation.CommentConfirmationStrategy;
 import net.sourceforge.pebble.api.decorator.ContentDecoratorContext;
 import net.sourceforge.pebble.comparator.BlogEntryComparator;
 import net.sourceforge.pebble.comparator.CountedUrlByCountComparator;
+import net.sourceforge.pebble.comparator.CountedUrlByNameComparator;
 import net.sourceforge.pebble.comparator.PageBasedContentByTitleComparator;
 import net.sourceforge.pebble.dao.CategoryDAO;
 import net.sourceforge.pebble.dao.DAOFactory;
@@ -74,6 +75,7 @@ import net.sourceforge.pebble.domain.Theme;
 import net.sourceforge.pebble.logging.CountedUrl;
 import net.sourceforge.pebble.logging.Log;
 import net.sourceforge.pebble.logging.Referer;
+import net.sourceforge.pebble.logging.Request;
 import net.sourceforge.pebble.plugins.PluginConfigType;
 import net.sourceforge.pebble.plugins.PluginLocator;
 import net.sourceforge.pebble.search.SearchException;
@@ -128,6 +130,7 @@ import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.RefererFiltersView;
 import net.sourceforge.pebble.web.view.impl.ReferersView;
+import net.sourceforge.pebble.web.view.impl.RequestsView;
 import net.sourceforge.pebble.web.view.impl.ResponsesView;
 import net.sourceforge.pebble.web.view.impl.SearchResultsView;
 import net.sourceforge.pebble.web.view.impl.StaticPageFormView;
@@ -2529,11 +2532,14 @@ public class Blogs {
 	 */
 	@GET
 	@Path("/referers")
-	public View getReferers(@QueryParam("filter") String filter) throws ServletException {
+	public View getReferers(@QueryParam("filter") String filter, //
+			@QueryParam("year") @DefaultValue("0") int year, //
+			@QueryParam("month") @DefaultValue("0") int month, //
+			@QueryParam("day") @DefaultValue("0") int day) throws ServletException {
 		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
 				Constants.BLOG_CONTRIBUTOR_ROLE);
 		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
-		Log log = getLog(blog);
+		Log log = getLog(blog, year, month, day);
 
 		List<? extends CountedUrl> referers = new ArrayList<Referer>(log.getReferers());
 		if ("true".equalsIgnoreCase(filter)) {
@@ -2553,28 +2559,19 @@ public class Blogs {
 		setAttribute("logAction", "viewReferers");
 		setAttribute("referers", referers);
 		setAttribute("totalReferers", new Integer(totalReferers));
-		setAttribute("year", request.getParameter("year"));
-		setAttribute("month", request.getParameter("month"));
-		setAttribute("day", request.getParameter("day"));
+		setAttribute("pyear", year);
+		setAttribute("pmonth", month);
+		setAttribute("pday", day);
 
 		return new ReferersView();
 	}
 
-	private Log getLog(Blog blog) throws ServletException {
-
-		String yearAsString = request.getParameter("year");
-		String monthAsString = request.getParameter("month");
-		String dayAsString = request.getParameter("day");
-
+	private Log getLog(Blog blog, int year, int month, int day) throws ServletException {
 		Calendar cal = blog.getCalendar();
 		Log log = null;
 		String logPeriod = "";
 
-		if (yearAsString != null && yearAsString.length() > 0 && monthAsString != null && monthAsString.length() > 0
-				&& dayAsString != null && dayAsString.length() > 0) {
-			int year = Integer.parseInt(yearAsString);
-			int month = Integer.parseInt(monthAsString);
-			int day = Integer.parseInt(dayAsString);
+		if (year > 0 && month > 0 && day > 0) {
 			cal.set(Calendar.YEAR, year);
 			cal.set(Calendar.MONTH, month - 1);
 			cal.set(Calendar.DAY_OF_MONTH, day);
@@ -2584,9 +2581,7 @@ public class Blogs {
 			dateFormat.setTimeZone(blog.getTimeZone());
 			registerObjectsForNavigation(blog, blog.getBlogForDay(year, month, day));
 			logPeriod = dateFormat.format(cal.getTime());
-		} else if (yearAsString != null && yearAsString.length() > 0 && monthAsString != null && monthAsString.length() > 0) {
-			int year = Integer.parseInt(yearAsString);
-			int month = Integer.parseInt(monthAsString);
+		} else if (year > 0 && month > 0) {
 			cal.set(Calendar.YEAR, year);
 			cal.set(Calendar.MONTH, month - 1);
 			log = blog.getLogger().getLog(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
@@ -2698,5 +2693,47 @@ public class Blogs {
 		}
 
 		return getRefererFilters();
+	}
+
+	/**
+	 * Gets the requests for the specified time period.
+	 */
+	@GET
+	@Path("/logs/requests")
+	public View getRequests(@QueryParam("sort") @DefaultValue("rank") String sort, //
+			@QueryParam("year") @DefaultValue("0") int year, //
+			@QueryParam("month") @DefaultValue("0") int month, //
+			@QueryParam("day") @DefaultValue("0") int day) throws ServletException {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		Log log = getLog(blog, year, month, day);
+
+		List<Request> requests = new ArrayList<Request>(log.getRequests());
+
+		if ("name".equals(sort)) {
+			Collections.sort(requests, new CountedUrlByNameComparator());
+		} else {
+			Collections.sort(requests, new CountedUrlByCountComparator());
+		}
+
+		// now calculate the total number of requests, after filtering spam
+		int totalRequests = 0;
+		Iterator<Request> it = requests.iterator();
+		CountedUrl url;
+		while (it.hasNext()) {
+			url = it.next();
+			totalRequests += url.getCount();
+		}
+
+		setAttribute("logAction", "viewRequests");
+		setAttribute("requests", requests);
+		setAttribute("totalRequests", new Integer(totalRequests));
+		setAttribute("sort", sort);
+		setAttribute("pyear", year);
+		setAttribute("pmonth", month);
+		setAttribute("pday", day);
+
+		return new RequestsView();
 	}
 }
