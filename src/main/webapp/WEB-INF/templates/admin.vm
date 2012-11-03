@@ -125,10 +125,10 @@
       <a href="p/logs/requests" title="$fmt.message('admin.tooltip.viewRequestsForToday')">
         $fmt.message("admin.requests")
       </a> |
-      <a href="viewLogSummary.secureaction" title="$fmt.message('admin.tooltip.viewLogSummaryForThisMonth')">
+      <a href="p/logs/summary" title="$fmt.message('admin.tooltip.viewLogSummaryForThisMonth')">
         $fmt.message("admin.logSummary")
       </a> |
-      <a href="viewLogSummary.secureaction?year=${yearNow}" title="$fmt.message('admin.tooltip.yearlyLogs')">
+      <a href="p/logs/summary?year=${yearNow}" title="$fmt.message('admin.tooltip.yearlyLogs')">
         $fmt.message("admin.yearlyLogs")
       </a> |
       <a href="p/referers/filters" title="$fmt.message('admin.tooltip.viewReferrerFilters')">

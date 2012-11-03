@@ -14,15 +14,20 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -74,8 +79,11 @@ import net.sourceforge.pebble.domain.Tag;
 import net.sourceforge.pebble.domain.Theme;
 import net.sourceforge.pebble.logging.CountedUrl;
 import net.sourceforge.pebble.logging.Log;
+import net.sourceforge.pebble.logging.LogEntry;
+import net.sourceforge.pebble.logging.LogSummary;
 import net.sourceforge.pebble.logging.Referer;
 import net.sourceforge.pebble.logging.Request;
+import net.sourceforge.pebble.logging.UserAgentConsolidator;
 import net.sourceforge.pebble.plugins.PluginConfigType;
 import net.sourceforge.pebble.plugins.PluginLocator;
 import net.sourceforge.pebble.search.SearchException;
@@ -100,6 +108,7 @@ import net.sourceforge.pebble.web.view.FileView;
 import net.sourceforge.pebble.web.view.ForbiddenView;
 import net.sourceforge.pebble.web.view.NotFoundView;
 import net.sourceforge.pebble.web.view.NotModifiedView;
+import net.sourceforge.pebble.web.view.PlainTextView;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
 import net.sourceforge.pebble.web.view.ZipView;
@@ -117,11 +126,15 @@ import net.sourceforge.pebble.web.view.impl.CategoriesView;
 import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
+import net.sourceforge.pebble.web.view.impl.CountriesView;
 import net.sourceforge.pebble.web.view.impl.EmailSubscribersView;
 import net.sourceforge.pebble.web.view.impl.FeedView;
 import net.sourceforge.pebble.web.view.impl.FileFormView;
 import net.sourceforge.pebble.web.view.impl.FileTooLargeView;
 import net.sourceforge.pebble.web.view.impl.FilesView;
+import net.sourceforge.pebble.web.view.impl.LogAsTabDelimitedView;
+import net.sourceforge.pebble.web.view.impl.LogSummaryByMonthView;
+import net.sourceforge.pebble.web.view.impl.LogSummaryByYearView;
 import net.sourceforge.pebble.web.view.impl.LoginPageView;
 import net.sourceforge.pebble.web.view.impl.MessagesView;
 import net.sourceforge.pebble.web.view.impl.NotEnoughSpaceView;
@@ -130,6 +143,8 @@ import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
 import net.sourceforge.pebble.web.view.impl.RefererFiltersView;
 import net.sourceforge.pebble.web.view.impl.ReferersView;
+import net.sourceforge.pebble.web.view.impl.RequestsByHourView;
+import net.sourceforge.pebble.web.view.impl.RequestsByTypeView;
 import net.sourceforge.pebble.web.view.impl.RequestsView;
 import net.sourceforge.pebble.web.view.impl.ResponsesView;
 import net.sourceforge.pebble.web.view.impl.SearchResultsView;
@@ -141,6 +156,7 @@ import net.sourceforge.pebble.web.view.impl.SubscribeView;
 import net.sourceforge.pebble.web.view.impl.SubscribedView;
 import net.sourceforge.pebble.web.view.impl.UnpublishedBlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.UnsubscribedView;
+import net.sourceforge.pebble.web.view.impl.UserAgentsView;
 import net.sourceforge.pebble.web.view.impl.UserView;
 import net.sourceforge.pebble.web.view.impl.UsersView;
 import net.sourceforge.pebble.web.view.impl.UtilitiesView;
@@ -153,6 +169,8 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.HeadMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.maxmind.geoip.LookupService;
 
 @Path("/")
 public class Blogs {
@@ -2700,7 +2718,7 @@ public class Blogs {
 	 */
 	@GET
 	@Path("/logs/requests")
-	public View getRequests(@QueryParam("sort") @DefaultValue("rank") String sort, //
+	public View getLogRequests(@QueryParam("sort") @DefaultValue("rank") String sort, //
 			@QueryParam("year") @DefaultValue("0") int year, //
 			@QueryParam("month") @DefaultValue("0") int month, //
 			@QueryParam("day") @DefaultValue("0") int day) throws ServletException {
@@ -2735,5 +2753,354 @@ public class Blogs {
 		setAttribute("pday", day);
 
 		return new RequestsView();
+	}
+
+	/**
+	 * Gets the contents of the specified log file.
+	 */
+	@GET
+	@Path("/logs/summary")
+	public View getLogSummary(@QueryParam("year") @DefaultValue("0") int year, //
+			@QueryParam("month") @DefaultValue("0") int month) {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		Calendar cal = blog.getCalendar();
+		LogSummary logSummary;
+		View view;
+
+		if (year > 0 && month > 0) {
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, month - 1);
+			logSummary = blog.getLogger().getLogSummary(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
+			view = new LogSummaryByMonthView();
+			registerObjectsForNavigation(blog, blog.getBlogForMonth(year, month));
+		} else if (year > 0) {
+			cal.set(Calendar.YEAR, year);
+			logSummary = blog.getLogger().getLogSummary(cal.get(Calendar.YEAR));
+			view = new LogSummaryByYearView();
+		} else {
+			// get the log for this monthAsString
+			logSummary = blog.getLogger().getLogSummary(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
+			view = new LogSummaryByMonthView();
+			registerObjectsForNavigation(blog, blog.getBlogForThisMonth());
+		}
+
+		SimpleDateFormat yearFormatter = new SimpleDateFormat("yyyy", Locale.ENGLISH);
+		yearFormatter.setTimeZone(blog.getTimeZone());
+		SimpleDateFormat monthFormatter = new SimpleDateFormat("MM", Locale.ENGLISH);
+		monthFormatter.setTimeZone(blog.getTimeZone());
+		SimpleDateFormat dayFormatter = new SimpleDateFormat("dd", Locale.ENGLISH);
+		dayFormatter.setTimeZone(blog.getTimeZone());
+		setAttribute("pyear", yearFormatter.format(logSummary.getDate()));
+		setAttribute("pmonth", monthFormatter.format(logSummary.getDate()));
+
+		setAttribute("logAction", "viewLogSummary");
+		setAttribute("logSummary", logSummary);
+
+		return view;
+	}
+
+	/**
+	 * Gets the statistics for the specified time period.
+	 */
+	@GET
+	@Path("/logs/requests/type")
+	public View getLogRequestsByType(@QueryParam("year") @DefaultValue("0") int year, //
+			@QueryParam("month") @DefaultValue("0") int month, //
+			@QueryParam("day") @DefaultValue("0") int day) throws ServletException {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		Log log = getLog(blog, year, month, day);
+
+		Collection<Request> requests = log.getRequests();
+		Set<String> uniqueIps = new HashSet<String>();
+		Set<String> uniqueIpsForNewsFeeds = new HashSet<String>();
+		Set<String> uniqueIpsForPageViews = new HashSet<String>();
+		Set<String> uniqueIpsForFileDownloads = new HashSet<String>();
+		int totalNewsFeedRequests = 0;
+		int totalPageViews = 0;
+		int totalFileDownloads = 0;
+
+		for (Request aRequest : requests) {
+			for (LogEntry logEntry : aRequest.getLogEntries()) {
+				uniqueIps.add(logEntry.getHost());
+			}
+
+			if (aRequest.isNewsFeed()) {
+				totalNewsFeedRequests += aRequest.getCount();
+				for (LogEntry logEntry : aRequest.getLogEntries()) {
+					uniqueIpsForNewsFeeds.add(logEntry.getHost());
+				}
+			} else if (aRequest.isPageView()) {
+				totalPageViews += aRequest.getCount();
+				for (LogEntry logEntry : aRequest.getLogEntries()) {
+					uniqueIpsForPageViews.add(logEntry.getHost());
+				}
+			} else if (aRequest.isFileDownload()) {
+				totalFileDownloads += aRequest.getCount();
+				for (LogEntry logEntry : aRequest.getLogEntries()) {
+					uniqueIpsForFileDownloads.add(logEntry.getHost());
+				}
+			}
+		}
+
+		setAttribute("logAction", "viewRequestsByType");
+		setAttribute("totalRequests", log.getTotalLogEntries());
+		setAttribute("uniqueIps", uniqueIps.size());
+		setAttribute("totalNewsfeedRequests", totalNewsFeedRequests);
+		setAttribute("uniqueIpsForNewsFeeds", uniqueIpsForNewsFeeds.size());
+		setAttribute("totalPageViews", totalPageViews);
+		setAttribute("uniqueIpsForPageViews", uniqueIpsForPageViews.size());
+		setAttribute("totalFileDownloads", totalFileDownloads);
+		setAttribute("uniqueIpsForFileDownloads", uniqueIpsForFileDownloads.size());
+
+		return new RequestsByTypeView();
+	}
+
+	/**
+	 * Gets the a breakdown of the requests for each hour of the day.
+	 */
+	@GET
+	@Path("/logs/reqeusts/day")
+	public View getLogRequestsByHour(@QueryParam("year") @DefaultValue("0") int year, //
+			@QueryParam("month") @DefaultValue("0") int month, //
+			@QueryParam("day") @DefaultValue("0") int day) throws ServletException {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		Log log = getLog(blog, year, month, day);
+
+		// work out requests per hour
+		int[] requestsPerHour = new int[24];
+		Set<String>[] uniqueIpsPerHourAsSet = new Set[24];
+		for (int hour = 0; hour < 24; hour++) {
+			requestsPerHour[hour] = 0;
+			uniqueIpsPerHourAsSet[hour] = new HashSet<String>();
+		}
+		for (LogEntry logEntry : log.getLogEntries()) {
+			Calendar logTime = blog.getCalendar();
+			logTime.setTime(logEntry.getDate());
+			int hour = logTime.get(Calendar.HOUR_OF_DAY);
+			requestsPerHour[hour] = requestsPerHour[hour] + 1;
+			uniqueIpsPerHourAsSet[hour].add(logEntry.getHost());
+
+			if (logEntry.getRequestUri() != null && logEntry.getRequestUri().indexOf("rss.xml") > -1
+					|| logEntry.getRequestUri().indexOf("feed.xml") > -1 || logEntry.getRequestUri().indexOf("feed.action") > -1
+					|| logEntry.getRequestUri().indexOf("rdf.xml") > -1 || logEntry.getRequestUri().indexOf("atom.xml") > -1) {}
+		}
+
+		int[] uniqueIpsPerHour = new int[24];
+		for (int hour = 0; hour < 24; hour++) {
+			uniqueIpsPerHour[hour] = uniqueIpsPerHourAsSet[hour].size();
+		}
+
+		setAttribute("logAction", "viewRequestsByHour");
+		setAttribute("totalRequests", log.getTotalLogEntries());
+		setAttribute("requestsPerHour", requestsPerHour);
+		setAttribute("uniqueIpsPerHour", uniqueIpsPerHour);
+
+		return new RequestsByHourView();
+	}
+
+	/**
+	 * Gets the user agent information for the specified time period.
+	 */
+	@GET
+	@Path("/logs/user-agents")
+	public View getLogUserAgents(@QueryParam("year") @DefaultValue("0") int year, //
+			@QueryParam("month") @DefaultValue("0") int month, //
+			@QueryParam("day") @DefaultValue("0") int day) throws ServletException {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		Log log = getLog(blog, year, month, day);
+
+		Map<String, Integer> userAgents = new TreeMap<String, Integer>(new Comparator<String>() {
+			@Override
+			public int compare(String s1, String s2) {
+				return s1 != null ? s1.compareToIgnoreCase(s2) : -1;
+			}
+		});
+
+		Map<String, Integer> consolidatedUserAgents = new TreeMap<String, Integer>(new Comparator<String>() {
+			@Override
+			public int compare(String s1, String s2) {
+				return s1 != null ? s1.compareToIgnoreCase(s2) : -1;
+			}
+		});
+
+		for (LogEntry logEntry : log.getLogEntries()) {
+			String userAgent = logEntry.getAgent();
+			if (userAgent == null) {
+				userAgent = "";
+			}
+
+			Integer count = userAgents.get(userAgent);
+			if (count == null) {
+				count = 0;
+			}
+			count = count + 1;
+			userAgents.put(userAgent, count);
+
+			String consolidatedUserAgent = UserAgentConsolidator.consolidate(userAgent);
+			Integer consolidatedCount = consolidatedUserAgents.get(consolidatedUserAgent);
+			if (consolidatedCount == null) {
+				consolidatedCount = 0;
+			}
+			consolidatedCount = consolidatedCount + 1;
+			consolidatedUserAgents.put(consolidatedUserAgent, consolidatedCount);
+		}
+
+		setAttribute("logAction", "viewUserAgents");
+		setAttribute("userAgents", userAgents);
+		setAttribute("consolidatedUserAgents", consolidatedUserAgents);
+
+		return new UserAgentsView();
+	}
+
+	/**
+	 * Gets the visitor country information for the specified time period.
+	 */
+	@GET
+	@Path("/logs/countries")
+	public View getLogContries(@QueryParam("year") @DefaultValue("0") int year, //
+			@QueryParam("month") @DefaultValue("0") int month, //
+			@QueryParam("day") @DefaultValue("0") int day) throws ServletException {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+		Log log = getLog(blog, year, month, day);
+
+		Set<String> countries = new TreeSet<String>(new Comparator<String>() {
+			@Override
+			public int compare(String s1, String s2) {
+				return s1 != null ? s1.compareToIgnoreCase(s2) : -1;
+			}
+		});
+		Map<String, Integer> consolidatedCountries = new HashMap<String, Integer>();
+		Map<String, Integer> countriesForNewsFeeds = new HashMap<String, Integer>();
+		Map<String, Integer> countriesForPageViews = new HashMap<String, Integer>();
+		Map<String, Integer> countriesForFileDownloads = new HashMap<String, Integer>();
+
+		LookupService lookupService = null;
+
+		try {
+			String filename = getClass().getResource("/geo-ip.dat").toExternalForm().substring(5);
+			lookupService = new LookupService(filename, LookupService.GEOIP_MEMORY_CACHE);
+
+			for (LogEntry logEntry : log.getLogEntries()) {
+				String country = lookupService.getCountry(logEntry.getHost()).getName();
+				countries.add(country);
+				register(country, countriesForNewsFeeds);
+				register(country, countriesForPageViews);
+				register(country, countriesForFileDownloads);
+				register(country, consolidatedCountries);
+
+				Request req = new Request(logEntry.getRequestUri(), blog);
+				if (req.isNewsFeed()) {
+					increment(country, countriesForNewsFeeds);
+					increment(country, consolidatedCountries);
+				} else if (req.isPageView()) {
+					increment(country, countriesForPageViews);
+					increment(country, consolidatedCountries);
+				} else if (req.isFileDownload()) {
+					increment(country, countriesForFileDownloads);
+					increment(country, consolidatedCountries);
+				}
+			}
+		} catch (IOException ioe) {
+			throw new ServletException(ioe);
+		} finally {
+			if (lookupService != null) {
+				lookupService.close();
+			}
+		}
+
+		setAttribute("logAction", "viewCountries");
+		setAttribute("countries", countries);
+		setAttribute("consolidatedCountries", consolidatedCountries);
+		setAttribute("countriesForNewsFeeds", countriesForNewsFeeds);
+		setAttribute("countriesForPageViews", countriesForPageViews);
+		setAttribute("countriesForFileDownloads", countriesForFileDownloads);
+
+		return new CountriesView();
+	}
+
+	private void register(String country, Map<String, Integer> map) {
+		Integer count = map.get(country);
+		if (count == null) {
+			count = 0;
+		}
+		map.put(country, count);
+	}
+
+	private void increment(String country, Map<String, Integer> map) {
+		Integer count = map.get(country);
+		count = count + 1;
+		map.put(country, count);
+	}
+
+	/**
+	 * Gets the contents of the specified log file.
+	 */
+	@GET
+	@Path("/logs/countries")
+	public View getLog(@QueryParam("flavor") String flavor, //
+			@QueryParam("year") @DefaultValue("0") int year, //
+			@QueryParam("month") @DefaultValue("0") int month, //
+			@QueryParam("day") @DefaultValue("0") int day) throws ServletException {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE, Constants.BLOG_OWNER_ROLE, Constants.BLOG_PUBLISHER_ROLE,
+				Constants.BLOG_CONTRIBUTOR_ROLE);
+		Blog blog = (Blog) request.getAttribute(Constants.BLOG_KEY);
+
+		if ("tab".equalsIgnoreCase(flavor)) {
+			Log log = getLog(blog, year, month, day);
+			setAttribute("log", log);
+			return new LogAsTabDelimitedView();
+		} else {
+			String log = getLogFile(blog, year, month, day);
+			setAttribute("text", log);
+			return new PlainTextView();
+		}
+	}
+
+	private String getLogFile(Blog blog, int year, int month, int day) throws ServletException {
+		Calendar cal = blog.getCalendar();
+		String log = null;
+		String logPeriod = "";
+
+		if (year > 0 && month > 0 && day > 0) {
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, month - 1);
+			cal.set(Calendar.DAY_OF_MONTH, day);
+			log = blog.getLogger().getLogFile(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1,
+					cal.get(Calendar.DAY_OF_MONTH));
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", blog.getLocale());
+			dateFormat.setTimeZone(blog.getTimeZone());
+			registerObjectsForNavigation(blog, blog.getBlogForDay(year, month, day));
+			logPeriod = dateFormat.format(cal.getTime());
+		} else if (year > 0 && month > 0) {
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, month - 1);
+			log = blog.getLogger().getLogFile(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1);
+			SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM yyyy", blog.getLocale());
+			dateFormat.setTimeZone(blog.getTimeZone());
+			registerObjectsForNavigation(blog, blog.getBlogForMonth(year, month));
+			logPeriod = dateFormat.format(cal.getTime());
+		} else {
+			// get the log for today
+			log = blog.getLogger().getLogFile();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", blog.getLocale());
+			dateFormat.setTimeZone(blog.getTimeZone());
+			registerObjectsForNavigation(blog, blog.getBlogForToday());
+			logPeriod = dateFormat.format(cal.getTime());
+		}
+
+		setAttribute("logPeriod", logPeriod);
+
+		return log;
 	}
 }

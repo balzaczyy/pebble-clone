@@ -1,0 +1,62 @@
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/logs.html" target="_blank">$fmt.message("common.help")</a>
+  </div>
+
+  <h1>
+  	$fmt.message("view.logSummaryForPeriod", $fmt.formatDate($logSummary.Date, "MMMM"))
+	<a href="p/logs/summary?year=${fmt.formatDate($logSummary.Date, 'yyyy')}">$fmt.formatDate($logSummary.Date, "yyyy")</a>
+
+  </h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+
+    <p>
+      The requests logged by Pebble (and shown here) are only those requests that result in physical page view
+      (impression), a news feed or a file download. All other requests (e.g. CSS files, JavaScript files, images, etc)
+      are not included in the totals.
+    </p>
+
+    <table width="99%" cellspacing="0" cellpadding="4">
+
+      <thead>
+      <tr>
+        <th colspan="2">Total requests for $fmt.formatDate($logSummary.Date, "MMMM yyyy")</th>
+        <th align="right">${logSummary.TotalRequests}</th>
+      </tr>
+      </thead>
+
+      <tbody>
+#set ($status = 0)
+#foreach ($logSummaryForDay in $logSummary.LogSummaries)
+  #if ($status % 2 == 0)
+        <tr class="even small">
+  #else
+        <tr class="odd small">
+  #end
+          <td>$fmt.longDate($logSummaryForDay.Date)</td>
+          <td align="right">
+            Requests -
+            <a href="p/logs/requests?year=${pyear}&month=${pmonth}&day=${status}" title="See all requests for day">All</a> |
+            <a href="p/logs/requests/type?year=${pyear}&month=${pmonth}&day=${status}" title="See requests by type for day">By Type</a> |
+            <a href="p/logs/requests/hour?year=${pyear}&month=${pmonth}&day=${status}" title="See requests by hour for day">By Hour</a>
+            <br />
+            <a href="p/referers?year=${pyear}&month=${pmonth}&day=${status}" title="See referers for day">Referers</a> |
+            <a href="p/logs/user-agents?year=${pyear}&month=${pmonth}&day=${status}" title="See user agents for day">User Agents</a> |
+            <a href="p/logs/countries?year=${pyear}&month=${pmonth}&day=${status}" title="See visitor countries for day">Countries</a>
+            <br />
+            Raw Log - <a href="p/logs?year=${pyear}&month=${pmonth}&day=${status}&flavor=text" title="See log file for day as plain text">Plain Text</a> | <a href="p/logs?year=${pyear}&month=${pmonth}&day=${status}&flavor=tab" title="See log file for day as a tab delimited file">Tab Delimited</a>
+          </td>
+          <td align="right">${logSummaryForDay.TotalRequests}</td>
+          </td>
+        </tr>
+  #set ($status = $status + 1)
+#end
+      </tbody>
+
+    </table>
+  </div>
+
+</div>

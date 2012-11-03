@@ -1,0 +1,50 @@
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/logs.html" target="_blank">Help</a>
+  </div>
+
+  <h1>Requests by Type for ${logPeriod}</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th align="right">Total</th>
+          <th align="right">Unique</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="odd">
+          <td>All requests</td>
+          <td align="right">${totalRequests}</td>
+          <td align="right">${uniqueIps}</td>
+        </tr>
+
+        <tr class="even">
+          <td>Newsfeed requests</td>
+          <td align="right">${totalNewsfeedRequests}</td>
+          <td align="right">${uniqueIpsForNewsFeeds}</td>
+        </tr>
+
+        <tr class="odd">
+          <td>Page views</td>
+          <td align="right">${totalPageViews}</td>
+          <td align="right">${uniqueIpsForPageViews}</td>
+        </tr>
+
+        <tr class="even">
+          <td>File downloads</td>
+          <td align="right">${totalFileDownloads}</td>
+          <td align="right">${uniqueIpsForFileDownloads}</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+</div>

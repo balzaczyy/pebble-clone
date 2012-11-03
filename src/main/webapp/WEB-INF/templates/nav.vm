@@ -26,7 +26,7 @@
 #elseif ($displayMode == "logSummaryForMonth")
   #if ($previousMonth)
     #set ($href = "${logAction}.secureaction?year=${previousMonth.Year.Year}&amp;month=${previousMonth.Month}")
-    <a href="$href" title="$href">&lt;&lt; fmt.formatDate($previousMonth.Date, "MMMM yyyy")</a> |
+    <a href="$href" title="$href">&lt;&lt; $fmt.formatDate($previousMonth.Date, "MMMM yyyy")</a> |
   #end
   <a href="$blogUrl" title="$blogUrl">$home</a>
   #if ($nextMonth)

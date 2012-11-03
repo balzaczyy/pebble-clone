@@ -1,0 +1,46 @@
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/logs.html" target="_blank">$fmt.message("common.help")</a>
+  </div>
+
+  <h1>$fmt.message("view.countriesForPeriod", "${logPeriod}")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+
+    <h3>Summary</h3>
+    <br />
+
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th>Countries</th>
+          <th align="right">News Feeds</th>
+          <th align="right">Page Views</th>
+          <th align="right">File Downloads</th>
+          <th align="right">Total Requests</th>
+        </tr>
+      </thead>
+      <tbody>
+#set ($status = 0)
+#foreach ($country in $countries)
+  #if ($status % 2 == 0)
+        <tr class="even small">
+  #else
+        <tr class="odd small">
+  #end
+          <td>${country}</td>
+          <td align="right">${countriesForNewsFeeds[country]}</td>
+          <td align="right">${countriesForPageViews[country]}</td>
+          <td align="right">${countriesForFileDownloads[country]}</td>
+          <td align="right">${consolidatedCountries[country]}</td>
+        </tr>
+  #set ($status = $status + 1)
+#end
+    </tbody>
+    </table>
+
+  </div>
+
+</div>

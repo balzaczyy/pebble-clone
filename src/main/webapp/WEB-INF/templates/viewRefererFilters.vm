@@ -23,7 +23,7 @@
     <br />
 
     <form name="refererFiltersForm" action="p/referers/filters/remove" method="post">
-#parser ("fragments/token.vm")
+#parse ("fragments/token.vm")
     <table width="99%" cellspacing="0" cellpadding="4">
       <thead>
       <tr>
@@ -38,6 +38,7 @@
         <tr class="even small">
   #else
         <tr class="odd small">
+  #end
           <td><input type="checkbox" name="expression" value="${filter.Expression}" /></td>
           <td>${filter.Expression}</td>
         </tr>

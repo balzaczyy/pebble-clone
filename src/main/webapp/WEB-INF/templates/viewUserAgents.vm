@@ -1,0 +1,67 @@
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/logs.html" target="_blank">Help</a>
+  </div>
+
+  <h1>User Agents for ${logPeriod}</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+
+    <h3>Summary</h3>
+    <br />
+
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th>User Agent</th>
+          <th align="right">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+#set ($status = 0)
+#foreach ($userAgent in $consolidatedUserAgents)
+  #if ($status % 2 == 0)
+        <tr class="even small">
+  #else
+        <tr class="odd small">
+  #end
+          <td>${userAgent.Key}</td>
+          <td align="right">${userAgent.Value}</td>
+        </tr>
+  #set ($status = $status + 1)
+#end
+    </tbody>
+    </table>
+
+    <br />
+
+    <h3>Distinct User Agents</h3>
+    <br />
+
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th>User Agent</th>
+          <th align="right">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+#set ($status = 0)
+#foreach ($userAgent in $userAgents)
+  #if ($status % 2 == 0)
+        <tr class="even small">
+  #else
+        <tr class="odd small">
+  #end
+          <td>${userAgent.Key}</td>
+          <td align="right">$userAgent.Value}</td>
+        </tr>
+  #set ($status = $status + 1)
+#end
+    </tbody>
+    </table>
+  </div>
+
+</div>
