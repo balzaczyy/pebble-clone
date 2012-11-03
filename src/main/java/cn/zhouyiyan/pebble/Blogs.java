@@ -122,6 +122,7 @@ import net.sourceforge.pebble.web.view.impl.BlogEntryFormView;
 import net.sourceforge.pebble.web.view.impl.BlogEntryView;
 import net.sourceforge.pebble.web.view.impl.BlogPropertiesView;
 import net.sourceforge.pebble.web.view.impl.BlogSecurityView;
+import net.sourceforge.pebble.web.view.impl.BlogsView;
 import net.sourceforge.pebble.web.view.impl.CategoriesView;
 import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
@@ -3102,5 +3103,34 @@ public class Blogs {
 		setAttribute("logPeriod", logPeriod);
 
 		return log;
+	}
+
+	/**
+	 * Displays a list of all blogs (in multi-blog mode).
+	 */
+	@GET
+	@Path("/blogs")
+	public View getAllBlogs() {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE);
+		BlogManager blogManager = BlogManager.getInstance();
+		setAttribute(Constants.BLOGS, blogManager.getBlogs());
+		return new BlogsView();
+	}
+
+	/**
+	 * Allows a new blog to be added to a multi-user install.
+	 */
+	@POST
+	@Path("/blogs")
+	public View addBlog(@FormParam("id") String blogId) {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE);
+		AbstractBlog blog = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
+		BlogManager blogManager = BlogManager.getInstance();
+
+		if (blogId != null && blogId.length() > 0 && blogId.matches("[\\w-~]*") && blogManager.getBlog(blogId) == null) {
+			blogManager.addBlog(blogId);
+		}
+
+		return new RedirectView(blog.getUrl() + "p/blogs");
 	}
 }

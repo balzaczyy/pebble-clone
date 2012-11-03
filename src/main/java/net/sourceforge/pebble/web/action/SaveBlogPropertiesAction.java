@@ -31,18 +31,20 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import java.util.Enumeration;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
+import net.sourceforge.pebble.domain.AbstractBlog;
 import net.sourceforge.pebble.domain.Blog;
 import net.sourceforge.pebble.domain.BlogServiceException;
 import net.sourceforge.pebble.web.security.RequireSecurityToken;
 import net.sourceforge.pebble.web.view.ForwardView;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Enumeration;
 
 /**
  * Saves the properties associated with the current Blog.
@@ -59,12 +61,13 @@ public class SaveBlogPropertiesAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     Blog blog = (Blog)getModel().get(Constants.BLOG_KEY);
 
     String submit = request.getParameter("submit");
     if (submit != null && submit.length() > 0) {
-      String currentTimeZone = blog.getProperty(Blog.TIMEZONE_KEY);
+      String currentTimeZone = blog.getProperty(AbstractBlog.TIMEZONE_KEY);
 
       Enumeration params = request.getParameterNames();
       while (params.hasMoreElements()) {
@@ -114,7 +117,7 @@ public class SaveBlogPropertiesAction extends SecureAction {
 
       // if the following properties have changed, reload the blog
       //  - timezone
-      String newTimeZone = blog.getProperty(Blog.TIMEZONE_KEY);
+      String newTimeZone = blog.getProperty(AbstractBlog.TIMEZONE_KEY);
 
       if (!currentTimeZone.equals(newTimeZone)) {
         return new ForwardView("/reindexBlog.secureaction");
@@ -122,7 +125,7 @@ public class SaveBlogPropertiesAction extends SecureAction {
 
     }
 
-    return new RedirectView(blog.getUrl() + "viewBlogProperties.secureaction");
+		return new RedirectView(blog.getUrl() + "p/customizations");
   }
 
   /**
@@ -131,7 +134,8 @@ public class SaveBlogPropertiesAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     return new String[]{
         Constants.BLOG_ADMIN_ROLE,
         Constants.BLOG_OWNER_ROLE

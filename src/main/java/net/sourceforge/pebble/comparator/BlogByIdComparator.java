@@ -31,16 +31,16 @@
  */
 package net.sourceforge.pebble.comparator;
 
-import net.sourceforge.pebble.domain.Blog;
-
 import java.util.Comparator;
+
+import net.sourceforge.pebble.domain.Blog;
 
 /**
  * A comparator used to order Blog instances, in order of their IDs.
  *
  * @author    Simon Brown
  */
-public class BlogByIdComparator implements Comparator {
+public class BlogByIdComparator implements Comparator<Blog> {
 
   /**
    * Compares two objects.
@@ -50,10 +50,8 @@ public class BlogByIdComparator implements Comparator {
    * @return  -n, 0 or +n if the last modified date of the second blog is less
    *          than, the same as or greater than the first, respectively
    */
-  public int compare(Object o1, Object o2) {
-    Blog b1 = (Blog)o1;
-    Blog b2 = (Blog)o2;
-
+	@Override
+	public int compare(Blog b1, Blog b2) {
     return b1.getId().compareTo(b2.getId());
   }
 

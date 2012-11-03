@@ -31,11 +31,12 @@
  */
 package net.sourceforge.pebble.web.view.impl;
 
-import net.sourceforge.pebble.comparator.BlogByIdComparator;
-import net.sourceforge.pebble.web.view.HtmlView;
-
 import java.util.Collections;
 import java.util.List;
+
+import net.sourceforge.pebble.comparator.BlogByIdComparator;
+import net.sourceforge.pebble.domain.Blog;
+import net.sourceforge.pebble.web.view.HtmlView;
 
 /**
  * Represents the page showing a list of blogs (in multi-blog mode).
@@ -47,8 +48,10 @@ public class BlogsView extends HtmlView {
   /**
    * Prepares the view for presentation.
    */
-  public void prepare() {
-    List blogs = (List)getModel().get("blogs");
+  @Override
+	public void prepare() {
+		@SuppressWarnings("unchecked")
+		List<Blog> blogs = (List<Blog>) getModel().get("blogs");
     Collections.sort(blogs, new BlogByIdComparator());
   }
 
@@ -57,7 +60,8 @@ public class BlogsView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
 	return getLocalizedString("view.blogs");
   }
 
@@ -66,8 +70,9 @@ public class BlogsView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/viewBlogs.jsp";
+  @Override
+	public String getUri() {
+		return "viewBlogs.vm";
   }
 
 }

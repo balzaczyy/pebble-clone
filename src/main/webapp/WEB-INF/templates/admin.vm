@@ -145,7 +145,7 @@
       </a> |
   #end
   #if (!$multiBlogUrl) #set ($multiBlogUrl = "") #end
-      <a href="${multiBlogUrl}viewBlogs.secureaction" title="$fmt.message('admin.tooltip.viewBlogs')">
+      <a href="${multiBlogUrl}p/blogs" title="$fmt.message('admin.tooltip.viewBlogs')">
         $fmt.message("admin.blogs")
       </a> |
       <a href="${multiBlogUrl}addUser.secureaction" title="$fmt.message('admin.tooltip.addUser')">

@@ -1,0 +1,84 @@
+<div class="contentItem">
+
+
+  <div class="contentItemLinks">
+    <a href="./help/managingBlogs.html" target="_blank">$fmt.message("common.help")</a>
+  </div>
+
+  <h1>$fmt.message("view.blogs")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+        <th>$fmt.message("view.blogs.id")</th>
+        <th>$fmt.message("view.blogs.name")</th>
+        <th align="right">$fmt.message("view.blogs.ownersAbbrev")</th>
+        <th align="right">$fmt.message("view.blogs.publishersAbbrev")</th>
+        <th align="right">$fmt.message("view.blogs.contributorsAbbrev")</th>
+        <th align="right">$fmt.message("view.blogs.readersAbbrev")</th>
+        <th align="right">$fmt.message("view.blogs.adminLinks")</th>
+      </thead>
+      <tbody>
+#set ($status = 0)
+#foreach ($aBlog in $blogs)
+  #if ($status % 2 == 0)
+        <tr class="even">
+  #else
+        <tr class="odd">
+  #end
+        <td>${aBlog.id}</td>
+        <td><a href="${url.rewrite($aBlog.Url)}">${aBlog.Name}</a></td>
+        <td align="right">
+  #if ($aBlog.BlogOwners && !$aBlog.BlogOwners.isEmpty()) X #else &nbsp; #end
+        </td>
+        <td align="right">
+  #if ($aBlog.BlogPublishers && !$aBlog.BlogPublishers.isEmpty()) X #else &nbsp; #end
+        </td>
+        <td align="right">
+  #if ($aBlog.BlogContributors && !$aBlog.BlogContributors.isEmpty()) X #else &nbsp; #end
+        </td>
+        <td align="right">
+  #if ($aBlog.BlogReaders && !$aBlog.BlogReaders.isEmpty()) X #else &nbsp; #end
+        </td>
+        <td align="right">
+          <a href="${url.rewrite($aBlog.Url)}p/customizations">$fmt.message("admin.properties")</a> |
+          <a href="${url.rewrite($aBlog.Url)}p/plugins">$fmt.message("admin.plugins")</a>
+        </td>
+      </tr>
+  #set ($status = $status + 1)
+#end
+      <tr>
+        <td colspan="7" align="center">
+          $fmt.message("view.blogs.opcrExplanation")
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <c:choose>
+#if ($blogManager.isMultiBlog())
+    <p>$fmt.message("view.blogs.addNewMultiBlog")</p>
+
+    <p>
+    <form name="addBlog" action="p/blogs" method="POST">
+  #parse ("fragments/token.vm")
+  #if ($pebbleContext.Configuration.isVirtualHostingEnabled())
+          ${blog.Protocol}
+          <input name="id" type="text" value="" />
+          .${blog.DomainName}
+          <input type="submit" value="Add Blog" />
+  #else
+          ${blogUrl}
+          <input name="id" type="text" value="" />
+          <input type="submit" value="Add Blog" />
+  #end
+    </form>
+    </p>
+#else
+    <p>$fmt.message("view.blogs.runningInSingleModeExplanation")</p>
+#end
+
+  </div>
+
+</div>

@@ -1,6 +1,7 @@
 ##
 ##  In multi-blog mode, displays a list of all blogs along with a link back to the multi-blog home page.
 ##
+
 #if ($blogs)
 <div class="sidebarItem">
   <div class="sidebarItemTitle">
@@ -11,22 +12,22 @@
     </span>
   </div>
   <div class="sidebarItemBody">
-#if ($blogType == "singleblog")
+  #if ($blogType == "singleblog")
     <a href="${multiBlog.Url}" title="URL for multiblog ${multiBlog.Name}">${multiBlog.Name}</a>&nbsp;
     <a title="RSS feed for multiblog ${multiBlog.Name}" href="${multiBlog.Url}rss.xml" style="border: 0px;">
       <img src="common/images/feed-icon-10x10.png" alt="RSS feed" border="0" />
     </a><br />
-#end
-#foreach ($aBlog in $blogs)
-  #set ($link = $url.rewrite($aBlog.Url))
-    <a href="$link" title="URL for blog ${$aBlog.Name}">${$aBlog.Name}</a>
-  #if ($aBlog.Description)
-    &nbsp- $aBlog.Description
   #end
+  #foreach ($aBlog in $blogs)
+    #set ($link = $url.rewrite($aBlog.Url))
+    <a href="$link" title="URL for blog ${$aBlog.Name}">${$aBlog.Name}</a>
+    #if ($aBlog.Description)
+    &nbsp- $aBlog.Description
+    #end
     <a href="${link}rss.xml" title="RSS feed for blog ${aBlog.Name}" style="border: 0px;">
       <img src="common/images/feed-icon-10x10.png" alt="RSS feed" border="0" />
     </a><br />
-#end
+  #end
   </div>
 </div>
 #end
