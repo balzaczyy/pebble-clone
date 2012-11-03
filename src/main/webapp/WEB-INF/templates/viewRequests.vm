@@ -1,0 +1,44 @@
+<div class="contentItem">
+
+  <div class="contentItemLinks">
+    <a href="./help/logs.html" target="_blank">$fmt.message("common.help")</a>
+  </div>`
+
+  <h1>
+  	$fmt.message("view.requestsForPeriod", "${logPeriod}");
+  </h1>
+  <h2>Total : ${totalRequests}</h2>
+
+  <div class="contentItemBody">
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th>
+            Resource
+#if ($sort == "name")
+            (<a href="p/logs/requests?year=${pyear}&month=${pmonth}&day=${pday}">sort by count</a>)
+#else
+            (<a href="p/logs/requests?year=${pyear}&month=${pmonth}&day=${pday}&sort=name">sort by name</a>)
+#end
+          </th>
+          <th align="right">Count</th>
+        </tr>
+      </thead>
+      <tbody>
+#set ($status = 0)
+#foreach ($aRequest in $requests)
+  #if ($status % 2 == 0)
+        <tr class="even small">
+  #else
+        <tr class="odd small">
+  #end
+          <td><a href=".${aRequest.Url}" title="${aRequest.Url}">${aRequest.TruncatedName}</a></td>
+          <td align="right">${aRequest.Count}</td>
+        </tr>
+  #set ($status = $status + 1)
+#end
+      </tbody>
+    </table>
+  </div>
+
+</div>
