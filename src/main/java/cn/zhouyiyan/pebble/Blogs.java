@@ -1906,6 +1906,18 @@ public class Blogs {
 	}
 
 	/**
+	 * Adds a new user.
+	 */
+	@GET
+	@Path("/users/add/new")
+	public View addUser() {
+		checkUserInRoles(Constants.BLOG_ADMIN_ROLE);
+		setAttribute("newUser", "true");
+		setAttribute("user", new PebbleUserDetails());
+		return new UserView();
+	}
+
+	/**
 	 * Allows the user to see all feeds for the current blog, and subscribe via e-mail updates.
 	 */
 	@GET

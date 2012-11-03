@@ -148,10 +148,10 @@
       <a href="${multiBlogUrl}p/blogs" title="$fmt.message('admin.tooltip.viewBlogs')">
         $fmt.message("admin.blogs")
       </a> |
-      <a href="${multiBlogUrl}addUser.secureaction" title="$fmt.message('admin.tooltip.addUser')">
+      <a href="${multiBlogUrl}p/users/add/new" title="$fmt.message('admin.tooltip.addUser')">
         $fmt.message("admin.addUser")
       </a> |
-      <a href="${multiBlogUrl}viewUsers.secureaction" title="$fmt.message('admin.tooltip.viewUsers')">
+      <a href="${multiBlogUrl}p/users" title="$fmt.message('admin.tooltip.viewUsers')">
         $fmt.message('admin.users')
       </a>
 #end

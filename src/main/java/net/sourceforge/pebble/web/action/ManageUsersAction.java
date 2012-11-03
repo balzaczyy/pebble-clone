@@ -31,6 +31,10 @@
  */
 package net.sourceforge.pebble.web.action;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.pebble.Constants;
 import net.sourceforge.pebble.PebbleContext;
 import net.sourceforge.pebble.domain.AbstractBlog;
@@ -39,12 +43,9 @@ import net.sourceforge.pebble.security.SecurityRealmException;
 import net.sourceforge.pebble.web.security.RequireSecurityToken;
 import net.sourceforge.pebble.web.view.RedirectView;
 import net.sourceforge.pebble.web.view.View;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Allows the user to manage users.
@@ -64,7 +65,8 @@ public class ManageUsersAction extends SecureAction {
    * @param response the HttpServletResponse instance
    * @return the name of the next view
    */
-  public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+  @Override
+	public View process(HttpServletRequest request, HttpServletResponse response) throws ServletException {
     try {
       AbstractBlog blog = (AbstractBlog)getModel().get(Constants.BLOG_KEY);
       String usernames[] = request.getParameterValues("user");
@@ -81,7 +83,7 @@ public class ManageUsersAction extends SecureAction {
         }
       }
 
-      return new RedirectView(blog.getUrl() + "viewUsers.secureaction");
+			return new RedirectView(blog.getUrl() + "p/users");
     } catch (SecurityRealmException e) {
       throw new ServletException(e);
     }
@@ -93,7 +95,8 @@ public class ManageUsersAction extends SecureAction {
    * @return  an array of Strings representing role names
    * @param request
    */
-  public String[] getRoles(HttpServletRequest request) {
+  @Override
+	public String[] getRoles(HttpServletRequest request) {
     return new String[]{Constants.BLOG_ADMIN_ROLE};
   }
 

@@ -21,28 +21,26 @@
 #end
 
     <form name="user" action="saveUser.secureaction" method="post">
-#if ($token)
-      <input type="hidden" name="pebbleSecurityToken" value="$token" />
-#end
+#parse ("fragments/token.vm")
       <input type="hidden" name="preference.openids" value="${user.getPreference('openids')}"/>
 
       <table width="99%" cellspacing="0" cellpadding="4">
 #if ($newUser)
-            <tr>
-              <td valign="top">Username</td>
-              <td>
-                <input type="text" name="username" size="40" value="${user.Username}"/>
-                <input type="hidden" name="newUser" value="${newUser}"/>
-              </td>
-            </tr>
+        <tr>
+          <td valign="top">Username</td>
+          <td>
+            <input type="text" name="username" size="40" value="${user.Username}"/>
+            <input type="hidden" name="newUser" value="${newUser}"/>
+          </td>
+        </tr>
 #else
-            <tr>
-              <td valign="top">Username</td>
-              <td>
-                <input type="hidden" name="username" value="${user.Username}"/>${user.Username}
-                <input type="hidden" name="newUser" value="false"/>
-              </td>
-            </tr>
+        <tr>
+          <td valign="top">Username</td>
+          <td>
+            <input type="hidden" name="username" value="${user.Username}"/>${user.Username}
+            <input type="hidden" name="newUser" value="false"/>
+          </td>
+        </tr>
 #end
         <tr>
           <td valign="top">Password</td>
