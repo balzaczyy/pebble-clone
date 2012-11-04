@@ -9,16 +9,7 @@
 
   <div class="contentItemBody">
 
-#if ($validationContext.Errors && !$validationContext.Errors.isEmpty())
-    <div class="validationError">
-      <b>${validationContext.NumberOfErrors} error(s)</b>
-      <ul>
-  #foreach ($error in $validationContext.Errors)
-        <li>${error.Message}</li>
-  #end
-      </ul>
-    </div>
-#end
+#parse ("fragments/validationError.vm")
 
     <form name="user" action="saveUser.secureaction" method="post">
 #parse ("fragments/token.vm")

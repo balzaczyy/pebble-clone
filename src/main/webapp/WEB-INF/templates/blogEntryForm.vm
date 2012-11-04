@@ -42,16 +42,7 @@
     <input type="hidden" name="entry" value="${blogEntry.Id}" />
     <input type="hidden" name="persistent" value="${blogEntry.isPersistent()}" />
 
-#if ($validationContext.Errors && !$validationContext.Errors.isEmpty())
-    <div class="validationError">
-      <b>${validationContext.NumberOfErrors} error(s)</b>
-      <ul>
-  #foreach ($error in $validationContext.Errors)
-        <li>${error.Message}</li>
-  #end
-      </ul>
-    </div>
-#end
+#parse ("fragments/validationError.vm")
 
     <table width="99%" cellspacing="0" cellpadding="4">
       <tr>

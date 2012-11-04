@@ -159,7 +159,7 @@
 
     <span id="admin-user">
 #if ($authenticatedUser.isDetailsUpdateable())
-      <a href="editUserDetails.secureaction" title="$fmt.message('admin.tooltip.editUserDetails')">
+      <a href="p/users/edit/me" title="$fmt.message('admin.tooltip.editUserDetails')">
         $fmt.message("admin.userDetails")
       </a> |
       <a href="changePassword.secureaction" title="$fmt.message('admin.tooltip.changePassword')">

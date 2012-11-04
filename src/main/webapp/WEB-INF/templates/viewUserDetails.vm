@@ -1,0 +1,55 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("view.userDetails")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+
+#parse ("fragments/validationError.vm")
+
+    <form name="user" action="p/users/save/me" method="post">
+#parse ("fragments/token.vm")
+
+      <table width="99%" cellspacing="0" cellpadding="4">
+        <tr>
+          <td valign="top">Username</td>
+          <td>${user.Username}</td>
+        </tr>
+        <tr>
+          <td valign="top">Name</td>
+          <td><input type="text" name="name" value="${user.Name}" size="40"/></td>
+        </tr>
+        <tr>
+          <td valign="top">E-mail address</td>
+          <td><input type="text" name="emailAddress" value="${user.EmailAddress}" size="40"/></td>
+        </tr>
+        <tr>
+          <td valign="top">Website</td>
+          <td><input type="text" name="website" value="${user.Website}" size="40"/></td>
+        </tr>
+        <tr>
+          <td valign="top">Profile</td>
+          <td><textarea name="profile" rows="8" cols="40">${user.Profile}</textarea></td>
+        </tr>
+        <tr>
+          <td valign="top">
+            Roles
+          </td>
+          <td>
+            #if (${user.isBlogAdmin()}) Blog admin<br /> #end
+            #if (${user.isBlogOwner()}) Blog owner<br /> #end
+            #if (${user.isBlogPublisher()}) Blog publisher<br /> #end
+            #if (${user.isBlogContributor()}) Blog contributor<br /> #end
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" align="right">
+            <input type="submit" value="Save" />
+          </td>
+        </tr>
+      </table>
+    </form>
+
+  </div>
+
+</div>

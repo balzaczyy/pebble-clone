@@ -90,6 +90,7 @@ import net.sourceforge.pebble.search.SearchException;
 import net.sourceforge.pebble.search.SearchHit;
 import net.sourceforge.pebble.search.SearchResults;
 import net.sourceforge.pebble.security.PebbleUserDetails;
+import net.sourceforge.pebble.security.SecurityRealm;
 import net.sourceforge.pebble.security.SecurityRealmException;
 import net.sourceforge.pebble.service.DefaultLastModifiedService;
 import net.sourceforge.pebble.service.LastModifiedService;
@@ -158,6 +159,7 @@ import net.sourceforge.pebble.web.view.impl.SubscribedView;
 import net.sourceforge.pebble.web.view.impl.UnpublishedBlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.UnsubscribedView;
 import net.sourceforge.pebble.web.view.impl.UserAgentsView;
+import net.sourceforge.pebble.web.view.impl.UserDetailsView;
 import net.sourceforge.pebble.web.view.impl.UserView;
 import net.sourceforge.pebble.web.view.impl.UsersView;
 import net.sourceforge.pebble.web.view.impl.UtilitiesView;
@@ -1906,6 +1908,24 @@ public class Blogs {
 	}
 
 	/**
+	 * Displays information about a single user, ready for it to be edited.
+	 */
+	@GET
+	@Path("/users/edit/me")
+	public View editUser() {
+		checkUserInRoles(Constants.ANY_ROLE);
+		PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
+		setAttribute("user", currentUserDetails);
+
+		// can the user change their user details?
+		if (!currentUserDetails.isDetailsUpdateable()) { //
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+
+		return new UserDetailsView();
+	}
+
+	/**
 	 * Adds a new user.
 	 */
 	@GET
@@ -1915,6 +1935,42 @@ public class Blogs {
 		setAttribute("newUser", "true");
 		setAttribute("user", new PebbleUserDetails());
 		return new UserView();
+	}
+
+	/**
+	 * Saves user details.
+	 */
+	@POST
+	@Path("/users/save/me")
+	public View saveUser(@FormParam("name") String name, //
+			@FormParam("emailAddress")String emailAddress, //
+			@FormParam("website") String website, //
+			@FormParam("profile") String profile) throws SecurityRealmException {
+		// TODO use MessageBodyReader to convert the input
+		checkUserInRoles(Constants.ANY_ROLE);
+		AbstractBlog blog = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
+
+		PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
+
+		// can the user change their user details?
+		if (!currentUserDetails.isDetailsUpdateable()) { throw new WebApplicationException(Status.FORBIDDEN); }
+
+		SecurityRealm realm = PebbleContext.getInstance().getConfiguration().getSecurityRealm();
+		PebbleUserDetails newUserDetails;
+
+		ValidationContext validationContext = new ValidationContext();
+
+		if (!validationContext.hasErrors()) {
+			newUserDetails = new PebbleUserDetails(currentUserDetails.getUsername(), name, emailAddress, website, profile,
+					currentUserDetails.getRoles(), currentUserDetails.getPreferences(), currentUserDetails.isDetailsUpdateable());
+
+			realm.updateUser(newUserDetails);
+
+			return new RedirectView(blog.getUrl() + "p/users/edit/me");
+		}
+
+		setAttribute("validationContext", validationContext);
+		return editUser();
 	}
 
 	/**
@@ -2888,6 +2944,7 @@ public class Blogs {
 
 		// work out requests per hour
 		int[] requestsPerHour = new int[24];
+		@SuppressWarnings("unchecked")
 		Set<String>[] uniqueIpsPerHourAsSet = new Set[24];
 		for (int hour = 0; hour < 24; hour++) {
 			requestsPerHour[hour] = 0;
