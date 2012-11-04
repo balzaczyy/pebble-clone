@@ -89,6 +89,7 @@ import net.sourceforge.pebble.plugins.PluginLocator;
 import net.sourceforge.pebble.search.SearchException;
 import net.sourceforge.pebble.search.SearchHit;
 import net.sourceforge.pebble.search.SearchResults;
+import net.sourceforge.pebble.security.DefaultSecurityRealm;
 import net.sourceforge.pebble.security.PebbleUserDetails;
 import net.sourceforge.pebble.security.SecurityRealm;
 import net.sourceforge.pebble.security.SecurityRealmException;
@@ -162,6 +163,7 @@ import net.sourceforge.pebble.web.view.impl.UnpublishedBlogEntriesView;
 import net.sourceforge.pebble.web.view.impl.UnsubscribedView;
 import net.sourceforge.pebble.web.view.impl.UserAgentsView;
 import net.sourceforge.pebble.web.view.impl.UserDetailsView;
+import net.sourceforge.pebble.web.view.impl.UserPreferencesView;
 import net.sourceforge.pebble.web.view.impl.UserView;
 import net.sourceforge.pebble.web.view.impl.UsersView;
 import net.sourceforge.pebble.web.view.impl.UtilitiesView;
@@ -1928,6 +1930,61 @@ public class Blogs {
 	}
 
 	/**
+	 * Displays user preferences.
+	 */
+	@GET
+	@Path("/users/pref/me")
+	public View editUserPreferences() {
+		checkUserInRoles(Constants.ANY_ROLE);
+		PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
+		// can the user change their user details?
+		if (!currentUserDetails.isDetailsUpdateable()) { //
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+		setAttribute("user", currentUserDetails);
+		return new UserPreferencesView();
+	}
+
+	private static final String PREFERENCE = "preference.";
+
+	/**
+	 * Saves user preferences.
+	 */
+	@POST
+	@Path("/users/pref/me")
+	public View saveUserPreferencess() throws SecurityRealmException {
+		checkUserInRoles(Constants.ANY_ROLE);
+
+		PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
+		// can the user change their user details?
+		if (!currentUserDetails.isDetailsUpdateable()) {//
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+
+
+		ValidationContext validationContext = new ValidationContext();
+		if (!validationContext.hasErrors()) {
+			Map<String, String> preferences = new HashMap<String, String>();
+			Enumeration<?> parameterNames = request.getParameterNames();
+			while (parameterNames.hasMoreElements()) {
+				String parameterName = (String) parameterNames.nextElement();
+				if (parameterName.startsWith(PREFERENCE)) {
+					preferences.put(parameterName.substring(PREFERENCE.length()), request.getParameter(parameterName));
+				}
+			}
+			currentUserDetails.setPreferences(preferences);
+			SecurityRealm realm = PebbleContext.getInstance().getConfiguration().getSecurityRealm();
+			realm.updateUser(currentUserDetails);
+
+			AbstractBlog blog = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
+			return new RedirectView(blog.getUrl() + "p/users/pref/me");
+		}
+
+		setAttribute("validationContext", validationContext);
+		return editUserPreferences();
+	}
+
+	/**
 	 * Adds a new user.
 	 */
 	@GET
@@ -2016,6 +2073,74 @@ public class Blogs {
 
 		setAttribute("validationContext", validationContext);
 		return new ChangePasswordView();
+	}
+
+	@POST
+	@Path("/users/openid/add")
+	public View addOpenId(@FormParam("openid.identity") String identity) {
+		checkUserInRoles(Constants.ANY_ROLE);
+		PebbleUserDetails userDetails = SecurityUtils.getUserDetails();
+		ValidationContext validationContext = new ValidationContext();
+		AbstractBlog blog = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
+
+		// No identity, assume this is an add request
+		if (identity == null || identity.length() == 0) {
+			// String claimedIdentity = request.getParameter("openid_identifier");
+			// try {
+			// String returnToUrl = request.getRequestURL().toString();
+			// String realm = PebbleContext.getInstance().getConfiguration().getUrl();
+			// String openIdUrl = openIDConsumer.beginConsumption(request,
+			// claimedIdentity, returnToUrl, realm);
+			String openIdUrl = null; // TODO use OpenID4Java
+			return new RedirectView(openIdUrl);
+			// } catch (OpenIDConsumerException oice) {
+			// log.error("Error adding OpenID", oice);
+			// validationContext.addError("Error adding OpenID " + oice.getMessage());
+			// }
+
+		} else {
+
+			try {
+				// OpenIDAuthenticationToken token =
+				// openIDConsumer.endConsumption(request);
+				// if (token.getStatus() == OpenIDAuthenticationStatus.SUCCESS) {
+				// Check that the OpenID isn't already mapped
+				// String openId = token.getIdentityUrl();
+				String openId = null;
+				SecurityRealm securityRealm = new DefaultSecurityRealm(PebbleContext.getInstance().getConfiguration());
+				if (securityRealm.getUserForOpenId(openId) != null) {
+					validationContext.addError("The OpenID supplied is already mapped to a user.");
+				} else {
+					// Add it
+					securityRealm.addOpenIdToUser(userDetails, openId);
+					return new RedirectView(blog.getUrl() + "/p/users/pref/me");
+				}
+				// } else {
+				// validationContext.addError(StringUtils.transformHTML(token.getMessage()));
+				// }
+
+				// } catch (OpenIDConsumerException oice) {
+				// log.error("Error in consumer", oice);
+				// validationContext.addError("Error adding OpenID " +
+				// oice.getMessage());
+			} catch (SecurityRealmException sre) {
+				LOG.error("Error looking up user by security realm", sre);
+			}
+		}
+
+		setAttribute("user", userDetails);
+		setAttribute("validationContext", validationContext);
+		return new UserPreferencesView();
+	}
+
+	@GET
+	@Path("/users/openid/remove")
+	public View removeOpenId(@QueryParam("openid") String openId) throws SecurityRealmException {
+		checkUserInRoles(Constants.ANY_ROLE);
+		PebbleUserDetails userDetails = SecurityUtils.getUserDetails();
+		AbstractBlog blog = (AbstractBlog) request.getAttribute(Constants.BLOG_KEY);
+		PebbleContext.getInstance().getConfiguration().getSecurityRealm().removeOpenIdFromUser(userDetails, openId);
+		return new RedirectView(blog.getUrl() + "/p/users/pref/me.secureaction");
 	}
 
 	/**

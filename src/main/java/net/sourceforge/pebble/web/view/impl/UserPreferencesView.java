@@ -45,7 +45,8 @@ public class UserPreferencesView extends HtmlView {
    *
    * @return the title as a String
    */
-  public String getTitle() {
+  @Override
+	public String getTitle() {
     return getLocalizedString("view.userPreferences");
   }
 
@@ -54,8 +55,9 @@ public class UserPreferencesView extends HtmlView {
    *
    * @return the URI as a String
    */
-  public String getUri() {
-    return "/WEB-INF/jsp/viewUserPreferences.jsp";
+  @Override
+	public String getUri() {
+		return "viewUserPreferences.vm";
   }
 
 }

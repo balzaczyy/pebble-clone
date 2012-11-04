@@ -1,0 +1,94 @@
+<div class="contentItem">
+
+  <h1>$fmt.message("view.userPreferences")</h1>
+  <h2>&nbsp;</h2>
+
+  <div class="contentItemBody">
+
+#parse ("fragments/validationError.vm")
+
+    <form name="user" action="p/users/pref/me" method="post">
+#parse ("fragments/token.vm")
+      <input type="hidden" name="preference.openids"
+             value="${user.getPreference('openids')}"/>
+
+      <table width="99%" cellspacing="0" cellpadding="4">
+        <tr>
+          <td valign="top">Rich text editor</td>
+          <td>
+            <input type="checkbox" name="preference.richTextEditorForBlogEntriesEnabled" value="true"
+                   #if ($user.isEnabled("richTextEditorForBlogEntriesEnabled")) checked="true" #end
+            />&nbsp;Blog entries
+            <input type="checkbox" name="preference.richTextEditorForStaticPagesEnabled" value="true"
+                   #if ($user.isEnabled("richTextEditorForStaticPagesEnabled")) checked="true" #end
+            />&nbsp;Static pages
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" align="right">
+            <input type="submit" value="Save" />
+          </td>
+        </tr>
+      </table>
+    </form>
+  </div>
+  <h1>OpenID</h1>
+  <h2>&nbsp;</h2>
+  <div class="contentItemBody">
+
+#if ($user.OpenIds && !$user.OpenIds.isEmpty())
+    <p>$fmt.message("openid.existing.description")</p>
+    <table width="99%" cellspacing="0" cellpadding="4">
+      <thead>
+        <tr>
+          <th>$fmt.message("openid.identity")</th>
+          <th>&nbsp;</th>
+        </tr>
+      </thead>
+  #set ($status = 0)
+  #foreach ($openId in $user.OpenIds)
+    #if ($status % 2 == 0)
+      <tr class="even">
+    #else
+      <tr class="odd">
+    #end
+        <td>$openId</td>
+        <td><a href="p/users/openid/remove?openid=${openId}&
+        #if ($token) pebbleSecurityToken=$token #end
+        ">$fmt.message("common.remove")</a></td>
+      </tr>
+    #set ($status = $status + 1)
+  #end
+    </table>
+    <br/>
+    <br/>
+#end
+
+    <p>$fmt.message("openid.add.description")</p>
+    <div class="loginPageForm">
+      <ul id="loginOptions">
+        <li id="loginOptionOpenId" class="loginOption">OpenID</li>
+        <li id="loginOptionGoogle" class="loginOption">Google</li>
+      </ul>
+
+      <div id="loginOptionOpenIdArea" class="loginOptionArea">
+        <form id="openIdLoginForm" name="openIdloginForm" method="post"
+              action="${pebbleContext.configuration.secureUrl}p/users/openid/add">
+          <input type="hidden" name="redirectUrl" value="${blog.RelativeUrl}"/>
+          <div class="field">
+            <label for="openIdIdentifier">OpenId</label>
+            <input id="openIdIdentifier" type="text" name="openid_identifier" />
+          </div>
+          <div class="loginButtons"><input type="submit" value="$fmt.message('common.add')" /></div>
+        </form>
+      </div>
+
+      <div id="loginOptionGoogleArea" class="loginOptionArea">
+        <div class="loginUsingGoogle">Add my OpenID for <img src="common/images/google_logo.jpg" alt="Google"/></div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      Event.observe(window, "load", initLoginScreen);
+    </script>
+  </div>
+</div>

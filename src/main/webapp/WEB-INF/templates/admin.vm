@@ -165,7 +165,7 @@
       <a href="p/users/password/change" title="$fmt.message('admin.tooltip.changePassword')">
         $fmt.message("admin.changePassword")
       </a> |
-      <a href="editUserPreferences.secureaction" title="$fmt.message('admin.tooltip.preferences')">
+      <a href="p/users/pref/me" title="$fmt.message('admin.tooltip.preferences')">
         $fmt.message("admin.preferences")
       </a>
 #end
