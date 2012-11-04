@@ -125,6 +125,7 @@ import net.sourceforge.pebble.web.view.impl.BlogPropertiesView;
 import net.sourceforge.pebble.web.view.impl.BlogSecurityView;
 import net.sourceforge.pebble.web.view.impl.BlogsView;
 import net.sourceforge.pebble.web.view.impl.CategoriesView;
+import net.sourceforge.pebble.web.view.impl.ChangePasswordView;
 import net.sourceforge.pebble.web.view.impl.CommentConfirmationView;
 import net.sourceforge.pebble.web.view.impl.CommentFormView;
 import net.sourceforge.pebble.web.view.impl.ConfirmCommentView;
@@ -140,6 +141,7 @@ import net.sourceforge.pebble.web.view.impl.LogSummaryByYearView;
 import net.sourceforge.pebble.web.view.impl.LoginPageView;
 import net.sourceforge.pebble.web.view.impl.MessagesView;
 import net.sourceforge.pebble.web.view.impl.NotEnoughSpaceView;
+import net.sourceforge.pebble.web.view.impl.PasswordChangedView;
 import net.sourceforge.pebble.web.view.impl.PluginsView;
 import net.sourceforge.pebble.web.view.impl.PublishBlogEntryView;
 import net.sourceforge.pebble.web.view.impl.RdfView;
@@ -1971,6 +1973,49 @@ public class Blogs {
 
 		setAttribute("validationContext", validationContext);
 		return editUser();
+	}
+
+	/**
+	 * Changes the user's password.
+	 */
+	@GET
+	@Path("/users/password/change")
+	public View changePassword() {
+		checkUserInRoles(Constants.ANY_ROLE);
+		PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
+		// can the user change their user details?
+		if (!currentUserDetails.isDetailsUpdateable()) { throw new WebApplicationException(Status.FORBIDDEN); }
+
+		return new ChangePasswordView();
+	}
+
+	@POST
+	@Path("/users/password/change")
+	public View doChangePassword(@FormParam("password1") String password1, //
+			@FormParam("password2") String password2) throws SecurityRealmException {
+		checkUserInRoles(Constants.ANY_ROLE);
+		PebbleUserDetails currentUserDetails = SecurityUtils.getUserDetails();
+		// can the user change their user details?
+		if (!currentUserDetails.isDetailsUpdateable()) { //
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+
+		ValidationContext validationContext = new ValidationContext();
+
+		if (password1 == null || password1.length() == 0) {
+			validationContext.addError("Password can not be empty");
+		} else if (!password1.equals(password2)) {
+			validationContext.addError("Passwords do not match");
+		}
+
+		if (!validationContext.hasErrors()) {
+			SecurityRealm realm = PebbleContext.getInstance().getConfiguration().getSecurityRealm();
+			realm.changePassword(currentUserDetails.getUsername(), password1);
+			return new PasswordChangedView();
+		}
+
+		setAttribute("validationContext", validationContext);
+		return new ChangePasswordView();
 	}
 
 	/**
